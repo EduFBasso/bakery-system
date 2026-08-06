@@ -1,0 +1,183 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #8B5A3C;
+}
+
+.header p {
+  margin: 8px 0 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 14px;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 10px 12px;
+  border: 1px solid #D4825C;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #8B5A3C;
+  box-shadow: 0 0 0 3px rgba(212, 130, 92, 0.1);
+}
+
+.formGroup small {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.cepInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cepInput input {
+  flex: 1;
+}
+
+.cepInput .loading {
+  position: absolute;
+  right: 12px;
+  font-size: 18px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.errorMessage {
+  padding: 12px;
+  background: #FFE0E0;
+  color: #C00;
+  border-radius: 6px;
+  font-size: 14px;
+  border-left: 4px solid #C00;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.submitButton,
+.backButton {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submitButton {
+  background: #D4825C;
+  color: white;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #8B5A3C;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(139, 90, 60, 0.3);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.backButton {
+  background: #F0F0F0;
+  color: #333;
+  border: 1px solid #DDD;
+}
+
+.backButton:hover {
+  background: #E8E8E8;
+}
+
+.info {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  margin-top: 16px;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

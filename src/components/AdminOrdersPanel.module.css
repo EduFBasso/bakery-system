@@ -1,0 +1,500 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-light);
+  font-size: 1rem;
+}
+
+.error {
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger-text);
+  padding: 1rem;
+  border-radius: 0.25rem;
+  border-left: 4px solid var(--color-danger-strong);
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.filterInput,
+.filterSelect {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem;
+  border: 2px solid #e0d5ca;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.filterInput:focus,
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(212, 130, 92, 0.1);
+}
+
+.tableSection {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tableSection h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.emptyState {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+/* Tabela */
+.tableContainer {
+  overflow-x: auto;
+  border: 1px solid #e0d5ca;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table thead {
+  background-color: #f9f9f9;
+  border-bottom: 2px solid #e0d5ca;
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: #fafaf8;
+}
+
+.orderRow {
+  cursor: pointer;
+}
+
+.orderRowExpanded {
+  background-color: #f7eee8;
+}
+
+.orderRowExpanded:hover {
+  background-color: #f4e8df;
+}
+
+.orderNumber {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.table td {
+  padding: 1rem;
+  color: #333;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.2rem;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+  color: #333;
+}
+
+.actions {
+  text-align: center;
+}
+
+.expandBtn {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.7rem;
+  min-width: 70px;
+  color: var(--color-primary);
+  transition: all 0.2s;
+}
+
+.expandBtn:hover {
+  background-color: #f9f2ee;
+  border-color: var(--color-primary);
+}
+
+.expandBtnActive {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.expandBtnActive:hover {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Linhas Expandidas */
+.expandedRow td {
+  padding: 0;
+  background-color: #f7eee8;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.details {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border-top: 1px solid #ead7c8;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.detailsGrid > div {
+  padding: 1rem;
+  background-color: white;
+  border-left: 4px solid var(--color-primary);
+  border-radius: 0.25rem;
+}
+
+.detailsGrid strong {
+  display: block;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailsGrid p {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.itemsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.itemsList li {
+  padding: 0.5rem 0;
+  color: #555;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.itemsList li:last-child {
+  border-bottom: none;
+}
+
+/* Botões de Ação */
+.actionButtons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid #ead7c8;
+}
+
+.payBtn {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-success-strong);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.payBtn:hover {
+  background-color: var(--color-success-hover);
+}
+
+.payBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.statusUpdateContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.statusUpdateContainer label {
+  font-weight: 600;
+  min-width: 120px;
+  color: #333;
+}
+
+.statusSelect {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 0.25rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: white;
+  cursor: pointer;
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 4px rgba(212, 130, 92, 0.2);
+}
+
+.statusSelect:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-danger-strong);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: flex-start;
+}
+
+.cancelBtn:hover {
+  background-color: var(--color-danger-hover);
+}
+
+.cancelBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Dialog de Cancelamento */
+.cancelDialog {
+  padding: 1rem;
+  background-color: var(--color-danger-soft);
+  border: 2px solid var(--color-danger-strong);
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+}
+
+.cancelDialog label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.cancelReasonInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 0.25rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 1rem;
+}
+
+.cancelReasonInput:focus {
+  outline: none;
+  border-color: var(--color-danger-strong);
+  box-shadow: 0 0 4px rgba(220, 20, 60, 0.2);
+}
+
+.cancelDialogButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.confirmBtn {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: var(--color-danger-strong);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background-color: var(--color-danger-hover);
+}
+
+.confirmBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.abortBtn {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #d0d0d0;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.abortBtn:hover {
+  background-color: #e0e0e0;
+}
+
+/* Paginação */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 1rem;
+}
+
+.pagination button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-weight: 500;
+  color: #333;
+  min-width: 150px;
+  text-align: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .filterInput,
+  .filterSelect {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .tableSection {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statusUpdateContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .payBtn,
+  .cancelBtn {
+    width: 100%;
+  }
+
+  .statusSelect {
+    width: 100%;
+  }
+
+  .cancelDialogButtons {
+    flex-direction: column;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pagination button {
+    width: 100%;
+  }
+
+  .pagination span {
+    width: 100%;
+  }
+}

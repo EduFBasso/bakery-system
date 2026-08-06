@@ -1,0 +1,154 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff4e6 0%, #ffe4cc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 1.75rem;
+}
+
+.title {
+  font-size: 2.3rem;
+  margin: 0 0 0.5rem 0;
+  color: #2c2c2c;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #444;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+}
+
+.errorAlert {
+  padding: 0.9rem 1rem;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin-bottom: 0.55rem;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid #d4825c;
+  border-radius: 0.6rem;
+  font-size: 1.05rem;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #c26e47;
+  box-shadow: 0 0 0 3px rgba(212, 130, 92, 0.14);
+}
+
+.input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin-top: 0.4rem;
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.passwordField {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.2rem;
+}
+
+.footerActions {
+  margin-top: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.footerActions :global(button) {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+    align-items: center;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 0.75rem;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .footerActions {
+    grid-template-columns: 1fr;
+  }
+}

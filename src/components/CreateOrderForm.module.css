@@ -1,0 +1,406 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.financialSection {
+  background: #fff;
+  border: 1px solid #e8e2d5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.financialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.financialCard {
+  background-color: #f9f7f4;
+  border-left: 4px solid var(--color-primary);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.financialCard label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #8f8f8f;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.financialCard p {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  color: #2c2c2c;
+}
+
+.financialProjection {
+  margin: 10px 0 0 0;
+  color: #5f4c3d;
+  font-size: 14px;
+}
+
+.section {
+  padding: 16px;
+  background-color: #f9f7f4;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-primary);
+}
+
+/* Product Selector */
+.productSelector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select,
+.input,
+.textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.select {
+  flex: 1;
+  min-width: 200px;
+}
+
+.input {
+  width: 100%;
+  text-align: center;
+}
+
+.quantitySelectorInput {
+  width: 100px;
+  text-align: center;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.dateAutoInput {
+  width: fit-content;
+  min-width: 220px;
+  max-width: 100%;
+  background: #f0f2f6;
+  border: 1px solid #d6dae0;
+  color: #2c2c2c;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: 0.2px;
+  text-transform: lowercase;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.buttonAdd {
+  padding: 10px 16px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonAdd:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.buttonAdd:active {
+  background-color: #b05a33;
+}
+
+/* Empty Message */
+.emptyMessage {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 6px;
+}
+
+/* Cart Items */
+.cartItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.cartItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px 50px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background-color: #f9f7f4;
+  border-radius: 6px;
+  border: 1px solid #e8e2d5;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemName {
+  font-weight: 500;
+  color: #333;
+}
+
+.itemPrice {
+  font-size: 12px;
+  color: #666;
+}
+
+.itemQuantity {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantityInput {
+  width: 50px;
+  padding: 6px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.buttonSmall {
+  padding: 4px 8px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 30px;
+  transition: background-color 0.2s;
+}
+
+.buttonSmall:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.itemSubtotal {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.buttonRemove {
+  padding: 6px;
+  background-color: var(--color-danger-strong);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.buttonRemove:hover {
+  background-color: var(--color-danger-hover);
+}
+
+.cartTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 2px solid var(--color-primary);
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.totalAmount {
+  color: var(--color-primary);
+  font-size: 20px;
+}
+
+/* Form Section */
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.helperText {
+  color: #6c6c6c;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+/* Error Message */
+.error {
+  padding: 12px 16px;
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger-text);
+  border-radius: 6px;
+  border-left: 4px solid var(--color-danger-strong);
+  font-size: 14px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+}
+
+.buttonCancel {
+  padding: 12px 24px;
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonCancel:hover {
+  background-color: #d0d0d0;
+}
+
+.buttonSubmit {
+  padding: 12px 32px;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonSubmit:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.buttonSubmit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .financialGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .financialCard p {
+    font-size: 24px;
+  }
+
+  .productSelector {
+    flex-direction: column;
+  }
+
+  .select {
+    min-width: 100%;
+  }
+
+  .quantitySelectorInput {
+    width: 100%;
+  }
+
+  .dateAutoInput {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  .cartItem {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .itemQuantity,
+  .itemSubtotal,
+  .buttonRemove {
+    grid-column: auto;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .buttonCancel,
+  .buttonSubmit {
+    width: 100%;
+  }
+}

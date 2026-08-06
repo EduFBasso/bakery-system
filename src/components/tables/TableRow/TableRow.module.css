@@ -1,0 +1,14 @@
+.row {
+  border-bottom: 1px solid #e5e5e5;
+  transition: background-color 0.2s ease;
+}
+
+.row:hover {
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+.cell {
+  padding: 1rem;
+  color: #333;
+}

@@ -1,0 +1,81 @@
+.container {
+  background: #fff;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ececec;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header h3 {
+  margin: 0;
+  color: #30343a;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.toggleButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger {
+  font-size: 18px;
+  line-height: 1;
+  color: #4a4f56;
+}
+
+.content {
+  margin-top: 0.75rem;
+  min-height: 0;
+}
+
+.open {
+  border-left: 4px solid #d4825c;
+}
+
+.open .header {
+  border-bottom: 1px solid #e8e1dc;
+  padding-bottom: 0.65rem;
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  transition: grid-template-rows 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.contentWrapperOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.contentInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .stickyOpen {
+    position: sticky;
+    top: 0.5rem;
+    z-index: 30;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+  }
+}
