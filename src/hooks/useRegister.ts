@@ -46,12 +46,14 @@ export function useRegister(options: UseRegisterOptions = {}) {
         // Chamar API
         const response = await ApiService.registerCustomer(submitData);
 
+        const customerPayload = response.customer ?? (response as any);
+
         // Sucesso
         const result: RegistrationResponse = {
-          id: response.id,
-          nickname: response.customer.nickname,
-          phone: response.customer.phone,
-          status: response.customer.status || 'PENDENTE',
+          id: Number(response.id ?? customerPayload?.id ?? 0),
+          nickname: customerPayload?.nickname || '',
+          phone: customerPayload?.phone,
+          status: customerPayload?.status || 'PENDENTE',
           access_token: response.access_token,
           refresh_token: response.refresh_token,
         };

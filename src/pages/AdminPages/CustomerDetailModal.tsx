@@ -157,6 +157,33 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     return `R$ ${parseMoney(value).toFixed(2).replace('.', ',')}`;
   };
 
+  const readErrorMessage = async (response: Response, fallbackMessage: string) => {
+    const contentType = response.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      const data = await response.json();
+      if (data?.detail) {
+        return data.detail;
+      }
+      if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
+        return String(data.non_field_errors[0]);
+      }
+      return fallbackMessage;
+    }
+
+    const text = (await response.text()).trim();
+    if (!text) {
+      return fallbackMessage;
+    }
+
+    // Avoid showing raw HTML blobs from backend debug pages.
+    if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
+      return fallbackMessage;
+    }
+
+    return text;
+  };
+
   const executeApprove = async (adminPassword: string) => {
     if (!creditLimit) {
       setActionError('Limite de crédito é obrigatório');
@@ -182,7 +209,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         throw new Error('Token não encontrado');
       }
 
-      const response = await fetch(`/api/v1/bakery/customers/${customerId}/approve`, {
+      const response = await fetch(`/api/v1/bakery/customers/${customerId}/approve/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,8 +222,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Erro ao aprovar cliente');
+        const message = await readErrorMessage(response, 'Erro ao aprovar cliente');
+        throw new Error(message);
       }
 
       const data = await response.json();
@@ -228,7 +255,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       throw new Error('Token não encontrado');
     }
 
-    const response = await fetch(`/api/v1/bakery/customers/${customerId}/reveal-password`, {
+    const response = await fetch(`/api/v1/bakery/customers/${customerId}/reveal-password/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -238,8 +265,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     });
 
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.detail || 'Erro ao recuperar senha oficial');
+      const message = await readErrorMessage(response, 'Erro ao recuperar senha oficial');
+      throw new Error(message);
     }
 
     const data = await response.json();
@@ -268,7 +295,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         throw new Error('Token não encontrado');
       }
 
-      const response = await fetch(`/api/v1/bakery/customers/${customerId}/reject`, {
+      const response = await fetch(`/api/v1/bakery/customers/${customerId}/reject/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -280,8 +307,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Erro ao cancelar cadastro');
+        const message = await readErrorMessage(response, 'Erro ao cancelar cadastro');
+        throw new Error(message);
       }
 
       setActionSuccess('✅ Cadastro recusado e removido permanentemente.');
@@ -323,7 +350,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         throw new Error('Token não encontrado');
       }
 
-      const response = await fetch(`/api/v1/bakery/customers/${customerId}/update-credit-limit`, {
+      const response = await fetch(`/api/v1/bakery/customers/${customerId}/update-credit-limit/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -336,8 +363,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Erro ao atualizar limite de crédito');
+        const message = await readErrorMessage(response, 'Erro ao atualizar limite de crédito');
+        throw new Error(message);
       }
 
       setActionSuccess('✅ Limite de crédito atualizado com sucesso.');
@@ -389,7 +416,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         throw new Error('Token não encontrado');
       }
 
-      const response = await fetch(`/api/v1/bakery/customers/${customerId}/set-password`, {
+      const response = await fetch(`/api/v1/bakery/customers/${customerId}/set-password/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -401,8 +428,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Erro ao atualizar senha do cliente');
+        const message = await readErrorMessage(response, 'Erro ao atualizar senha do cliente');
+        throw new Error(message);
       }
 
       const data = await response.json();

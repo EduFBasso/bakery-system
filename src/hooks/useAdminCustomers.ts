@@ -46,6 +46,20 @@ interface UseAdminCustomersOptions {
 }
 
 const CUSTOMERS_ENDPOINT = '/api/v1/bakery/customers/';
+const STATUS_PENDING = 'PENDENTE';
+const STATUS_APPROVED = 'APROVADO';
+const STATUS_BLOCKED = 'BLOQUEADO';
+
+const normalizeStatus = (value?: string) => {
+  const status = (value || '').trim().toUpperCase();
+  if (status === 'PENDING' || status === STATUS_PENDING) return STATUS_PENDING;
+  if (status === 'APPROVED' || status === STATUS_APPROVED) return STATUS_APPROVED;
+  if (status === 'BLOCKED' || status === STATUS_BLOCKED) return STATUS_BLOCKED;
+  return status;
+};
+
+const isPending = (value?: string) => normalizeStatus(value) === STATUS_PENDING;
+const isApproved = (value?: string) => normalizeStatus(value) === STATUS_APPROVED;
 
 export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   const [pendingCustomers, setPendingCustomers] = useState<Customer[]>([]);
@@ -71,13 +85,21 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   };
 
   const parseRows = (payload: unknown): Customer[] => {
-    if (Array.isArray(payload)) return payload as Customer[];
+    if (Array.isArray(payload)) {
+      return payload.map((row) => ({
+        ...(row as Customer),
+        status: normalizeStatus((row as Customer).status),
+      }));
+    }
     if (
       payload &&
       typeof payload === 'object' &&
       Array.isArray((payload as { results?: unknown }).results)
     ) {
-      return (payload as { results: Customer[] }).results;
+      return (payload as { results: Customer[] }).results.map((row) => ({
+        ...row,
+        status: normalizeStatus(row.status),
+      }));
     }
     return [];
   };
@@ -89,6 +111,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       const response = await fetch(CUSTOMERS_ENDPOINT, {
         method: 'GET',
         headers: getAuthHeaders(),
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -96,10 +119,13 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       }
 
       const rows = parseRows(await response.json());
+      const pendingCount = rows.filter((row) => isPending(row.status)).length;
+      const approvedCount = rows.filter((row) => isApproved(row.status)).length;
       const computedStats: AdminStats = {
-        total_customers: rows.length,
-        pending_customers: rows.filter((row) => row.status === 'PENDING').length,
-        approved_customers: rows.filter((row) => row.status === 'APPROVED').length,
+        // Regra de negocio atual: total = pendentes + aprovados.
+        total_customers: pendingCount + approvedCount,
+        pending_customers: pendingCount,
+        approved_customers: approvedCount,
         balance_receivable: rows
           .reduce((acc, row) => acc + Number.parseFloat(row.current_balance || '0'), 0)
           .toFixed(2),
@@ -123,9 +149,10 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
     setError(null);
 
     try {
-      const response = await fetch(`${CUSTOMERS_ENDPOINT}?status=PENDING`, {
+      const response = await fetch(`${CUSTOMERS_ENDPOINT}?status=${STATUS_PENDING}`, {
         method: 'GET',
         headers: getAuthHeaders(),
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -134,7 +161,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
         throw new Error(`Erro ao carregar clientes: ${response.status}`);
       }
 
-      const pending = parseRows(await response.json());
+      const pending = parseRows(await response.json()).filter((row) => isPending(row.status));
       setPendingCustomers(pending);
       return pending;
     } catch (err) {
@@ -160,6 +187,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       const response = await fetch(url, {
         method: 'GET',
         headers: getAuthHeaders(),
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -187,6 +215,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       const response = await fetch(`${CUSTOMERS_ENDPOINT}${customerId}/`, {
         method: 'GET',
         headers: getAuthHeaders(),
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -209,7 +238,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   const approveCustomer = useCallback(async (customerId: number, nickname: string) => {
     setError(null);
     try {
-      const response = await fetch(`${CUSTOMERS_ENDPOINT}${customerId}/approve`, {
+      const response = await fetch(`${CUSTOMERS_ENDPOINT}${customerId}/approve/`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -222,7 +251,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       const result = await response.json();
       setPendingCustomers((prev) => prev.filter((c) => c.id !== customerId));
       setAllCustomers((prev) =>
-        prev.map((c) => (c.id === customerId ? { ...c, status: 'APPROVED' } : c))
+        prev.map((c) => (c.id === customerId ? { ...c, status: STATUS_APPROVED } : c))
       );
       optionsRef.current?.onSuccess?.(`Cliente "${nickname}" aprovado com sucesso!`);
       return result;
@@ -237,7 +266,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   const blockCustomer = useCallback(async (customerId: number, nickname: string) => {
     setError(null);
     try {
-      const response = await fetch(`${CUSTOMERS_ENDPOINT}${customerId}/block`, {
+      const response = await fetch(`${CUSTOMERS_ENDPOINT}${customerId}/block/`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -249,7 +278,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
 
       const result = await response.json();
       setAllCustomers((prev) =>
-        prev.map((c) => (c.id === customerId ? { ...c, status: 'BLOCKED' } : c))
+        prev.map((c) => (c.id === customerId ? { ...c, status: STATUS_BLOCKED } : c))
       );
       optionsRef.current?.onSuccess?.(`Cliente "${nickname}" bloqueado com sucesso!`);
       return result;

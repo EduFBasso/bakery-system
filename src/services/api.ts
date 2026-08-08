@@ -20,18 +20,37 @@ export class ApiService {
     state: string;
     company_name?: string;
   }): Promise<{ id: number; access_token: string; refresh_token: string; customer: Customer }> {
+    const adminToken = localStorage.getItem('bread_admin_token');
     const response = await fetch(`${API_BASE_URL}/customers/register/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+      },
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Erro ao registrar cliente');
+    const bodyText = await response.text();
+    let parsedBody: any = null;
+    try {
+      parsedBody = bodyText ? JSON.parse(bodyText) : null;
+    } catch {
+      parsedBody = null;
     }
 
-    return response.json();
+    if (!response.ok) {
+      const apiMessage =
+        parsedBody?.detail ||
+        (Array.isArray(parsedBody?.non_field_errors) ? parsedBody.non_field_errors[0] : null) ||
+        'Erro ao registrar cliente';
+      throw new Error(String(apiMessage));
+    }
+
+    if (!parsedBody || typeof parsedBody !== 'object') {
+      throw new Error('Resposta inválida do servidor no cadastro.');
+    }
+
+    return parsedBody;
   }
 
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {

@@ -21,6 +21,28 @@ export function DashboardPage({ onNavigateToCustomers, onError, onSuccess }: Das
   }, [fetchAdminStats]);
 
   useEffect(() => {
+    const refreshStats = () => {
+      fetchAdminStats();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshStats();
+      }
+    };
+
+    window.addEventListener('focus', refreshStats);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    const intervalId = window.setInterval(refreshStats, 15000);
+
+    return () => {
+      window.removeEventListener('focus', refreshStats);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.clearInterval(intervalId);
+    };
+  }, [fetchAdminStats]);
+
+  useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => setSuccessMessage(''), 3000);
       return () => clearTimeout(timer);

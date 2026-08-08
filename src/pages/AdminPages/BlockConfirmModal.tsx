@@ -55,7 +55,7 @@ export default function BlockConfirmModal({
         throw new Error('Token não encontrado');
       }
 
-      const endpoint = action === 'block' ? '/block' : '/unblock';
+      const endpoint = action === 'block' ? '/block/' : '/unblock/';
       const actionName = action === 'block' ? 'bloquear' : 'desbloquear';
 
       const response = await fetch(`/api/v1/bakery/customers/${customerId}${endpoint}`, {
@@ -65,7 +65,7 @@ export default function BlockConfirmModal({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          password: adminPassword,
+          admin_password: adminPassword,
           reason: action === 'block' ? 'Bloqueado via admin panel' : 'Desbloqueado via admin panel',
         }),
       });

@@ -29,10 +29,34 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
     optionsRef.current = options;
   });
 
+  const removeInvisibleCharacters = (value: string) => {
+    // Remove zero-width and hidden formatting chars commonly introduced by mobile paste.
+    return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
+  };
+
+  const extractApiErrorMessage = (data: any): string => {
+    if (typeof data?.detail === 'string' && data.detail.trim()) {
+      return data.detail;
+    }
+    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
+      return String(data.non_field_errors[0]);
+    }
+    if (Array.isArray(data?.password) && data.password[0]) {
+      return String(data.password[0]);
+    }
+    if (Array.isArray(data?.email) && data.email[0]) {
+      return String(data.email[0]);
+    }
+    return 'Erro ao fazer login';
+  };
+
   const login = useCallback(
     async (email: string, password: string) => {
       setLoading(true);
       setError(null);
+
+      const sanitizedEmail = removeInvisibleCharacters(email).trim();
+      const sanitizedPassword = removeInvisibleCharacters(password).trim();
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
@@ -40,14 +64,13 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          const errorMessage =
-            data.detail || data.password?.[0] || data.email?.[0] || 'Erro ao fazer login';
+          const errorMessage = extractApiErrorMessage(data);
           setError(errorMessage);
           optionsRef.current?.onError?.(errorMessage);
           return false;

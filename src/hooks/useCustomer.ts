@@ -40,19 +40,23 @@ export function useCustomer(): UseCustomerReturn {
 
     try {
       const result = await ApiService.registerCustomer(data as any);
+      const customerPayload = (result as any).customer ?? result;
 
       // Após registro, cliente é PENDENTE, aguarda aprovação
       // Salvar apenas para referência, mas ainda não fazer login automático
       const newCustomer: Customer = {
-        ...result.customer,
-        access_token: result.access_token,
+        ...(customerPayload as Customer),
+        access_token: (result as any).access_token,
       };
+      const accessToken = (result as any).access_token;
 
       localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(newCustomer));
-      localStorage.setItem(STORAGE_KEYS.TOKEN, result.access_token);
+      if (accessToken) {
+        localStorage.setItem(STORAGE_KEYS.TOKEN, accessToken);
+      }
 
       setCustomerState(newCustomer);
-      setTokenState(result.access_token);
+      setTokenState(accessToken || null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao registrar';
       setError(errorMessage);
