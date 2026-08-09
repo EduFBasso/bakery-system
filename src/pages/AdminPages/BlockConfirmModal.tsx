@@ -41,7 +41,11 @@ export default function BlockConfirmModal({
   };
 
   const handleConfirm = async (adminPassword: string) => {
-    if (!adminPassword) {
+    const normalizedAdminPassword = adminPassword
+      .replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '')
+      .trim();
+
+    if (!normalizedAdminPassword) {
       setActionError('Digite a senha do dono para continuar');
       return;
     }
@@ -65,7 +69,7 @@ export default function BlockConfirmModal({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          admin_password: adminPassword,
+          admin_password: normalizedAdminPassword,
           reason: action === 'block' ? 'Bloqueado via admin panel' : 'Desbloqueado via admin panel',
         }),
       });

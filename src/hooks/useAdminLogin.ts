@@ -51,12 +51,14 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
   };
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (loginValue: string, password: string) => {
       setLoading(true);
       setError(null);
 
-      const sanitizedEmail = removeInvisibleCharacters(email).trim();
+      const sanitizedLogin = removeInvisibleCharacters(loginValue).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
+      // Slug do tenant definido por variável de ambiente — nunca digitado pelo usuário
+      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || '';
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
@@ -64,7 +66,11 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
+          body: JSON.stringify({
+            login: sanitizedLogin,
+            password: sanitizedPassword,
+            tenant_slug: tenantSlug,
+          }),
         });
 
         const data = await response.json();

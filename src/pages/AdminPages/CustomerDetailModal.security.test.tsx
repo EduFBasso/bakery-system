@@ -13,12 +13,30 @@ vi.mock('../../hooks/useAdminCustomers', () => ({
 
 vi.mock('../../utils/whatsapp', () => ({
   buildAccessWhatsAppMessage: vi.fn(() => 'mensagem-whatsapp'),
+  normalizeWhatsAppPhone: vi.fn((phone?: string | null) => {
+    const digits = String(phone ?? '').replace(/\D/g, '');
+    if (!digits) {
+      return '';
+    }
+    return digits.startsWith('55') ? digits : `55${digits}`;
+  }),
   openWhatsAppMessage: vi.fn(),
 }));
 
 import { useAdminCustomers } from '../../hooks/useAdminCustomers';
+import { openWhatsAppMessage } from '../../utils/whatsapp';
 
 const mockedUseAdminCustomers = vi.mocked(useAdminCustomers);
+const mockedOpenWhatsAppMessage = vi.mocked(openWhatsAppMessage);
+
+const createJsonResponse = (payload: unknown, ok = true) =>
+  ({
+    ok,
+    json: async () => payload,
+    headers: {
+      get: () => 'application/json',
+    },
+  }) as unknown as Response;
 
 const approvedCustomer = {
   id: 12,
@@ -38,6 +56,11 @@ const approvedCustomer = {
   city: 'Limeira',
   state: 'SP',
   zip_code: '13486465',
+};
+
+const blockedCustomer = {
+  ...approvedCustomer,
+  status: 'BLOQUEADO',
 };
 
 describe('CustomerDetailModal security flows', () => {
@@ -74,10 +97,9 @@ describe('CustomerDetailModal security flows', () => {
     );
 
   it('mostra erro e nao revela senha quando admin_password e invalido', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: false,
-      json: async () => ({ detail: 'Senha do dono inválida' }),
-    } as Response);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      createJsonResponse({ detail: 'Senha do dono inválida' }, false)
+    );
 
     const user = userEvent.setup();
     renderModal();
@@ -94,10 +116,9 @@ describe('CustomerDetailModal security flows', () => {
   });
 
   it('revela senha quando admin_password e valido', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({ password_plain_text: 'NovaSenha@123' }),
-    } as Response);
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(createJsonResponse({ password_plain_text: 'NovaSenha@123' }));
 
     const user = userEvent.setup();
     renderModal();
@@ -112,17 +133,14 @@ describe('CustomerDetailModal security flows', () => {
 
     const requestInit = fetchSpy.mock.calls[0][1] as RequestInit;
     expect(fetchSpy).toHaveBeenCalledWith(
-      '/api/v1/bakery/customers/12/reveal-password',
+      '/api/v1/bakery/customers/12/reveal-password/',
       expect.any(Object)
     );
     expect(requestInit.body).toContain('"admin_password":"senha-correta"');
   });
 
   it('bloqueia alteracao de limite quando valor informado e invalido', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({}),
-    } as Response);
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(createJsonResponse({}));
 
     const user = userEvent.setup();
     renderModal();
@@ -140,10 +158,9 @@ describe('CustomerDetailModal security flows', () => {
   });
 
   it('atualiza limite quando admin_password e valor sao validos', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({ detail: 'ok' }),
-    } as Response);
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(createJsonResponse({ detail: 'ok' }));
 
     const user = userEvent.setup();
     renderModal();
@@ -158,7 +175,7 @@ describe('CustomerDetailModal security flows', () => {
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(
-        '/api/v1/bakery/customers/12/update-credit-limit',
+        '/api/v1/bakery/customers/12/update-credit-limit/',
         expect.objectContaining({ method: 'POST' })
       );
     });
@@ -167,5 +184,58 @@ describe('CustomerDetailModal security flows', () => {
     expect(requestInit.body).toContain('"admin_password":"senha-correta"');
     expect(requestInit.body).toContain('"credit_limit":"1500"');
     expect(onCustomerUpdatedMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('desabilita botoes sensiveis para cliente bloqueado', () => {
+    mockedUseAdminCustomers.mockReturnValue({
+      customerDetail: blockedCustomer,
+      fetchCustomerDetail: fetchCustomerDetailMock,
+      loading: false,
+      error: null,
+      pendingCustomers: [],
+      allCustomers: [],
+      stats: null,
+      fetchAdminStats: vi.fn(),
+      fetchPendingCustomers: vi.fn(),
+      fetchAllCustomers: vi.fn(),
+      approveCustomer: vi.fn(),
+      blockCustomer: vi.fn(),
+      clearError: vi.fn(),
+    });
+
+    renderModal();
+
+    expect(screen.getByRole('button', { name: 'Editar limite de crédito' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Visualizar senha' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Copiar senha' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Editar senha' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Compartilhar senha no WhatsApp' })).toBeDisabled();
+  });
+
+  it('editar senha nao dispara compartilhamento automatico no whatsapp', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(createJsonResponse({ password_plain_text: 'NovaSenha@456' }));
+
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(screen.getByRole('button', { name: 'Editar senha' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Atualizar Senha' }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/v1/bakery/customers/12/set-password/',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    expect(mockedOpenWhatsAppMessage).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        '✅ Nova senha definida com sucesso. Use copiar ou compartilhar para enviar.'
+      )
+    ).toBeInTheDocument();
   });
 });

@@ -3,11 +3,16 @@ import { useAdminLogin } from '../../hooks/useAdminLogin';
 import styles from './AdminLoginPage.module.css';
 
 export function AdminLoginPage() {
-  const [email, setEmail] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const { login, loading, error, clearError } = useAdminLogin({
+  const {
+    login: login_fn,
+    loading,
+    error,
+    clearError,
+  } = useAdminLogin({
     onSuccess: (response) => {
       const displayName =
         [response.professional.first_name, response.professional.last_name]
@@ -29,11 +34,11 @@ export function AdminLoginPage() {
     e.preventDefault();
     clearError();
 
-    if (!email.trim() || !password.trim()) {
+    if (!login.trim() || !password.trim()) {
       return;
     }
 
-    await login(email.trim(), password);
+    await login_fn(login.trim(), password);
   };
 
   return (
@@ -50,18 +55,18 @@ export function AdminLoginPage() {
           {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">E-mail</label>
+            <label htmlFor="login">E-mail ou apelido</label>
             <input
-              id="email"
-              type="email"
-              placeholder="Digite seu e-mail cadastrado"
-              value={email}
+              id="login"
+              type="text"
+              placeholder="Ex: panificadora ou seu@email.com"
+              value={login}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setLogin(e.target.value);
                 clearError();
               }}
               disabled={loading}
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 
@@ -83,7 +88,7 @@ export function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={loading || !email.trim() || !password.trim()}
+            disabled={loading || !login.trim() || !password.trim()}
             className={styles.submitButton}
           >
             {loading ? '⏳ Aguarde...' : '🔐 Entrar como Dono'}

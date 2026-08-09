@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../hooks/useAdminCustomers';
-import { buildAccessWhatsAppMessage, openWhatsAppMessage } from '../../utils/whatsapp';
+import {
+  buildAccessWhatsAppMessage,
+  normalizeWhatsAppPhone,
+  openWhatsAppMessage,
+} from '../../utils/whatsapp';
 import { AdminPasswordDialog } from './AdminPasswordDialog';
 import styles from './AdminPages.module.css';
 
@@ -157,6 +161,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     return `R$ ${parseMoney(value).toFixed(2).replace('.', ',')}`;
   };
 
+  const normalizeSecretInput = (value: string) =>
+    value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '').trim();
+
   const readErrorMessage = async (response: Response, fallbackMessage: string) => {
     const contentType = response.headers.get('content-type') || '';
 
@@ -184,13 +191,40 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     return text;
   };
 
+  const customer = customerDetail;
+
+  const normalizeCustomerStatus = (status?: string | null) => {
+    const value = String(status || '')
+      .trim()
+      .toUpperCase();
+
+    if (value === 'PENDING') {
+      return 'PENDENTE';
+    }
+    if (value === 'APPROVED') {
+      return 'APROVADO';
+    }
+    if (value === 'BLOCKED') {
+      return 'BLOQUEADO';
+    }
+
+    return value || 'PENDENTE';
+  };
+
+  const normalizedStatus = normalizeCustomerStatus(customer?.status);
+  const isPending = normalizedStatus === 'PENDENTE';
+  const isBlocked = normalizedStatus === 'BLOQUEADO';
+  const canManageSensitiveActions = normalizedStatus === 'APROVADO';
+  const normalizedWhatsAppPhone = normalizeWhatsAppPhone(customer?.phone);
+
   const executeApprove = async (adminPassword: string) => {
+    const normalizedAdminPassword = normalizeSecretInput(adminPassword);
     if (!creditLimit) {
       setActionError('Limite de crédito é obrigatório');
       return;
     }
 
-    if (!adminPassword) {
+    if (!normalizedAdminPassword) {
       setActionError('Digite a senha do dono para aprovar o cliente');
       return;
     }
@@ -217,7 +251,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         },
         body: JSON.stringify({
           credit_limit: creditLimit,
-          admin_password: adminPassword,
+          admin_password: normalizedAdminPassword,
         }),
       });
 
@@ -250,6 +284,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   const revealOfficialPassword = async (adminPassword: string) => {
+    const normalizedAdminPassword = normalizeSecretInput(adminPassword);
     const token = localStorage.getItem('bread_admin_token');
     if (!token) {
       throw new Error('Token não encontrado');
@@ -261,7 +296,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ admin_password: adminPassword }),
+      body: JSON.stringify({ admin_password: normalizedAdminPassword }),
     });
 
     if (!response.ok) {
@@ -280,7 +315,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   const executeCancelPending = async (adminPassword: string) => {
-    if (!adminPassword) {
+    const normalizedAdminPassword = normalizeSecretInput(adminPassword);
+    if (!normalizedAdminPassword) {
       setActionError('Digite a senha do dono para cancelar o cadastro');
       return;
     }
@@ -302,7 +338,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          admin_password: adminPassword,
+          admin_password: normalizedAdminPassword,
         }),
       });
 
@@ -325,7 +361,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   const executeUpdateCreditLimit = async (adminPassword: string) => {
-    if (!adminPassword) {
+    const normalizedAdminPassword = normalizeSecretInput(adminPassword);
+    if (!normalizedAdminPassword) {
       setActionError('Digite a senha do dono para atualizar o limite de crédito');
       return;
     }
@@ -357,7 +394,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          admin_password: adminPassword,
+          admin_password: normalizedAdminPassword,
           credit_limit: creditLimit,
         }),
       });
@@ -403,7 +440,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   const executeSetPassword = async (adminPassword: string) => {
-    if (!adminPassword) {
+    const normalizedAdminPassword = normalizeSecretInput(adminPassword);
+    if (!normalizedAdminPassword) {
       setActionError('Digite a senha do dono para alterar a senha do cliente');
       return;
     }
@@ -423,7 +461,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          admin_password: adminPassword,
+          admin_password: normalizedAdminPassword,
         }),
       });
 
@@ -436,14 +474,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
       const updatedPassword = data.password_plain_text || '';
       setCurrentPassword(updatedPassword);
 
-      if (customer?.phone && updatedPassword) {
-        openWhatsAppMessage(
-          customer.phone,
-          buildAccessWhatsAppMessage(customer.nickname || 'Cliente', updatedPassword)
-        );
-      }
-
-      setActionSuccess('✅ Nova senha definida com sucesso.');
+      setActionSuccess(
+        '✅ Nova senha definida com sucesso. Use copiar ou compartilhar para enviar.'
+      );
       setSecurityDialogOpen(false);
       setPendingSecureAction(null);
     } catch (err) {
@@ -589,7 +622,6 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     }
   };
 
-  const customer = customerDetail;
   const documentLabel = customer?.customer_type === 'PF' ? 'CPF' : 'CNPJ';
   const documentValue =
     customer?.customer_type === 'PF'
@@ -643,9 +675,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <label>Telefone</label>
                   <p>
                     {customer.phone || '-'}
-                    {customer.phone && (
+                    {normalizedWhatsAppPhone && (
                       <a
-                        href={`https://wa.me/55${customer.phone.replace(/\D/g, '')}`}
+                        href={`https://wa.me/${normalizedWhatsAppPhone}`}
                         target="_blank"
                         rel="noreferrer"
                         className={`${styles.inlineActionLink} ${styles.inlineIconLink} ${styles.whatsAppAction}`}
@@ -698,9 +730,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <label>Status</label>
                   <p>
                     <span
-                      className={`${styles.statusBadge} ${styles[`status-${(customer.status || 'pendente').toLowerCase()}`]}`}
+                      className={`${styles.statusBadge} ${styles[`status-${normalizedStatus.toLowerCase()}`]}`}
                     >
-                      {customer.status || 'PENDENTE'}
+                      {normalizedStatus}
                     </span>
                   </p>
                 </div>
@@ -723,7 +755,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                         type="button"
                         className={styles.editInlineButton}
                         onClick={() => openSecurityDialog('edit-credit-limit')}
-                        disabled={isActionLoading}
+                        disabled={isActionLoading || !canManageSensitiveActions}
                         title="Editar limite de crédito"
                         aria-label="Editar limite de crédito"
                       >
@@ -737,9 +769,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <label>Senha</label>
                   <div className={styles.passwordInlineRow}>
                     <input
-                      type={showPassword && customer.status !== 'PENDENTE' ? 'text' : 'password'}
+                      type={showPassword && canManageSensitiveActions ? 'text' : 'password'}
                       value={
-                        showPassword && customer.status !== 'PENDENTE' && currentPassword
+                        showPassword && canManageSensitiveActions && currentPassword
                           ? currentPassword
                           : '********'
                       }
@@ -750,7 +782,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                       type="button"
                       onClick={() => openSecurityDialog('view-password')}
                       className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
-                      disabled={isActionLoading || customer.status === 'PENDENTE'}
+                      disabled={isActionLoading || !canManageSensitiveActions}
                       title="Visualizar senha"
                       aria-label="Visualizar senha"
                     >
@@ -760,7 +792,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                       type="button"
                       onClick={() => openSecurityDialog('copy-password')}
                       className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
-                      disabled={isActionLoading || customer.status === 'PENDENTE'}
+                      disabled={isActionLoading || !canManageSensitiveActions}
                       title="Copiar senha"
                       aria-label="Copiar senha"
                     >
@@ -770,7 +802,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                       type="button"
                       onClick={() => openSecurityDialog('set-password')}
                       className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.editActionIcon}`}
-                      disabled={isActionLoading || customer.status === 'PENDENTE'}
+                      disabled={isActionLoading || !canManageSensitiveActions}
                       title="Editar senha"
                       aria-label="Editar senha"
                     >
@@ -781,7 +813,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                       onClick={() => openSecurityDialog('share-password')}
                       className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.whatsAppAction}`}
                       disabled={
-                        isActionLoading || customer.status === 'PENDENTE' || !customer.phone
+                        isActionLoading || !canManageSensitiveActions || !normalizedWhatsAppPhone
                       }
                       title="Compartilhar senha no WhatsApp"
                       aria-label="Compartilhar senha no WhatsApp"
@@ -815,7 +847,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             </div>
 
             {/* Approval Form - Só mostra quando status é PENDENTE */}
-            {customer.status === 'PENDENTE' && (
+            {isPending && (
               <div className={styles.detailSection}>
                 <h3>Deseja aprovar ou cancelar este cliente?</h3>
               </div>
@@ -827,7 +859,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
             {/* Action Buttons */}
             <div className={styles.modalActions}>
-              {customer.status === 'PENDENTE' && (
+              {isPending && (
                 <>
                   <button
                     className={styles.approveButton}
@@ -845,10 +877,10 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   </button>
                 </>
               )}
-              {customer.status === 'BLOQUEADO' && (
+              {isBlocked && (
                 <p className={styles.blockedNote}>Cliente bloqueado - sem ações disponíveis</p>
               )}
-              {customer.status !== 'PENDENTE' && (
+              {!isPending && (
                 <button
                   className={styles.closeButtonModal}
                   onClick={onClose}
