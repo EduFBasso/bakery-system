@@ -19,15 +19,21 @@ export class ApiService {
     city: string;
     state: string;
     company_name?: string;
+    tenant_slug?: string;
   }): Promise<{ id: number; access_token: string; refresh_token: string; customer: Customer }> {
     const adminToken = localStorage.getItem('bread_admin_token');
+    const tenantSlug =
+      data.tenant_slug || import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
     const response = await fetch(`${API_BASE_URL}/customers/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        tenant_slug: tenantSlug,
+      }),
     });
 
     const bodyText = await response.text();
@@ -54,10 +60,11 @@ export class ApiService {
   }
 
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {
+    const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
     const response = await fetch(BAKERY_AUTH_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: nickname, password }),
+      body: JSON.stringify({ login: nickname, password, tenant_slug: tenantSlug }),
     });
 
     if (!response.ok) {

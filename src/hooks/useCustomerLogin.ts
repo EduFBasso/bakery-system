@@ -42,6 +42,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
 
       const sanitizedEmail = removeInvisibleCharacters(nickname).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
+      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
@@ -49,7 +50,11 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
+          body: JSON.stringify({
+            login: sanitizedEmail,
+            password: sanitizedPassword,
+            tenant_slug: tenantSlug,
+          }),
         });
 
         const data = await response.json();

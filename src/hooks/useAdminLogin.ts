@@ -57,8 +57,8 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
 
       const sanitizedLogin = removeInvisibleCharacters(loginValue).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
-      // Slug do tenant definido por variável de ambiente — nunca digitado pelo usuário
-      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || '';
+      // Slug do tenant definido por variável de ambiente — com fallback para o tenant local padrao
+      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
