@@ -37,9 +37,7 @@ export function AdminPages() {
     setActiveTab('customers');
   };
 
-  const handleTabChange = (
-    tab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings'
-  ) => {
+  const handleTabChange = (tab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings') => {
     setActiveTab(tab);
   };
 

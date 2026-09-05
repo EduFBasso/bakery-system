@@ -89,8 +89,7 @@ export function SettingsPage({ onError, onSuccess }: SettingsPageProps) {
     <div className={styles.card}>
       <p className={styles.title}>Notificações Telegram</p>
       <p className={styles.subtitle}>
-        Conecte sua conta para receber um aviso no Telegram sempre que um novo pedido for
-        realizado.
+        Conecte sua conta para receber um aviso no Telegram sempre que um novo pedido for realizado.
       </p>
 
       <div className={styles.statusRow}>

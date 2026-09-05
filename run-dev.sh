@@ -1,4 +1,5 @@
 #!/bin/bash
-cd /Users/eduardofigueiredobasso/Documents/Dev/bread-sales-company/frontend
+cd "$(dirname "$0")"
 pwd
 npm run dev
+
