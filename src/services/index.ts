@@ -1,2 +1,2 @@
 export { ApiService } from './api';
-export { telegramService } from './telegram';
+export * as telegramLinkService from './telegramLink';

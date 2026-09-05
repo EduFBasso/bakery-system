@@ -39,6 +39,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
+      // Global identity endpoints (shared with other frontends), e.g. Telegram linking.
+      '/register': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
     },
   },
 });

@@ -4,12 +4,13 @@ import { DashboardPage } from './DashboardPage';
 import { CustomersPage } from './CustomersPage';
 import { ProductsPage } from './ProductsPage';
 import { AdminOrdersPage } from './AdminOrdersPage';
+import { SettingsPage } from './SettingsPage';
 import styles from './AdminPages.module.css';
 
 export function AdminPages() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'customers' | 'products' | 'orders'>(
-    'dashboard'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'dashboard' | 'customers' | 'products' | 'orders' | 'settings'
+  >('dashboard');
   const [customerFilter, setCustomerFilter] = useState<string | undefined>();
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -36,7 +37,9 @@ export function AdminPages() {
     setActiveTab('customers');
   };
 
-  const handleTabChange = (tab: 'dashboard' | 'customers' | 'products' | 'orders') => {
+  const handleTabChange = (
+    tab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings'
+  ) => {
     setActiveTab(tab);
   };
 
@@ -74,6 +77,8 @@ export function AdminPages() {
       {activeTab === 'products' && <ProductsPage />}
 
       {activeTab === 'orders' && <AdminOrdersPage />}
+
+      {activeTab === 'settings' && <SettingsPage onError={handleError} onSuccess={handleSuccess} />}
     </AdminLayout>
   );
 }
