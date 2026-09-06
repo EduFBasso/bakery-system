@@ -1,8 +1,15 @@
 .container {
   min-height: 100vh;
+  min-height: 100dvh; /* Garante tamanho dinâmico correto no iOS */
   background: #f7edea; /* Fundo suave combinando com o bakery */
   display: flex;
   flex-direction: column;
+}
+
+.container.hasOpenSection {
+  overflow: hidden; /* Trava totalmente o scroll do body quando houver aba aberta */
+  height: 100vh;
+  height: 100dvh;
 }
 
 .header {

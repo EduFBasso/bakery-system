@@ -48,8 +48,12 @@ export function ClientPages() {
     setOpenSection((prev) => (prev === sectionId ? null : sectionId));
   };
 
+  const isSectionVisible = (sectionId: string) => {
+    return openSection === null || openSection === sectionId;
+  };
+
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${openSection ? styles.hasOpenSection : ''}`}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerMainRow}>
@@ -66,83 +70,93 @@ export function ClientPages() {
       </header>
 
       <main className={styles.main}>
-        <SmartSection
-          title="Informações da Conta"
-          stickyWhenOpen
-          isOpen={openSection === 'account'}
-          onToggle={() => toggleSection('account')}
-        >
-          <div className={styles.infoGrid}>
-            {customer.company_name && (
-              <div className={styles.infoItem}>
-                <label>Nome Comercial</label>
-                <p>{customer.company_name}</p>
-              </div>
-            )}
-            <div className={styles.infoItem}>
-              <label>Apelido</label>
-              <p>{customer.nickname}</p>
-            </div>
-            <div className={styles.infoItem}>
-              <label>Tipo</label>
-              <p>{customerTypeLabel}</p>
-            </div>
-            {customer.cnpj_cpf && (
-              <div className={styles.infoItem}>
-                <label>CPF/CNPJ</label>
-                <p>{customer.cnpj_cpf}</p>
-              </div>
-            )}
-            {customer.phone && (
-              <div className={styles.infoItem}>
-                <label>Telefone</label>
-                <p>{customer.phone}</p>
-              </div>
-            )}
-            {fullAddress && (
-              <div className={styles.infoItem}>
-                <label>Endereço</label>
-                <p>{fullAddress}</p>
-              </div>
-            )}
-          </div>
-        </SmartSection>
-
-        <SmartSection
-          title="Resumo Financeiro"
-          stickyWhenOpen
-          isOpen={openSection === 'financial'}
-          onToggle={() => toggleSection('financial')}
-        >
-          <BalanceCard showHeader={false} />
-        </SmartSection>
-
-        <SmartSection
-          title="Meus Pedidos"
-          stickyWhenOpen
-          isOpen={openSection === 'orders'}
-          onToggle={() => toggleSection('orders')}
-        >
-          <OrdersList showHeader={false} isExpanded={openSection === 'orders'} />
-        </SmartSection>
-
-        <div className={styles.newOrderButton}>
-          <button
-            onClick={() => navigate('/customer/orders/create')}
-            className={styles.primaryButton}
+        {isSectionVisible('account') && (
+          <SmartSection
+            title="Informações da Conta"
+            stickyWhenOpen
+            isOpen={openSection === 'account'}
+            onToggle={() => toggleSection('account')}
           >
-            🛒 Fazer Novo Pedido
-          </button>
-        </div>
+            <div className={styles.infoGrid}>
+              {customer.company_name && (
+                <div className={styles.infoItem}>
+                  <label>Nome Comercial</label>
+                  <p>{customer.company_name}</p>
+                </div>
+              )}
+              <div className={styles.infoItem}>
+                <label>Apelido</label>
+                <p>{customer.nickname}</p>
+              </div>
+              <div className={styles.infoItem}>
+                <label>Tipo</label>
+                <p>{customerTypeLabel}</p>
+              </div>
+              {customer.cnpj_cpf && (
+                <div className={styles.infoItem}>
+                  <label>CPF/CNPJ</label>
+                  <p>{customer.cnpj_cpf}</p>
+                </div>
+              )}
+              {customer.phone && (
+                <div className={styles.infoItem}>
+                  <label>Telefone</label>
+                  <p>{customer.phone}</p>
+                </div>
+              )}
+              {fullAddress && (
+                <div className={styles.infoItem}>
+                  <label>Endereço</label>
+                  <p>{fullAddress}</p>
+                </div>
+              )}
+            </div>
+          </SmartSection>
+        )}
 
-        <SmartSection
-          title="Histórico de Pagamentos"
-          stickyWhenOpen
-          isOpen={openSection === 'transactions'}
-          onToggle={() => toggleSection('transactions')}
-        >
-          <TransactionHistory showHeader={false} />
-        </SmartSection>
+        {isSectionVisible('financial') && (
+          <SmartSection
+            title="Resumo Financeiro"
+            stickyWhenOpen
+            isOpen={openSection === 'financial'}
+            onToggle={() => toggleSection('financial')}
+          >
+            <BalanceCard showHeader={false} />
+          </SmartSection>
+        )}
+
+        {isSectionVisible('orders') && (
+          <SmartSection
+            title="Meus Pedidos"
+            stickyWhenOpen
+            isOpen={openSection === 'orders'}
+            onToggle={() => toggleSection('orders')}
+          >
+            <OrdersList showHeader={false} isExpanded={openSection === 'orders'} />
+          </SmartSection>
+        )}
+
+        {!openSection && (
+          <div className={styles.newOrderButton}>
+            <button
+              onClick={() => navigate('/customer/orders/create')}
+              className={styles.primaryButton}
+            >
+              🛒 Fazer Novo Pedido
+            </button>
+          </div>
+        )}
+
+        {isSectionVisible('transactions') && (
+          <SmartSection
+            title="Histórico de Pagamentos"
+            stickyWhenOpen
+            isOpen={openSection === 'transactions'}
+            onToggle={() => toggleSection('transactions')}
+          >
+            <TransactionHistory showHeader={false} />
+          </SmartSection>
+        )}
       </main>
     </div>
   );

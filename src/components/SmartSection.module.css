@@ -77,7 +77,7 @@
     top: 4.8rem; /* Distância da altura do header fixo */
     z-index: 30;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
-    min-height: calc(100vh - 4.8rem);
+    min-height: calc(100dvh - 4.8rem); /* Usa dvh para suportar a toolbar do iOS Safari */
     display: flex;
     flex-direction: column;
     margin-bottom: 0;
@@ -101,14 +101,5 @@
   .stickyOpen .contentInner {
     flex: 1;
     overflow-y: auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .stickyOpen {
-    position: sticky;
-    top: 4.8rem; /* Distância exata da altura do header fixo para não encavalar */
-    z-index: 30;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
   }
 }
