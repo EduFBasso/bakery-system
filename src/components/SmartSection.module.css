@@ -67,14 +67,47 @@
 }
 
 .contentInner {
-  overflow: hidden;
   min-height: 0;
+}
+
+@media (max-width: 768px) {
+  /* No mobile, ao abrir um bloco colapsável, garantimos que ele ocupe no mínimo a tela disponível e tenha rolagem limpa */
+  .stickyOpen {
+    position: sticky;
+    top: 4.8rem; /* Distância da altura do header fixo */
+    z-index: 30;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+    min-height: calc(100vh - 4.8rem);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stickyOpen .contentWrapperOpen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stickyOpen .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stickyOpen .contentInner {
+    flex: 1;
+    overflow-y: auto;
+  }
 }
 
 @media (max-width: 768px) {
   .stickyOpen {
     position: sticky;
-    top: 0.5rem;
+    top: 4.8rem; /* Distância exata da altura do header fixo para não encavalar */
     z-index: 30;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
   }
