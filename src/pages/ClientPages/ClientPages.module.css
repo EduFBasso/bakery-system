@@ -1,7 +1,7 @@
 .container {
   min-height: 100vh;
   min-height: 100dvh; /* Garante tamanho dinâmico correto no iOS */
-  background: #f7edea; /* Fundo suave combinando com o bakery */
+  background: #f5f5f5; /* Restaurado para a cor de fundo padrão e limpa */
   display: flex;
   flex-direction: column;
 }
