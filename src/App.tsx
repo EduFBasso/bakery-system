@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage, RegisterPage, PendingPage, AdminPages, ClientPages } from './pages';
-import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage';
+import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage/AdminLoginPage';
 import { CustomerLoginPage } from './pages/ClientPages/CustomerLoginPage';
-import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage';
+import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage/CustomerCreateOrderPage';
 import './App.css';
 
 function AdminRoute() {

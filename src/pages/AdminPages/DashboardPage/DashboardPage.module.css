@@ -1,0 +1,17 @@
+.errorAlert,
+.successAlert { padding: 1rem; border-radius: 6px; margin-bottom: 2rem; font-size: 0.95rem; font-weight: 500; text-align: center; }
+.errorAlert { background-color: var(--color-danger-soft); border: 1px solid var(--color-danger-soft-border); color: var(--color-danger-text); }
+.successAlert { background-color: #d4edda; border: 1px solid #28a745; color: #155724; }
+.kpisSection { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+.kpiCard, .kpiButton { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); text-align: center; transition: all .2s ease; }
+.kpiButton { border: none; cursor: pointer; position: relative; }
+.kpiCard:hover, .kpiButton:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.kpiCard h3 { color: var(--color-text-light); font-size: .875rem; margin: 0 0 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+.kpiValue { font-size: 2.5rem; font-weight: 700; color: var(--color-admin-accent); margin: 0; }
+.kpiHint { font-size: .75rem; color: var(--color-admin-text-muted); margin-top: .5rem; font-style: italic; }
+.balanceSection { background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-top: 2rem; }
+.balanceSection h2 { margin-top: 0; color: var(--color-text); font-size: 1.5rem; margin-bottom: 1.5rem; }
+.balanceCard { background: linear-gradient(135deg, var(--color-admin-accent) 0%, var(--color-admin-accent-hover) 100%); color: white; padding: 2rem; border-radius: 8px; text-align: center; }
+.balanceValue { font-size: 2.5rem; font-weight: 700; font-family: 'Roboto', sans-serif; margin: 0; }
+.balanceLabel { font-size: 1.2rem; font-weight: 500; font-family: 'Roboto', sans-serif; margin: .65rem 0 0; opacity: .96; }
+@media (max-width: 768px) { .kpisSection { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; } }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useProducts, Product } from '../hooks/useProducts';
 import { useCreateProduct, CreateProductInput } from '../hooks/useCreateProduct';
 import { useUpdateProduct } from '../hooks/useUpdateProduct';
@@ -24,7 +25,7 @@ export function ProductsPanel({ onRefresh }: ProductsPanelProps) {
   const { updateProduct, loading: updateLoading } = useUpdateProduct();
   const { deleteProduct } = useDeleteProduct();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     // Validação básica

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useAdminCustomers } from '../../hooks/useAdminCustomers';
+import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import {
   buildAccessWhatsAppMessage,
   normalizeWhatsAppPhone,
   openWhatsAppMessage,
-} from '../../utils/whatsapp';
-import { AdminPasswordDialog } from './AdminPasswordDialog';
-import styles from './AdminPages.module.css';
+} from '../../../utils/whatsapp';
+import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
+import styles from './CustomerDetailModal.module.css';
 
 const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">

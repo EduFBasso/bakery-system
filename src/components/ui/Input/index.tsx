@@ -1,3 +1,4 @@
+import type { ChangeEvent, Ref } from 'react';
 import styles from './Input.module.css';
 import { MaskType } from '../../../utils/maskPatterns';
 
@@ -6,7 +7,7 @@ interface InputProps {
   placeholder?: string;
   value?: string;
   defaultValue?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   required?: boolean;
   name?: string;
@@ -15,7 +16,7 @@ interface InputProps {
   inputMode?: 'numeric' | 'tel' | 'text' | 'email';
   pattern?: string;
   maxLength?: number;
-  ref?: React.Ref<HTMLInputElement>;
+  ref?: Ref<HTMLInputElement>;
 }
 
 export function Input({

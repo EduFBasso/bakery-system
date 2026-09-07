@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
 import { maskPatterns, MaskType } from '../utils/maskPatterns';
 
 interface UseMaskInputResult {
   value: string;
   setValue: (value: string) => void;
-  onChangeHandler: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeHandler: (e: ChangeEvent<HTMLInputElement>) => void;
   formattedValue: string;
   inputMode: 'numeric' | 'tel' | 'text';
 }
@@ -41,7 +42,7 @@ export function useMaskInput(maskType: MaskType, initialValue = ''): UseMaskInpu
 
   // Handler para onChange do input
   const onChangeHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
       // Extrair apenas dígitos para validação
       const digitsOnly = inputValue.replace(/\D/g, '');

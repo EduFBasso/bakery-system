@@ -1,4 +1,4 @@
-import { ProductsPanel } from '../../components/ProductsPanel';
+import { ProductsPanel } from '../../../components/ProductsPanel';
 
 export function ProductsPage() {
   return (

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import { FormGroup } from '../FormGroup';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
@@ -54,7 +55,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
   });
 
   // Monitorar mudanças no CEP e chamar lookup ao completar
-  const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     zipCodeMask.onChangeHandler(e);
   };
 
@@ -88,7 +89,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
   }, [zipCodeMask.value]);
 
   // Enviar formulário
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const submitData: RegistrationFormData = {

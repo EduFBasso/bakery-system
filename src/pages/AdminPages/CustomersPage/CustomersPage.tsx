@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useAdminCustomers } from '../../hooks/useAdminCustomers';
-import { CustomerDetailModal } from './CustomerDetailModal';
-import BlockConfirmModal from './BlockConfirmModal';
-import styles from './AdminPages.module.css';
+import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import { CustomerDetailModal } from '../CustomerDetailModal/CustomerDetailModal';
+import BlockConfirmModal from '../BlockConfirmModal/BlockConfirmModal';
+import styles from './CustomersPage.module.css';
 
 interface CustomersPageProps {
   initialFilter?: string;

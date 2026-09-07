@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { AdminLayout } from './AdminLayout';
-import { DashboardPage } from './DashboardPage';
-import { CustomersPage } from './CustomersPage';
-import { ProductsPage } from './ProductsPage';
-import { AdminOrdersPage } from './AdminOrdersPage';
-import { SettingsPage } from './SettingsPage';
+import { AdminLayout } from '../AdminLayout/AdminLayout';
+import { DashboardPage } from '../DashboardPage/DashboardPage';
+import { CustomersPage } from '../CustomersPage/CustomersPage';
+import { ProductsPage } from '../ProductsPage/ProductsPage';
+import { AdminOrdersPage } from '../AdminOrdersPage/AdminOrdersPage';
+import { SettingsPage } from '../SettingsPage/SettingsPage';
 import styles from './AdminPages.module.css';
 
 export function AdminPages() {

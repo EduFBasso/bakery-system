@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styles from './AdminPages.module.css';
+import styles from './AdminPasswordDialog.module.css';
 
 interface AdminPasswordDialogProps {
   isOpen: boolean;

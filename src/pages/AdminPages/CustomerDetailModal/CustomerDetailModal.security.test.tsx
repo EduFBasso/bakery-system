@@ -7,11 +7,11 @@ const fetchCustomerDetailMock = vi.fn();
 const onCustomerUpdatedMock = vi.fn();
 const onCloseMock = vi.fn();
 
-vi.mock('../../hooks/useAdminCustomers', () => ({
+vi.mock('../../../hooks/useAdminCustomers', () => ({
   useAdminCustomers: vi.fn(),
 }));
 
-vi.mock('../../utils/whatsapp', () => ({
+vi.mock('../../../utils/whatsapp', () => ({
   buildAccessWhatsAppMessage: vi.fn(() => 'mensagem-whatsapp'),
   normalizeWhatsAppPhone: vi.fn((phone?: string | null) => {
     const digits = String(phone ?? '').replace(/\D/g, '');
@@ -23,8 +23,8 @@ vi.mock('../../utils/whatsapp', () => ({
   openWhatsAppMessage: vi.fn(),
 }));
 
-import { useAdminCustomers } from '../../hooks/useAdminCustomers';
-import { openWhatsAppMessage } from '../../utils/whatsapp';
+import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import { openWhatsAppMessage } from '../../../utils/whatsapp';
 
 const mockedUseAdminCustomers = vi.mocked(useAdminCustomers);
 const mockedOpenWhatsAppMessage = vi.mocked(openWhatsAppMessage);

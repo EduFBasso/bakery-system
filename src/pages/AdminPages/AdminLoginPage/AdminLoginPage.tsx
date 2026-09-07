@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAdminLogin } from '../../hooks/useAdminLogin';
+import type { FormEvent } from 'react';
+import { useAdminLogin } from '../../../hooks/useAdminLogin';
 import styles from './AdminLoginPage.module.css';
 
 export function AdminLoginPage() {
@@ -30,7 +31,7 @@ export function AdminLoginPage() {
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     clearError();
 

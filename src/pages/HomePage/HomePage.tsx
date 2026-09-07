@@ -1,15 +1,23 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { consumeAuthExpiryMessage } from '@/services/authExpiry';
 import { Card, Button } from '@/components';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
   const navigate = useNavigate();
+  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSessionMessage(consumeAuthExpiryMessage());
+  }, []);
 
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
         <h1>🥖 Panificadora Sistema de Pedidos</h1>
         <p>Gerenciamento simples e eficiente para seu negócio</p>
+        {sessionMessage && <div className={styles.sessionMessage}>{sessionMessage}</div>}
       </div>
 
       <div className={styles.cards}>

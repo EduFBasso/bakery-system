@@ -4,7 +4,7 @@ import {
   sendTelegramTest,
   startTelegramLink,
   verifyTelegramLink,
-} from '../../services/telegramLink';
+} from '../../../services/telegramLink';
 import styles from './SettingsPage.module.css';
 
 interface SettingsPageProps {

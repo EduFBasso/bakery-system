@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AdminPasswordDialog } from './AdminPasswordDialog';
+import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 
 interface BlockConfirmModalProps {
   isOpen: boolean;

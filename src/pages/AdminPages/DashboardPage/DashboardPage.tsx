@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAdminCustomers } from '../../hooks/useAdminCustomers';
-import styles from './AdminPages.module.css';
+import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import styles from './DashboardPage.module.css';
 
 interface DashboardPageProps {
   onNavigateToCustomers?: (filter?: string) => void;

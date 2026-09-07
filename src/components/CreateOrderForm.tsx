@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts, Product } from '../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../hooks/useCreateOrder';
@@ -289,7 +290,7 @@ export function CreateOrderForm() {
     return `${weekday}, ${dd}/${mm}/${yy}`;
   };
 
-  const handleSubmitOrder = async (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!customer) {

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import styles from './AdminPages.module.css';
+import styles from './AdminLayout.module.css';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
