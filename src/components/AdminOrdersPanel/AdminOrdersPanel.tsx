@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { AdminPasswordDialog } from '../pages/AdminPages/AdminPasswordDialog/AdminPasswordDialog';
-import { AdminOrder, useAdminOrders } from '../hooks/useAdminOrders';
-import { useUpdateOrderStatus } from '../hooks/useUpdateOrderStatus';
-import { useCancelOrder } from '../hooks/useCancelOrder';
+import { AdminPasswordDialog } from '../../pages/AdminPages/AdminPasswordDialog/AdminPasswordDialog';
+import { AdminOrder, useAdminOrders } from '../../hooks/useAdminOrders';
+import { useUpdateOrderStatus } from '../../hooks/useUpdateOrderStatus';
+import { useCancelOrder } from '../../hooks/useCancelOrder';
 import styles from './AdminOrdersPanel.module.css';
 
 const PAYMENT_FILTERS = [

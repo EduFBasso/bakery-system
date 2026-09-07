@@ -1,37 +1,195 @@
 .errorAlert,
-.successAlert { padding: 1rem; border-radius: 6px; margin-bottom: 2rem; font-size: .95rem; font-weight: 500; text-align: center; }
-.errorAlert { background-color: var(--color-danger-soft); border: 1px solid var(--color-danger-soft-border); color: var(--color-danger-text); }
-.successAlert { background-color: #d4edda; border: 1px solid #28a745; color: #155724; }
-.subTabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 1rem; }
-.subTab { padding: .5rem 1rem; background: transparent; border: 1px solid #ddd; border-radius: 4px; color: var(--color-text-light); font-size: .875rem; font-weight: 600; cursor: pointer; }
-.subTab:hover, .subTab.active { border-color: var(--color-admin-accent); color: var(--color-admin-accent); }
-.subTab.active { background-color: var(--color-admin-accent); color: white; }
-.searchBox { margin-bottom: 1.5rem; }
-.searchInput { width: 100%; max-width: 400px; padding: .75rem 1rem; border: 2px solid var(--color-admin-border); border-radius: 6px; font-size: .95rem; }
-.searchInput:focus { outline: none; border-color: var(--color-admin-accent); box-shadow: 0 0 0 3px rgba(217,130,93,.1); }
-.tableSection { background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-.tableSection h2 { margin-top: 0; color: var(--color-text); font-size: 1.5rem; margin-bottom: 1.5rem; }
-.emptyState { text-align: center; color: var(--color-admin-text-muted); padding: 2rem; font-size: .95rem; }
-.tableWrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.table { width: 100%; border-collapse: collapse; font-size: .95rem; }
-.table thead { background-color: #f9f9f9; border-bottom: 2px solid var(--color-admin-border); }
-.table th { padding: 1rem; text-align: left; font-weight: 600; color: var(--color-text-light); text-transform: uppercase; letter-spacing: .5px; font-size: .75rem; }
-.table td { padding: 1rem; border-bottom: 1px solid #f0f0f0; color: var(--color-text); }
-.table tbody tr:hover { background-color: var(--color-admin-row-hover); }
-.actionHeader { text-align: center !important; }
-.actionCell { text-align: center; }
-.actionButtonsGroup { display: flex; gap: .5rem; justify-content: center; flex-wrap: nowrap; }
-.tableActionButton { width: 150px; min-width: 150px; flex: 0 0 150px; text-align: center; padding: .5rem 1rem; border: none; border-radius: 4px; color: white; font-size: .875rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.approveButton { background-color: #4caf50; }
-.detailsButton { background-color: var(--color-admin-info); min-width: 145px; }
-.blockButton { background-color: #f44336; }
-.unblockButton { background-color: var(--color-admin-neutral); }
-.approveButton:hover { background-color: #45a049; }
-.detailsButton:hover { background-color: var(--color-admin-info-hover); }
-.blockButton:hover { background-color: #da190b; }
-.unblockButton:hover { background-color: var(--color-admin-neutral-hover); }
-.statusBadge { display: inline-block; padding: .4rem .75rem; border-radius: 20px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
-.statusBadge.status-pendente { background-color: #fff3cd; color: #856404; }
-.statusBadge.status-aprovado { background-color: #d4edda; color: #155724; }
-.statusBadge.status-bloqueado { background-color: #f8d7da; color: #721c24; }
-@media (max-width: 768px) { .subTabs { overflow-x: auto; } .tableSection { padding: 1rem; } .table { font-size: .85rem; } .table th, .table td { padding: .75rem .5rem; } }
+.successAlert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+}
+.errorAlert {
+  background-color: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-soft-border);
+  color: var(--color-danger-text);
+}
+.successAlert {
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+  color: #155724;
+}
+.subTabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
+}
+.subTab {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.subTab:hover,
+.subTab.active {
+  border-color: var(--color-admin-accent);
+  color: var(--color-admin-accent);
+}
+.subTab.active {
+  background-color: var(--color-admin-accent);
+  color: white;
+}
+.searchBox {
+  margin-bottom: 1.5rem;
+}
+.searchInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-admin-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-admin-accent);
+  box-shadow: 0 0 0 3px rgba(217, 130, 93, 0.1);
+}
+.tableSection {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.tableSection h2 {
+  margin-top: 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.emptyState {
+  text-align: center;
+  color: var(--color-admin-text-muted);
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.table thead {
+  background-color: #f9f9f9;
+  border-bottom: 2px solid var(--color-admin-border);
+}
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+}
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--color-text);
+}
+.table tbody tr:hover {
+  background-color: var(--color-admin-row-hover);
+}
+.actionHeader {
+  text-align: center !important;
+}
+.actionCell {
+  text-align: center;
+}
+.actionButtonsGroup {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.tableActionButton {
+  width: 150px;
+  min-width: 150px;
+  flex: 0 0 150px;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.approveButton {
+  background-color: #4caf50;
+}
+.detailsButton {
+  background-color: var(--color-admin-info);
+  min-width: 145px;
+}
+.blockButton {
+  background-color: #f44336;
+}
+.unblockButton {
+  background-color: var(--color-admin-neutral);
+}
+.approveButton:hover {
+  background-color: #45a049;
+}
+.detailsButton:hover {
+  background-color: var(--color-admin-info-hover);
+}
+.blockButton:hover {
+  background-color: #da190b;
+}
+.unblockButton:hover {
+  background-color: var(--color-admin-neutral-hover);
+}
+.statusBadge {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.statusBadge.status-pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.statusBadge.status-aprovado {
+  background-color: #d4edda;
+  color: #155724;
+}
+.statusBadge.status-bloqueado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+@media (max-width: 768px) {
+  .subTabs {
+    overflow-x: auto;
+  }
+  .tableSection {
+    padding: 1rem;
+  }
+  .table {
+    font-size: 0.85rem;
+  }
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AdminOrdersPanel } from '../../../components/AdminOrdersPanel';
+import { AdminOrdersPanel } from '../../../components/AdminOrdersPanel/AdminOrdersPanel';
 import styles from './AdminOrdersPage.module.css';
 
 export function AdminOrdersPage() {

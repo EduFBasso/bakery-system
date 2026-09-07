@@ -1,9 +1,9 @@
-import { ProductsPanel } from '../../../components/ProductsPanel';
+import { AdminProductsPanel } from '../../../components/AdminProductsPanel/AdminProductsPanel';
 
 export function AdminProductsPage() {
   return (
     <div>
-      <ProductsPanel />
+      <AdminProductsPanel />
     </div>
   );
 }

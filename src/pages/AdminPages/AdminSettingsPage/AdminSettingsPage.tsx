@@ -104,7 +104,7 @@ export function AdminSettingsPage({ onError, onSuccess }: AdminSettingsPageProps
         </button>
         <button
           type="button"
-          className="secondary"
+          className={styles.secondary}
           onClick={() => void handleVerify()}
           disabled={linkBusy || !startToken}
         >
@@ -112,7 +112,7 @@ export function AdminSettingsPage({ onError, onSuccess }: AdminSettingsPageProps
         </button>
         <button
           type="button"
-          className="secondary"
+          className={styles.secondary}
           onClick={() => void handleTest()}
           disabled={testBusy || !connected}
           title={!connected ? 'Conecte o Telegram primeiro' : ''}

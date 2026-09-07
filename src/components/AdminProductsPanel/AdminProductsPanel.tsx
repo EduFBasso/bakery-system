@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useProducts, Product } from '../hooks/useProducts';
-import { useCreateProduct, CreateProductInput } from '../hooks/useCreateProduct';
-import { useUpdateProduct } from '../hooks/useUpdateProduct';
-import { useDeleteProduct } from '../hooks/useDeleteProduct';
-import styles from './ProductsPanel.module.css';
+import { useProducts, Product } from '../../hooks/useProducts';
+import { useCreateProduct, CreateProductInput } from '../../hooks/useCreateProduct';
+import { useUpdateProduct } from '../../hooks/useUpdateProduct';
+import { useDeleteProduct } from '../../hooks/useDeleteProduct';
+import styles from './AdminProductsPanel.module.css';
 
 interface ProductsPanelProps {
   onRefresh?: () => void;
 }
 
-export function ProductsPanel({ onRefresh }: ProductsPanelProps) {
+export function AdminProductsPanel({ onRefresh }: ProductsPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CreateProductInput>({

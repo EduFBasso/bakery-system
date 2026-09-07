@@ -6,21 +6,21 @@ import { AdminOrdersPanel } from './AdminOrdersPanel';
 const updateStatusMock = vi.fn();
 const cancelOrderMock = vi.fn();
 
-vi.mock('../hooks/useAdminOrders', () => ({
+vi.mock('../../hooks/useAdminOrders', () => ({
   useAdminOrders: vi.fn(),
 }));
 
-vi.mock('../hooks/useUpdateOrderStatus', () => ({
+vi.mock('../../hooks/useUpdateOrderStatus', () => ({
   useUpdateOrderStatus: vi.fn(),
 }));
 
-vi.mock('../hooks/useCancelOrder', () => ({
+vi.mock('../../hooks/useCancelOrder', () => ({
   useCancelOrder: vi.fn(),
 }));
 
-import { useAdminOrders } from '../hooks/useAdminOrders';
-import { useUpdateOrderStatus } from '../hooks/useUpdateOrderStatus';
-import { useCancelOrder } from '../hooks/useCancelOrder';
+import { useAdminOrders } from '../../hooks/useAdminOrders';
+import { useUpdateOrderStatus } from '../../hooks/useUpdateOrderStatus';
+import { useCancelOrder } from '../../hooks/useCancelOrder';
 
 const mockedUseAdminOrders = vi.mocked(useAdminOrders);
 const mockedUseUpdateOrderStatus = vi.mocked(useUpdateOrderStatus);
