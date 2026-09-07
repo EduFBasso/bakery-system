@@ -60,5 +60,40 @@ export function useCancelOrder() {
     }
   };
 
-  return { cancelOrder, loading, error };
+  const cancelCustomerOrder = async (
+    orderId: number,
+    reason: string
+  ): Promise<CancelOrderResponse | null> => {
+    const token = localStorage.getItem('bread_customer_token');
+    if (!token) {
+      setError('Sessão do cliente não disponível');
+      return null;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/v1/bakery/orders/${orderId}/cancel/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP ${response.status}`);
+      }
+      return (await response.json()) as CancelOrderResponse;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao cancelar pedido';
+      setError(message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { cancelOrder, cancelCustomerOrder, loading, error };
 }

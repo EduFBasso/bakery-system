@@ -68,6 +68,7 @@ describe('CreateOrderForm security rules', () => {
         },
       ],
       loading: false,
+      refreshing: false,
       error: null,
       refetch: vi.fn(),
     });
@@ -128,6 +129,34 @@ describe('CreateOrderForm security rules', () => {
     expect(createOrderMock).not.toHaveBeenCalled();
   });
 
+  it('abre o carrinho e confirma ao adicionar um produto', async () => {
+    render(<CreateOrderForm />);
+
+    await addItemToCart('2');
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Pao para Hamburguer adicionado ao carrinho.'
+    );
+    expect(screen.getByText('Total:')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Carrinho (1 itens)' })).toBeInTheDocument();
+    expect(screen.getByText('Quantidade')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '+' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '-' })).not.toBeInTheDocument();
+  });
+
+  it('remove item do rascunho somente após confirmação', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<CreateOrderForm />);
+
+    await addItemToCart('2');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Remover Pao para Hamburguer do carrinho' })
+    );
+
+    expect(confirmSpy).toHaveBeenCalledWith('Remover Pao para Hamburguer deste pedido?');
+    expect(screen.getByText('Carrinho vazio. Adicione produtos acima.')).toBeInTheDocument();
+  });
+
   it('rejeita endereco em formato invalido antes de criar pedido', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     render(<CreateOrderForm />);
@@ -160,8 +189,7 @@ describe('CreateOrderForm security rules', () => {
     expect(createOrderMock).not.toHaveBeenCalled();
   });
 
-  it('envia payload seguro no formato esperado e navega apos sucesso', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('envia payload seguro e prepara a tela para outro pedido após sucesso', async () => {
     createOrderMock.mockResolvedValue({ order_number: 'ORD-999' });
 
     render(<CreateOrderForm />);
@@ -180,6 +208,7 @@ describe('CreateOrderForm security rules', () => {
 
     const payload = createOrderMock.mock.calls[0][0];
     expect(payload).toMatchObject({
+      customer_id: 1,
       payment_method: 'CREDIT',
       shipping_street: 'Rua A',
       shipping_number: '10',
@@ -190,7 +219,9 @@ describe('CreateOrderForm security rules', () => {
       items: [{ product_id: 1, quantity: 2 }],
     });
 
-    expect(alertSpy).toHaveBeenCalledWith('Pedido criado com sucesso! ID: ORD-999');
-    expect(navigateMock).toHaveBeenCalledWith('/customer/dashboard');
+    expect(screen.getByRole('status')).toHaveTextContent('Pedido #ORD-999 criado com sucesso.');
+    expect(screen.getByRole('heading', { name: 'Carrinho (0 itens)' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Criar Pedido' })).toBeDisabled();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 });

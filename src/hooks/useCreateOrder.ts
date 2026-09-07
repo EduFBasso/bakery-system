@@ -7,6 +7,7 @@ export interface OrderItem {
 }
 
 export interface CreateOrderPayload {
+  customer_id: number;
   delivery_date: string;
   payment_method: string;
   notes?: string;

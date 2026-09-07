@@ -33,7 +33,7 @@ const makeOrder = (overrides: Record<string, any> = {}) => ({
   customer_nickname: 'Cliente A',
   status: 'PENDING',
   status_display: 'Pendente',
-  order_date: '2026-07-15T10:00:00Z',
+  created_at: '2026-07-15T10:00:00Z',
   delivery_date: '2026-07-16T10:00:00Z',
   total_value: '75.00',
   payment_method: 'CREDIT',
@@ -56,6 +56,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
 
     mockedUseCancelOrder.mockReturnValue({
       cancelOrder: cancelOrderMock,
+      cancelCustomerOrder: vi.fn(),
       loading: false,
       error: null,
     });

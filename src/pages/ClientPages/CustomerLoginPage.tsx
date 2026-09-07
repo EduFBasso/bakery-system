@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerLogin } from '../../hooks';
 import { Button } from '../../components/ui/Button';
@@ -9,6 +9,12 @@ export function CustomerLoginPage() {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('bread_customer_token')) {
+      navigate('/customer/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const { login, loading, error, clearError } = useCustomerLogin({
     onSuccess: () => {

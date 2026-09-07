@@ -1,49 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useCancelOrder } from '../../hooks/useCancelOrder';
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
 import styles from './styles.module.css';
 
-interface OrdersListProps {
-  showHeader?: boolean;
-  isExpanded?: boolean;
-}
-
-export function OrdersList({ showHeader = true, isExpanded = false }: OrdersListProps) {
-  const { orders, loading, error } = useCustomerOrders();
-  const lastOrderRef = useRef<HTMLDivElement | null>(null);
+export function OrdersList() {
+  const { orders, loading, error, refetch } = useCustomerOrders();
+  const { cancelCustomerOrder, loading: cancelLoading, error: cancelError } = useCancelOrder();
   const sortedOrders = [...orders].sort(
     (a, b) => new Date(a.order_date).getTime() - new Date(b.order_date).getTime()
   );
 
-  useEffect(() => {
-    if (!isExpanded || sortedOrders.length === 0) {
-      return;
-    }
-
-    // Aguarda a animacao do bloco para posicionar na ultima linha (pedido mais recente).
-    const timer = window.setTimeout(() => {
-      lastOrderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 320);
-
-    return () => window.clearTimeout(timer);
-  }, [isExpanded, sortedOrders.length]);
-
-  const renderHeader = (count?: number) => {
-    if (!showHeader) {
-      return null;
-    }
-
-    return (
-      <div className={styles.header}>
-        <h3>📦 Meus Pedidos</h3>
-        {typeof count === 'number' && <span className={styles.count}>{count}</span>}
-      </div>
-    );
-  };
-
   if (loading) {
     return (
       <div className={styles.container}>
-        {renderHeader()}
         <div className={styles.skeleton} />
       </div>
     );
@@ -52,7 +20,6 @@ export function OrdersList({ showHeader = true, isExpanded = false }: OrdersList
   if (error) {
     return (
       <div className={styles.container}>
-        {renderHeader()}
         <div className={styles.errorMessage}>{error}</div>
       </div>
     );
@@ -61,7 +28,6 @@ export function OrdersList({ showHeader = true, isExpanded = false }: OrdersList
   if (orders.length === 0) {
     return (
       <div className={styles.container}>
-        {renderHeader()}
         <div className={styles.emptyState}>
           <p>Nenhum pedido realizado ainda</p>
           <small>Comece a fazer seus pedidos agora!</small>
@@ -106,48 +72,68 @@ export function OrdersList({ showHeader = true, isExpanded = false }: OrdersList
     return `Pedido ${datePart} as ${timePart}`;
   };
 
+  const formatUnitPrice = (value: string) => {
+    const amount = Number.parseFloat(value || '0');
+    return amount.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  };
+
+  const handleCancel = async (orderId: number) => {
+    const reason = window.prompt('Informe o motivo do cancelamento:')?.trim();
+    if (!reason) {
+      return;
+    }
+    const result = await cancelCustomerOrder(orderId, reason);
+    if (result) {
+      refetch();
+      window.dispatchEvent(new Event('bakery:customer-data-changed'));
+    }
+  };
+
   return (
     <div className={styles.container}>
-      {renderHeader(sortedOrders.length)}
-
       <div className={styles.list}>
-        {sortedOrders.map((order, index) => (
-          <div
-            key={order.id}
-            className={styles.orderCard}
-            ref={index === sortedOrders.length - 1 ? lastOrderRef : null}
-          >
+        {sortedOrders.map((order) => (
+          <div key={order.id} className={`${styles.orderCard} ${getStatusClass(order.status)}`}>
             <div className={styles.cardHeader}>
-              <div>
-                <div className={styles.orderNumber}>{formatOrderTitle(order.order_date)}</div>
-              </div>
-              <div className={`${styles.status} ${getStatusClass(order.status)}`}>
-                {`Pagamento: ${getStatusLabel(order.status)}`}
-              </div>
+              <div className={styles.orderNumber}>{formatOrderTitle(order.order_date)}</div>
+              <div className={styles.status}>{getStatusLabel(order.status)}</div>
             </div>
 
             <div className={styles.cardContent}>
-              <div className={styles.items}>
-                <div className={styles.itemCount}>
-                  {order.items.length} {order.items.length === 1 ? 'item' : 'itens'}
-                </div>
-                <div className={styles.itemsList}>
-                  {order.items.slice(0, 2).map((item) => (
-                    <div key={item.id} className={styles.itemPreview}>
-                      • {item.product_name} (qty: {item.quantity})
-                    </div>
-                  ))}
-                  {order.items.length > 2 && (
-                    <div className={styles.itemPreview}>• +{order.items.length - 2} mais</div>
-                  )}
-                </div>
+              <div className={styles.itemsList}>
+                {order.items.slice(0, 2).map((item) => (
+                  <div key={item.id} className={styles.itemPreview}>
+                    {item.product_name} x {item.quantity} · {formatUnitPrice(item.unit_price)}/un.
+                  </div>
+                ))}
+                {order.items.length > 2 && (
+                  <div className={styles.itemPreview}>+{order.items.length - 2} mais</div>
+                )}
               </div>
 
-              <div className={styles.amount}>R$ {parseFloat(order.total_value).toFixed(2)}</div>
+              <div className={styles.amount}>
+                R$ {parseFloat(order.total_value).toFixed(2).replace('.', ',')}
+              </div>
             </div>
+            {order.status === 'PENDING' && (
+              <div className={styles.cardFooter}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => void handleCancel(order.id)}
+                  disabled={cancelLoading}
+                >
+                  {cancelLoading ? 'Cancelando...' : 'Cancelar pedido'}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
+      {cancelError && <div className={styles.errorMessage}>{cancelError}</div>}
     </div>
   );
 }

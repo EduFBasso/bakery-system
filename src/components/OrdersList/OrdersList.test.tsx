@@ -1,13 +1,22 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrdersList } from './index';
 import { useCustomerOrders, type Order } from '../../hooks/useCustomerOrders';
+import { useCancelOrder } from '../../hooks/useCancelOrder';
 
 vi.mock('../../hooks/useCustomerOrders', () => ({
   useCustomerOrders: vi.fn(),
 }));
 
+vi.mock('../../hooks/useCancelOrder', () => ({
+  useCancelOrder: vi.fn(),
+}));
+
 const mockedUseCustomerOrders = vi.mocked(useCustomerOrders);
+const mockedUseCancelOrder = vi.mocked(useCancelOrder);
+const refetchMock = vi.fn();
+const cancelCustomerOrderMock = vi.fn();
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
   id: 1,
@@ -35,8 +44,16 @@ const makeOrder = (overrides: Partial<Order> = {}): Order => ({
 
 describe('OrdersList', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     mockedUseCustomerOrders.mockReturnValue({
       orders: [],
+      loading: false,
+      error: null,
+      refetch: refetchMock,
+    });
+    mockedUseCancelOrder.mockReturnValue({
+      cancelOrder: vi.fn(),
+      cancelCustomerOrder: cancelCustomerOrderMock,
       loading: false,
       error: null,
     });
@@ -57,13 +74,14 @@ describe('OrdersList', () => {
       ],
       loading: false,
       error: null,
+      refetch: vi.fn(),
     });
 
     render(<OrdersList />);
 
-    expect(screen.getByText('Pagamento: ✅ Pago')).toBeInTheDocument();
-    expect(screen.getByText('Pagamento: ⏳ Pendente')).toBeInTheDocument();
-    expect(screen.getByText('Pagamento: ✕ Não aplicável')).toBeInTheDocument();
+    expect(screen.getByText('✅ Pago')).toBeInTheDocument();
+    expect(screen.getByText('⏳ Pendente')).toBeInTheDocument();
+    expect(screen.getByText('✕ Não aplicável')).toBeInTheDocument();
   });
 
   it('ordena pedidos por data crescente no componente', () => {
@@ -74,6 +92,7 @@ describe('OrdersList', () => {
       ],
       loading: false,
       error: null,
+      refetch: vi.fn(),
     });
 
     render(<OrdersList />);
@@ -93,10 +112,39 @@ describe('OrdersList', () => {
       orders: [],
       loading: false,
       error: 'Erro de rede',
+      refetch: vi.fn(),
     });
 
     render(<OrdersList />);
 
     expect(screen.getByText('Erro de rede')).toBeInTheDocument();
+  });
+
+  it('cancela somente pedido pendente com motivo e atualiza os dados', async () => {
+    const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue('Pedido duplicado');
+    cancelCustomerOrderMock.mockResolvedValue({
+      id: 1,
+      order_number: 'ORD-001',
+      status: 'CANCELLED',
+      cancelled_at: '2026-07-10T13:00:00',
+      cancellation_reason: 'Pedido duplicado',
+    });
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [makeOrder()],
+      loading: false,
+      error: null,
+      refetch: refetchMock,
+    });
+    const eventSpy = vi.spyOn(window, 'dispatchEvent');
+    render(<OrdersList />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar pedido' }));
+
+    expect(promptSpy).toHaveBeenCalled();
+    expect(cancelCustomerOrderMock).toHaveBeenCalledWith(1, 'Pedido duplicado');
+    await waitFor(() => expect(refetchMock).toHaveBeenCalled());
+    expect(eventSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bakery:customer-data-changed' })
+    );
   });
 });

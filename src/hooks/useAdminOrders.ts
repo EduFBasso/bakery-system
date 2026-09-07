@@ -7,7 +7,7 @@ export interface AdminOrder {
   customer_nickname: string;
   status: string;
   status_display: string;
-  order_date: string;
+  created_at: string;
   delivery_date: string;
   total_value: string;
   payment_method: string;
@@ -15,6 +15,7 @@ export interface AdminOrder {
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
   items: any[];
+  order_items?: any[];
 }
 
 export interface AdminOrdersResponse {
@@ -91,7 +92,13 @@ export function useAdminOrders(filters?: {
         }
 
         const data: AdminOrdersResponse = await response.json();
-        setOrders(data.results);
+        setOrders(
+          data.results.map((order) => ({
+            ...order,
+            created_at: order.created_at ?? (order as { order_date?: string }).order_date ?? '',
+            items: order.order_items ?? order.items ?? [],
+          }))
+        );
         setPagination({
           count: data.count,
           next: data.next,

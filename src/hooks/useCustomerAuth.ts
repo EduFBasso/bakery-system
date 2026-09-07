@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface CustomerData {
+export interface CustomerData {
   id: number;
   customer_id?: number;
   nickname: string;
@@ -29,6 +29,7 @@ export function useCustomerAuth() {
   const [customer, setCustomer] = useState<CustomerData | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const parseCurrentCustomer = (payload: unknown): CustomerData | null => {
     if (!payload || typeof payload !== 'object') {
@@ -134,6 +135,23 @@ export function useCustomerAuth() {
     };
 
     void bootstrapCustomerSession();
+  }, [refreshKey]);
+
+  useEffect(() => {
+    const refreshCustomer = () => setRefreshKey((value) => value + 1);
+    const refreshVisibleCustomer = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCustomer();
+      }
+    };
+    window.addEventListener('bakery:customer-data-changed', refreshCustomer);
+    window.addEventListener('focus', refreshCustomer);
+    document.addEventListener('visibilitychange', refreshVisibleCustomer);
+    return () => {
+      window.removeEventListener('bakery:customer-data-changed', refreshCustomer);
+      window.removeEventListener('focus', refreshCustomer);
+      document.removeEventListener('visibilitychange', refreshVisibleCustomer);
+    };
   }, []);
 
   const logout = useCallback(() => {

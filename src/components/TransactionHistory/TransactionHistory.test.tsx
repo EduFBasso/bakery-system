@@ -8,6 +8,7 @@ vi.mock('../../hooks/useCustomerOrders', () => ({
 }));
 
 const mockedUseCustomerOrders = vi.mocked(useCustomerOrders);
+const refetchMock = vi.fn();
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
   id: 1,
@@ -39,6 +40,7 @@ describe('TransactionHistory', () => {
       orders: [],
       loading: false,
       error: null,
+      refetch: refetchMock,
     });
   });
 
@@ -47,6 +49,7 @@ describe('TransactionHistory', () => {
       orders: [makeOrder({ status: 'PENDING' }), makeOrder({ status: 'CANCELLED', id: 2 })],
       loading: false,
       error: null,
+      refetch: refetchMock,
     });
 
     render(<TransactionHistory />);
@@ -55,7 +58,7 @@ describe('TransactionHistory', () => {
     expect(screen.queryByText('Ultimo pagamento')).not.toBeInTheDocument();
   });
 
-  it('filtra apenas pedidos pagos e ordena por data de pagamento mais recente', () => {
+  it('mostra o pagamento confirmado mais recente', () => {
     mockedUseCustomerOrders.mockReturnValue({
       orders: [
         makeOrder({ id: 10, order_number: 'ORD-010', status: 'PENDING', total_value: '999.99' }),
@@ -76,16 +79,13 @@ describe('TransactionHistory', () => {
       ],
       loading: false,
       error: null,
+      refetch: refetchMock,
     });
 
     render(<TransactionHistory />);
 
     expect(screen.queryByText('ORD-010')).not.toBeInTheDocument();
-    expect(screen.getByText('ORD-001')).toBeInTheDocument();
-    expect(screen.getByText('ORD-002')).toBeInTheDocument();
-
-    const orderLabels = screen.getAllByText(/^ORD-/).map((node) => node.textContent);
-    expect(orderLabels).toEqual(['ORD-002', 'ORD-001']);
+    expect(screen.queryByText('ORD-001')).not.toBeInTheDocument();
 
     expect(screen.getAllByText(/150,00/).length).toBeGreaterThan(0);
   });
@@ -103,6 +103,7 @@ describe('TransactionHistory', () => {
       ],
       loading: false,
       error: null,
+      refetch: refetchMock,
     });
 
     render(<TransactionHistory />);
@@ -115,6 +116,7 @@ describe('TransactionHistory', () => {
       orders: [],
       loading: false,
       error: 'Falha ao carregar',
+      refetch: refetchMock,
     });
 
     render(<TransactionHistory />);

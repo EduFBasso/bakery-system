@@ -57,31 +57,43 @@
   display: grid;
   grid-template-rows: 0fr;
   overflow: hidden;
+  pointer-events: none;
   opacity: 0;
-  transition: grid-template-rows 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition:
+    grid-template-rows 0.35s ease-in-out,
+    opacity 0.2s ease-in-out;
+  will-change: grid-template-rows, opacity;
 }
 
 .contentWrapperOpen {
   grid-template-rows: 1fr;
+  pointer-events: auto;
   opacity: 1;
+  transition:
+    grid-template-rows 0.45s ease-in-out,
+    opacity 0.3s ease-in-out;
 }
 
 .contentInner {
+  overflow: hidden;
   min-height: 0;
 }
 
 @media (max-width: 768px) {
-  /* No mobile, ao abrir um bloco colapsável, garantimos que ele ocupe no mínimo a tela disponível e tenha rolagem limpa */
+  /* No mobile, ao abrir um bloco colapsável, ele ocupa a tela disponível com rolagem interna própria */
   .stickyOpen {
     position: sticky;
     top: 4.8rem; /* Distância da altura do header fixo */
     z-index: 30;
+    box-sizing: border-box;
+    align-self: stretch;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
     min-height: calc(100dvh - 4.8rem); /* Usa dvh para suportar a toolbar do iOS Safari */
+    max-height: calc(100dvh - 4.8rem); /* Limite explícito: sem isso o overflow-y:auto nunca ativa */
     display: flex;
     flex-direction: column;
     margin-bottom: 0;
-    border-radius: 0.75rem 0.75rem 0 0;
+    border-radius: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -90,16 +102,19 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0; /* Permite que o filho realmente encolha dentro do flex e role */
   }
 
   .stickyOpen .content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 
   .stickyOpen .contentInner {
     flex: 1;
     overflow-y: auto;
+    min-height: 0;
   }
 }

@@ -16,6 +16,7 @@ export interface Order {
   customer_id: number;
   status: 'PENDING' | 'CONFIRMED' | 'DELIVERED' | 'CANCELLED';
   order_date: string;
+  created_at?: string;
   paid_at?: string | null;
   updated_at?: string;
   total_value: string;
@@ -30,6 +31,7 @@ export function useCustomerOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
@@ -62,6 +64,7 @@ export function useCustomerOrders() {
         setOrders(
           rows.map((row) => ({
             ...row,
+            order_date: row.order_date ?? row.created_at ?? '',
             items: row.items ?? row.order_items ?? [],
           }))
         );
@@ -75,11 +78,29 @@ export function useCustomerOrders() {
     };
 
     fetchOrders();
-  }, [token, isAuthenticated]);
+  }, [token, isAuthenticated, refreshKey]);
+
+  useEffect(() => {
+    const refreshOrders = () => setRefreshKey((value) => value + 1);
+    const refreshVisibleOrders = () => {
+      if (document.visibilityState === 'visible') {
+        refreshOrders();
+      }
+    };
+    window.addEventListener('bakery:customer-data-changed', refreshOrders);
+    window.addEventListener('focus', refreshOrders);
+    document.addEventListener('visibilitychange', refreshVisibleOrders);
+    return () => {
+      window.removeEventListener('bakery:customer-data-changed', refreshOrders);
+      window.removeEventListener('focus', refreshOrders);
+      document.removeEventListener('visibilitychange', refreshVisibleOrders);
+    };
+  }, []);
 
   return {
     orders,
     loading,
     error,
+    refetch: () => setRefreshKey((value) => value + 1),
   };
 }

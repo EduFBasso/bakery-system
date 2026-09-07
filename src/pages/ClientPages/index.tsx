@@ -5,11 +5,12 @@ import { BalanceCard } from '../../components/BalanceCard';
 import { OrdersList } from '../../components/OrdersList';
 import { TransactionHistory } from '../../components/TransactionHistory';
 import { SmartSection } from '../../components/SmartSection';
+import { CustomerProfileEditor } from '../../components/CustomerProfileEditor';
 import styles from './ClientPages.module.css';
 
 export function ClientPages() {
   const navigate = useNavigate();
-  const { customer, isLoading, logout } = useCustomerAuth();
+  const { customer, token, isLoading, logout } = useCustomerAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,6 +18,16 @@ export function ClientPages() {
       navigate('/customer/login');
     }
   }, [isLoading, customer, navigate]);
+
+  useEffect(() => {
+    document.documentElement.classList.add('clientPageBody');
+    document.body.classList.add('clientPageBody');
+
+    return () => {
+      document.documentElement.classList.remove('clientPageBody');
+      document.body.classList.remove('clientPageBody');
+    };
+  }, []);
 
   if (isLoading) {
     return <div className={styles.container}>Carregando...</div>;
@@ -32,28 +43,12 @@ export function ClientPages() {
   }
 
   const statusLabel = customer.status === 'APPROVED' ? 'APROVADO' : customer.status;
-  const customerTypeLabel = customer.customer_type === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica';
-  const fullAddress = [
-    customer.street,
-    customer.number,
-    customer.complement,
-    customer.neighborhood,
-    customer.city,
-    customer.state,
-    customer.zip_code,
-  ]
-    .filter(Boolean)
-    .join(', ');
   const toggleSection = (sectionId: string) => {
     setOpenSection((prev) => (prev === sectionId ? null : sectionId));
   };
 
-  const isSectionVisible = (sectionId: string) => {
-    return openSection === null || openSection === sectionId;
-  };
-
   return (
-    <div className={`${styles.container} ${openSection ? styles.hasOpenSection : ''}`}>
+    <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerMainRow}>
@@ -70,93 +65,48 @@ export function ClientPages() {
       </header>
 
       <main className={styles.main}>
-        {isSectionVisible('account') && (
+        {token && (
           <SmartSection
-            title="Informações da Conta"
-            stickyWhenOpen
-            isOpen={openSection === 'account'}
-            onToggle={() => toggleSection('account')}
+            title="Meus dados"
+            isOpen={openSection === 'profile'}
+            onToggle={() => toggleSection('profile')}
           >
-            <div className={styles.infoGrid}>
-              {customer.company_name && (
-                <div className={styles.infoItem}>
-                  <label>Nome Comercial</label>
-                  <p>{customer.company_name}</p>
-                </div>
-              )}
-              <div className={styles.infoItem}>
-                <label>Apelido</label>
-                <p>{customer.nickname}</p>
-              </div>
-              <div className={styles.infoItem}>
-                <label>Tipo</label>
-                <p>{customerTypeLabel}</p>
-              </div>
-              {customer.cnpj_cpf && (
-                <div className={styles.infoItem}>
-                  <label>CPF/CNPJ</label>
-                  <p>{customer.cnpj_cpf}</p>
-                </div>
-              )}
-              {customer.phone && (
-                <div className={styles.infoItem}>
-                  <label>Telefone</label>
-                  <p>{customer.phone}</p>
-                </div>
-              )}
-              {fullAddress && (
-                <div className={styles.infoItem}>
-                  <label>Endereço</label>
-                  <p>{fullAddress}</p>
-                </div>
-              )}
-            </div>
+            <CustomerProfileEditor customer={customer} token={token} />
           </SmartSection>
         )}
 
-        {isSectionVisible('financial') && (
-          <SmartSection
-            title="Resumo Financeiro"
-            stickyWhenOpen
-            isOpen={openSection === 'financial'}
-            onToggle={() => toggleSection('financial')}
-          >
-            <BalanceCard showHeader={false} />
-          </SmartSection>
-        )}
+        <SmartSection
+          title="Resumo Financeiro"
+          isOpen={openSection === 'financial'}
+          onToggle={() => toggleSection('financial')}
+        >
+          <BalanceCard showHeader={false} />
+        </SmartSection>
 
-        {isSectionVisible('orders') && (
-          <SmartSection
-            title="Meus Pedidos"
-            stickyWhenOpen
-            isOpen={openSection === 'orders'}
-            onToggle={() => toggleSection('orders')}
+        <div className={styles.newOrderButton}>
+          <button
+            onClick={() => navigate('/customer/orders/create')}
+            className={styles.primaryButton}
           >
-            <OrdersList showHeader={false} isExpanded={openSection === 'orders'} />
-          </SmartSection>
-        )}
+            🛒 Fazer Novo Pedido
+          </button>
+        </div>
 
-        {!openSection && (
-          <div className={styles.newOrderButton}>
-            <button
-              onClick={() => navigate('/customer/orders/create')}
-              className={styles.primaryButton}
-            >
-              🛒 Fazer Novo Pedido
-            </button>
-          </div>
-        )}
+        <SmartSection
+          title="Histórico de Pagamentos"
+          isOpen={openSection === 'transactions'}
+          onToggle={() => toggleSection('transactions')}
+        >
+          <TransactionHistory />
+        </SmartSection>
 
-        {isSectionVisible('transactions') && (
-          <SmartSection
-            title="Histórico de Pagamentos"
-            stickyWhenOpen
-            isOpen={openSection === 'transactions'}
-            onToggle={() => toggleSection('transactions')}
-          >
-            <TransactionHistory showHeader={false} />
-          </SmartSection>
-        )}
+        <SmartSection
+          title="Histórico de Pedidos"
+          isOpen={openSection === 'orders'}
+          onToggle={() => toggleSection('orders')}
+        >
+          <OrdersList />
+        </SmartSection>
       </main>
     </div>
   );

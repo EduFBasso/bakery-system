@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts, Product } from '../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../hooks/useCreateOrder';
@@ -11,10 +11,22 @@ interface CartItem {
   quantity: number;
 }
 
+interface CreatedOrderSummary {
+  orderNumber: string;
+  total: number;
+  deliveryDate: string;
+}
+
 export function CreateOrderForm() {
   const navigate = useNavigate();
   const { customer, token } = useCustomerAuth();
-  const { products, loading: productsLoading, error: productsError } = useProducts();
+  const {
+    products,
+    loading: productsLoading,
+    refreshing: productsRefreshing,
+    error: productsError,
+    refetch: refetchProducts,
+  } = useProducts();
   const { createOrder, loading: orderLoading, error: orderError } = useCreateOrder();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -25,11 +37,14 @@ export function CreateOrderForm() {
   const [notes, setNotes] = useState<string>('');
   const [deliveryAddressText, setDeliveryAddressText] = useState<string>('');
   const [openSection, setOpenSection] = useState<string | null>('products');
+  const [cartFeedback, setCartFeedback] = useState<string | null>(null);
+  const [createdOrder, setCreatedOrder] = useState<CreatedOrderSummary | null>(null);
   const [financial, setFinancial] = useState<{
     limit: number;
     used: number;
     available: number;
   } | null>(null);
+  const cartSectionRef = useRef<HTMLDivElement>(null);
 
   const paymentMethod = 'CREDIT';
 
@@ -103,6 +118,17 @@ export function CreateOrderForm() {
     setDeliveryAddressText(buildAddressText(customer));
   }, [customer]);
 
+  useEffect(() => {
+    const cartSection = cartSectionRef.current;
+    if (
+      openSection === 'cart' &&
+      cartItems.length > 0 &&
+      typeof cartSection?.scrollIntoView === 'function'
+    ) {
+      cartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [cartItems.length, openSection]);
+
   const parsePositiveInteger = (value: string): number | null => {
     const trimmed = value.trim();
     if (!trimmed) {
@@ -129,6 +155,7 @@ export function CreateOrderForm() {
 
     const product = products.find((p) => p.id === parseInt(selectedProductId));
     if (!product) return;
+    setCreatedOrder(null);
 
     // Verificar se já está no carrinho
     const existingItem = cartItems.find((item) => item.product.id === product.id);
@@ -149,20 +176,16 @@ export function CreateOrderForm() {
     // Resetar seleção
     setSelectedProductId('');
     setSelectedQuantityInput('');
+    setCartFeedback(`${product.name} adicionado ao carrinho.`);
+    setOpenSection('cart');
   };
 
-  const handleRemoveFromCart = (productId: number) => {
-    setCartItems(cartItems.filter((item) => item.product.id !== productId));
-  };
-
-  const handleUpdateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      handleRemoveFromCart(productId);
+  const handleRemoveFromCart = (product: Product) => {
+    if (!window.confirm(`Remover ${product.name} deste pedido?`)) {
       return;
     }
-    setCartItems(
-      cartItems.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
-    );
+    setCartItems((items) => items.filter((item) => item.product.id !== product.id));
+    setCartFeedback(`${product.name} removido do carrinho.`);
   };
 
   const calculateTotal = (): number => {
@@ -216,6 +239,20 @@ export function CreateOrderForm() {
     };
 
     void bootstrapFinancial();
+    const refreshFinancial = () => void bootstrapFinancial();
+    const refreshVisibleFinancial = () => {
+      if (document.visibilityState === 'visible') {
+        refreshFinancial();
+      }
+    };
+    window.addEventListener('bakery:customer-data-changed', refreshFinancial);
+    window.addEventListener('focus', refreshFinancial);
+    document.addEventListener('visibilitychange', refreshVisibleFinancial);
+    return () => {
+      window.removeEventListener('bakery:customer-data-changed', refreshFinancial);
+      window.removeEventListener('focus', refreshFinancial);
+      document.removeEventListener('visibilitychange', refreshVisibleFinancial);
+    };
   }, [token]);
 
   const financialLimit =
@@ -255,6 +292,11 @@ export function CreateOrderForm() {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!customer) {
+      alert('Sessão do cliente não disponível. Faça login novamente.');
+      return;
+    }
+
     // Validações
     if (cartItems.length === 0) {
       alert('Adicione pelo menos um item ao carrinho');
@@ -291,6 +333,7 @@ export function CreateOrderForm() {
     const scheduledDelivery = new Date(year, month - 1, day, 8, 0, 0);
 
     const payload: CreateOrderPayload = {
+      customer_id: customer.id,
       delivery_date: scheduledDelivery.toISOString(),
       payment_method: paymentMethod,
       notes,
@@ -304,8 +347,27 @@ export function CreateOrderForm() {
     // Criar pedido
     const result = await createOrder(payload);
     if (result) {
-      alert(`Pedido criado com sucesso! ID: ${result.order_number}`);
-      navigate('/customer/dashboard');
+      setCreatedOrder({
+        orderNumber: result.order_number,
+        total: orderTotal,
+        deliveryDate,
+      });
+      setFinancial((current) =>
+        current
+          ? {
+              ...current,
+              used: current.used + orderTotal,
+              available: Math.max(0, current.available - orderTotal),
+            }
+          : current
+      );
+      setCartItems([]);
+      setCartFeedback(null);
+      setSelectedProductId('');
+      setSelectedQuantityInput('');
+      setNotes('');
+      setOpenSection('products');
+      window.dispatchEvent(new Event('bakery:customer-data-changed'));
     }
   };
 
@@ -313,7 +375,7 @@ export function CreateOrderForm() {
     return <div className={styles.container}>Carregando produtos...</div>;
   }
 
-  if (productsError) {
+  if (productsError && products.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.error}>Erro: {productsError}</div>
@@ -324,11 +386,19 @@ export function CreateOrderForm() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+        {createdOrder && (
+          <div className={styles.orderSuccess} role="status">
+            <strong>Pedido #{createdOrder.orderNumber} criado com sucesso.</strong>
+            <span>
+              Total {formatCurrency(createdOrder.total)} · Entrega{' '}
+              {formatDeliveryDateLabel(createdOrder.deliveryDate)}
+            </span>
+          </div>
+        )}
         <SmartSection
           title="Resumo Financeiro"
           isOpen={openSection === 'financial'}
           onToggle={() => toggleSection('financial')}
-          stickyWhenOpen
         >
           <div className={styles.financialSection}>
             <div className={styles.financialGrid}>
@@ -357,10 +427,18 @@ export function CreateOrderForm() {
           title="Selecionar Produtos"
           isOpen={openSection === 'products'}
           onToggle={() => toggleSection('products')}
-          stickyWhenOpen
         >
           <div className={styles.section}>
             <div className={styles.productSelector}>
+              <button
+                type="button"
+                className={styles.refreshButton}
+                onClick={() => void refetchProducts()}
+                disabled={productsRefreshing}
+              >
+                {productsRefreshing ? 'Atualizando...' : 'Atualizar catálogo'}
+              </button>
+              {productsError && <div className={styles.catalogError}>{productsError}</div>}
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
@@ -396,74 +474,60 @@ export function CreateOrderForm() {
           </div>
         </SmartSection>
 
-        <SmartSection
-          title={`Carrinho (${cartItems.length} itens)`}
-          isOpen={openSection === 'cart'}
-          onToggle={() => toggleSection('cart')}
-          stickyWhenOpen
-        >
-          <div className={styles.section}>
-            {cartItems.length === 0 ? (
-              <p className={styles.emptyMessage}>Carrinho vazio. Adicione produtos acima.</p>
-            ) : (
-              <div className={styles.cartItems}>
-                {cartItems.map((item) => (
-                  <div key={item.product.id} className={styles.cartItem}>
-                    <div className={styles.itemInfo}>
-                      <span className={styles.itemName}>{item.product.name}</span>
-                      <span className={styles.itemPrice}>
-                        R$ {parseFloat(item.product.price).toFixed(2)} cada
-                      </span>
-                    </div>
-
-                    <div className={styles.itemQuantity}>
-                      <button
-                        onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
-                        className={styles.buttonSmall}
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleUpdateQuantity(item.product.id, parseInt(e.target.value) || 1)
-                        }
-                        className={styles.quantityInput}
-                      />
-                      <button
-                        onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
-                        className={styles.buttonSmall}
-                        type="button"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div className={styles.itemSubtotal}>
-                      R$ {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
-                    </div>
-
-                    <button
-                      onClick={() => handleRemoveFromCart(item.product.id)}
-                      className={styles.buttonRemove}
-                      type="button"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-
-                <div className={styles.cartTotal}>
-                  <strong>Total:</strong>
-                  <strong className={styles.totalAmount}>R$ {calculateTotal().toFixed(2)}</strong>
-                </div>
-              </div>
+        <div ref={cartSectionRef}>
+          <SmartSection
+            title={`Carrinho (${cartItems.length} itens)`}
+            isOpen={openSection === 'cart'}
+            onToggle={() => toggleSection('cart')}
+          >
+            {cartFeedback && (
+              <p className={styles.cartFeedback} role="status">
+                {cartFeedback}
+              </p>
             )}
-          </div>
-        </SmartSection>
+            <div className={styles.section}>
+              {cartItems.length === 0 ? (
+                <p className={styles.emptyMessage}>Carrinho vazio. Adicione produtos acima.</p>
+              ) : (
+                <div className={styles.cartItems}>
+                  {cartItems.map((item) => (
+                    <div key={item.product.id} className={styles.cartItem}>
+                      <div className={styles.itemInfo}>
+                        <span className={styles.itemName}>{item.product.name}</span>
+                        <span className={styles.itemPrice}>
+                          R$ {parseFloat(item.product.price).toFixed(2)} cada
+                        </span>
+                      </div>
+
+                      <div className={styles.itemQuantity}>
+                        <span className={styles.quantityLabel}>Quantidade</span>
+                        <strong>{item.quantity}</strong>
+                      </div>
+
+                      <div className={styles.itemSubtotal}>
+                        R$ {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+                      </div>
+
+                      <button
+                        onClick={() => handleRemoveFromCart(item.product)}
+                        className={styles.buttonRemove}
+                        type="button"
+                        aria-label={`Remover ${item.product.name} do carrinho`}
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+
+                  <div className={styles.cartTotal}>
+                    <strong>Total:</strong>
+                    <strong className={styles.totalAmount}>R$ {calculateTotal().toFixed(2)}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          </SmartSection>
+        </div>
 
         {/* Dados de entrega e pagamento */}
         <form onSubmit={handleSubmitOrder} className={styles.formSection}>
@@ -471,7 +535,6 @@ export function CreateOrderForm() {
             title="Dados de Entrega"
             isOpen={openSection === 'delivery'}
             onToggle={() => toggleSection('delivery')}
-            stickyWhenOpen
           >
             <div className={styles.section}>
               <div className={styles.formGroup}>

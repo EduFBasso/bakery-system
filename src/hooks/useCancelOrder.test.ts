@@ -53,4 +53,19 @@ describe('useCancelOrder security contract', () => {
       expect(result.current.error).toBe('Token de admin não disponível');
     });
   });
+
+  it('usa token do cliente sem enviar senha administrativa', async () => {
+    localStorage.setItem('bread_customer_token', 'token-cliente');
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: 5, status: 'CANCELLED' }),
+    } as Response);
+    const { result } = renderHook(() => useCancelOrder());
+
+    await result.current.cancelCustomerOrder(5, 'Pedido duplicado');
+
+    const requestInit = fetchSpy.mock.calls[0][1] as RequestInit;
+    expect(requestInit.headers).toMatchObject({ Authorization: 'Bearer token-cliente' });
+    expect(requestInit.body).toBe(JSON.stringify({ reason: 'Pedido duplicado' }));
+  });
 });

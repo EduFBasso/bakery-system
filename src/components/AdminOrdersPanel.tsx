@@ -53,7 +53,16 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
     if (!value) {
       return '—';
     }
-    return new Date(value).toLocaleString('pt-BR');
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('pt-BR');
+  };
+
+  const formatDate = (value?: string | null) => {
+    if (!value) {
+      return '—';
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('pt-BR');
   };
 
   const openSecurityAction = (action: 'pay' | 'cancel', order: AdminOrder) => {
@@ -182,7 +191,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
                             {getPaymentInfo(order).label}
                           </span>
                         </td>
-                        <td>{new Date(order.order_date).toLocaleDateString('pt-BR')}</td>
+                        <td>{formatDate(order.created_at)}</td>
                         <td className={styles.value}>
                           R$ {parseFloat(order.total_value).toFixed(2)}
                         </td>
@@ -210,7 +219,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
                               <div className={styles.detailsGrid}>
                                 <div>
                                   <strong>Data de Entrega:</strong>
-                                  <p>{new Date(order.delivery_date).toLocaleDateString('pt-BR')}</p>
+                                  <p>{formatDate(order.delivery_date)}</p>
                                 </div>
                                 <div>
                                   <strong>Método de Pagamento:</strong>

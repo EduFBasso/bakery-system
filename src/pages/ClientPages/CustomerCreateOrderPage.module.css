@@ -1,6 +1,11 @@
 .container {
   min-height: 100vh;
-  background-color: #fff;
+  min-height: 100dvh;
+  background: linear-gradient(
+    135deg,
+    var(--color-admin-bg-start) 0%,
+    var(--color-admin-bg-end) 100%
+  );
 }
 
 .header {

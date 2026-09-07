@@ -48,7 +48,6 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute />} />
 
         {/* Cliente */}
-        <Route path="/dashboard" element={<ClientPages />} />
         <Route path="/customer/dashboard" element={<CustomerRoute />} />
         <Route path="/customer/orders/create" element={<CustomerRoute page="create-order" />} />
 
