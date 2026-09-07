@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../hooks';
-import { BalanceCard } from '../../components/BalanceCard';
-import { OrdersList } from '../../components/OrdersList';
-import { TransactionHistory } from '../../components/TransactionHistory';
-import { SmartSection } from '../../components/SmartSection';
-import { CustomerProfileEditor } from '../../components/CustomerProfileEditor';
+import { BalanceCard } from '../../components/BalanceCard/BalanceCard';
+import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersList';
+import { TransactionHistory } from '../../components/CustomerTransactionHistory/CustomerTransactionHistory';
+import { SmartSection } from '../../components/SmartSection/SmartSection';
+import { CustomerProfileEditor } from '../../components/CustomerProfileEditor/CustomerProfileEditor';
 import styles from './ClientPages.module.css';
 
 export function ClientPages() {

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OrdersList } from './index';
+import { OrdersList } from './CustomerOrdersList';
 import { useCustomerOrders, type Order } from '../../hooks/useCustomerOrders';
 import { useCancelOrder } from '../../hooks/useCancelOrder';
 

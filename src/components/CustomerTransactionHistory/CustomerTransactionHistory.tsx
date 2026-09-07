@@ -1,5 +1,5 @@
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
-import styles from './styles.module.css';
+import styles from './CustomerTransactionHistory.module.css';
 
 export function TransactionHistory() {
   const { orders, loading, error } = useCustomerOrders();

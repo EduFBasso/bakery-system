@@ -1,6 +1,6 @@
 import { useCancelOrder } from '../../hooks/useCancelOrder';
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
-import styles from './styles.module.css';
+import styles from './CustomerOrdersList.module.css';
 
 export function OrdersList() {
   const { orders, loading, error, refetch } = useCustomerOrders();

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TransactionHistory } from './index';
+import { TransactionHistory } from './CustomerTransactionHistory';
 import { useCustomerOrders, type Order } from '../../hooks/useCustomerOrders';
 
 vi.mock('../../hooks/useCustomerOrders', () => ({

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProducts, Product } from '../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../hooks/useCreateOrder';
 import { useCustomerAuth } from '../hooks/useCustomerAuth';
-import { SmartSection } from './SmartSection';
+import { SmartSection } from './SmartSection/SmartSection';
 import styles from './CreateOrderForm.module.css';
 
 interface CartItem {

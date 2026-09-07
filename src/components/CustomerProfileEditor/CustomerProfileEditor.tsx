@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { CustomerData } from '../../hooks/useCustomerAuth';
-import styles from './styles.module.css';
+import styles from './CustomerProfileEditor.module.css';
 
 interface CustomerProfileEditorProps {
   customer: CustomerData;

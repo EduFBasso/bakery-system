@@ -1,4 +1,4 @@
-import { useCustomerDashboard } from '../hooks/useCustomerDashboard';
+import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
 import styles from './BalanceCard.module.css';
 
 interface BalanceCardProps {
