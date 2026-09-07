@@ -1,4 +1,4 @@
-import styles from './CustomersTable.module.css';
+import styles from '../Table.module.css';
 
 interface CustomersTableProps {
   data: any[];

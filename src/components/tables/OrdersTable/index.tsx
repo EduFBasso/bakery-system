@@ -1,4 +1,4 @@
-import styles from './OrdersTable.module.css';
+import styles from '../Table.module.css';
 
 interface OrdersTableProps {
   data: any[];
