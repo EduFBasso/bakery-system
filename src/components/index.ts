@@ -10,6 +10,7 @@ export { Modal } from './ui/Modal';
 export { FormGroup } from './forms/FormGroup';
 export { CustomerForm } from './forms/CustomerForm';
 export { LoginForm } from './forms/LoginForm';
+export { CreateOrderForm } from './forms/CreateOrderForm/CreateOrderForm';
 
 // Table Components
 export { CustomersTable } from './tables/CustomersTable';

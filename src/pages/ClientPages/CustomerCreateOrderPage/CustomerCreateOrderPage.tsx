@@ -1,4 +1,4 @@
-import { CreateOrderForm } from '../../../components/CreateOrderForm';
+import { CreateOrderForm } from '../../../components/forms/CreateOrderForm/CreateOrderForm';
 import { useCustomerAuth } from '../../../hooks/useCustomerAuth';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';

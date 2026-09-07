@@ -14,21 +14,21 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../hooks/useProducts', () => ({
+vi.mock('../../../hooks/useProducts', () => ({
   useProducts: vi.fn(),
 }));
 
-vi.mock('../hooks/useCreateOrder', () => ({
+vi.mock('../../../hooks/useCreateOrder', () => ({
   useCreateOrder: vi.fn(),
 }));
 
-vi.mock('../hooks/useCustomerAuth', () => ({
+vi.mock('../../../hooks/useCustomerAuth', () => ({
   useCustomerAuth: vi.fn(),
 }));
 
-import { useProducts } from '../hooks/useProducts';
-import { useCreateOrder } from '../hooks/useCreateOrder';
-import { useCustomerAuth } from '../hooks/useCustomerAuth';
+import { useProducts } from '../../../hooks/useProducts';
+import { useCreateOrder } from '../../../hooks/useCreateOrder';
+import { useCustomerAuth } from '../../../hooks/useCustomerAuth';
 
 const mockedUseProducts = vi.mocked(useProducts);
 const mockedUseCreateOrder = vi.mocked(useCreateOrder);
