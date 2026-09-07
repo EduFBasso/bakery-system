@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 export interface CustomerData {
   id: number;
   customer_id?: number;
+  user?: number;
   nickname: string;
   customer_type: string;
   company_name?: string;
@@ -48,6 +49,20 @@ export function useCustomerAuth() {
     return payload as CustomerData;
   };
 
+  const getTokenUserId = (token: string): number | null => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return Number(payload.user_id ?? payload.sub) || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const matchesTokenCustomer = (token: string, customerData: CustomerData | null) => {
+    const tokenUserId = getTokenUserId(token);
+    return Boolean(customerData && tokenUserId && customerData.user === tokenUserId);
+  };
+
   useEffect(() => {
     // Carregar dados do localStorage
     const storedToken = localStorage.getItem('bread_customer_token');
@@ -72,9 +87,11 @@ export function useCustomerAuth() {
           if (response.ok) {
             const payload = await response.json();
             const freshCustomerData = parseCurrentCustomer(payload);
-            if (freshCustomerData) {
+            if (matchesTokenCustomer(storedToken, freshCustomerData)) {
               localStorage.setItem('bread_customer_user', JSON.stringify(freshCustomerData));
               setCustomer(freshCustomerData);
+            } else {
+              logout();
             }
           }
 
@@ -107,7 +124,7 @@ export function useCustomerAuth() {
 
           const payload = await response.json();
           const customerData = parseCurrentCustomer(payload);
-          if (!customerData) {
+          if (!matchesTokenCustomer(storedToken, customerData)) {
             logout();
             setIsLoading(false);
             return;

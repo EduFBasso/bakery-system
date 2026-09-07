@@ -24,19 +24,25 @@
 .toggleButton {
   width: 40px;
   height: 40px;
-  border: 1px solid #d8d8d8;
+  border: 2px solid var(--color-primary);
   border-radius: 10px;
-  background: #fff;
+  background: #fff4ee;
+  color: #9b4f2e;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: #fbe4d8;
 }
 
 .hamburger {
   font-size: 18px;
   line-height: 1;
-  color: #4a4f56;
+  color: #9b4f2e;
 }
 
 .content {

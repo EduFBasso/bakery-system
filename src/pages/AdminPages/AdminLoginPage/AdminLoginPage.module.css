@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5e6d3 0%, #e8d4c0 100%);
+  background: linear-gradient(135deg, var(--color-admin-bg-start) 0%, var(--color-admin-bg-end) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +17,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #d9825d 0%, #c97449 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   padding: 2rem 1.5rem;
   text-align: center;
@@ -100,7 +100,7 @@
 
 .formGroup input:focus {
   outline: none;
-  border-color: #d9825d;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(217, 130, 93, 0.1);
 }
 
@@ -113,7 +113,7 @@
 .submitButton {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: linear-gradient(135deg, #d9825d 0%, #c97449 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   border: none;
   border-radius: 6px;

@@ -5,6 +5,7 @@ import { useProducts, Product } from '../../../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../../../hooks/useCreateOrder';
 import { useCustomerAuth } from '../../../hooks/useCustomerAuth';
 import { SmartSection } from '../../SmartSection/SmartSection';
+import { SystemMessageToast } from '../../ui/SystemMessageToast/SystemMessageToast';
 import styles from './CreateOrderForm.module.css';
 
 interface CartItem {
@@ -388,13 +389,14 @@ export function CreateOrderForm() {
     <div className={styles.container}>
       <div className={styles.content}>
         {createdOrder && (
-          <div className={styles.orderSuccess} role="status">
-            <strong>Pedido #{createdOrder.orderNumber} criado com sucesso.</strong>
-            <span>
-              Total {formatCurrency(createdOrder.total)} · Entrega{' '}
-              {formatDeliveryDateLabel(createdOrder.deliveryDate)}
-            </span>
-          </div>
+          <SystemMessageToast
+            open={true}
+            title={`Pedido #${createdOrder.orderNumber} criado com sucesso.`}
+            message={`Total ${formatCurrency(createdOrder.total)} · Entrega ${formatDeliveryDateLabel(
+              createdOrder.deliveryDate
+            )}`}
+            onClose={() => setCreatedOrder(null)}
+          />
         )}
         <SmartSection
           title="Resumo Financeiro"

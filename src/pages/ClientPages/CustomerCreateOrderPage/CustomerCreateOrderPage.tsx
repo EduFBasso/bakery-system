@@ -6,18 +6,13 @@ import styles from './CustomerCreateOrderPage.module.css';
 
 export function CustomerCreateOrderPage() {
   const navigate = useNavigate();
-  const { customer, isLoading, logout } = useCustomerAuth();
+  const { customer, isLoading } = useCustomerAuth();
 
   useEffect(() => {
     if (!isLoading && !customer) {
       navigate('/customer/login');
     }
   }, [isLoading, customer, navigate]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   if (isLoading) {
     return <div className={styles.container}>Carregando...</div>;
@@ -32,9 +27,6 @@ export function CustomerCreateOrderPage() {
       <div className={styles.header}>
         <div className={styles.headerMainRow}>
           <h1>{customer.nickname}</h1>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            Sair
-          </button>
         </div>
         <p>Novo Pedido</p>
       </div>

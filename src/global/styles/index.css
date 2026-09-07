@@ -22,7 +22,11 @@ body {
 #root {
   min-height: 100vh;
   min-height: 100dvh;
-  background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-admin-bg-start) 0%,
+    var(--color-admin-bg-end) 100%
+  );
 }
 
 h1,

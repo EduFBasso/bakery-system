@@ -83,6 +83,9 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
         }
 
         // Salvar tokens e info do admin
+        localStorage.removeItem('bread_customer_token');
+        localStorage.removeItem('bread_customer_refresh');
+        localStorage.removeItem('bread_customer_user');
         localStorage.setItem('bread_admin_token', data.access);
         localStorage.setItem('bread_admin_refresh', data.refresh);
         localStorage.setItem('bread_admin_role', 'admin');

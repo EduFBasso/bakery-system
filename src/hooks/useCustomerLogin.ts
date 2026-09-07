@@ -68,6 +68,10 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
         }
 
         // Salvar tokens e info do cliente
+        localStorage.removeItem('bread_admin_token');
+        localStorage.removeItem('bread_admin_refresh');
+        localStorage.removeItem('bread_admin_role');
+        localStorage.removeItem('bread_admin_user');
         localStorage.setItem('bread_customer_token', data.access);
         localStorage.setItem('bread_customer_refresh', data.refresh);
         if (data.customer) {

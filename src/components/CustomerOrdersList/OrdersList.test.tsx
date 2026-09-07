@@ -81,7 +81,7 @@ describe('OrdersList', () => {
 
     expect(screen.getByText('✅ Pago')).toBeInTheDocument();
     expect(screen.getByText('⏳ Pendente')).toBeInTheDocument();
-    expect(screen.getByText('✕ Não aplicável')).toBeInTheDocument();
+    expect(screen.getByText('✕ Cancelado')).toBeInTheDocument();
   });
 
   it('ordena pedidos por data crescente no componente', () => {
@@ -121,7 +121,6 @@ describe('OrdersList', () => {
   });
 
   it('cancela somente pedido pendente com motivo e atualiza os dados', async () => {
-    const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue('Pedido duplicado');
     cancelCustomerOrderMock.mockResolvedValue({
       id: 1,
       order_number: 'ORD-001',
@@ -139,12 +138,35 @@ describe('OrdersList', () => {
     render(<OrdersList />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar pedido' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Motivo do cancelamento' }),
+      'Pedido duplicado'
+    );
+    await userEvent.type(screen.getByLabelText('Sua senha'), 'senha-cliente');
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }));
 
-    expect(promptSpy).toHaveBeenCalled();
-    expect(cancelCustomerOrderMock).toHaveBeenCalledWith(1, 'Pedido duplicado');
+    expect(cancelCustomerOrderMock).toHaveBeenCalledWith(1, 'Pedido duplicado', 'senha-cliente');
     await waitFor(() => expect(refetchMock).toHaveBeenCalled());
     expect(eventSpy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'bakery:customer-data-changed' })
     );
+  });
+
+  it('bloqueia cancelamento sem motivo e informa o cliente', async () => {
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [makeOrder()],
+      loading: false,
+      error: null,
+      refetch: refetchMock,
+    });
+
+    render(<OrdersList />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar pedido' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Informe o motivo para cancelar o pedido.');
+    expect(cancelCustomerOrderMock).not.toHaveBeenCalled();
   });
 });

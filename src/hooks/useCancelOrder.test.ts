@@ -62,10 +62,12 @@ describe('useCancelOrder security contract', () => {
     } as Response);
     const { result } = renderHook(() => useCancelOrder());
 
-    await result.current.cancelCustomerOrder(5, 'Pedido duplicado');
+    await result.current.cancelCustomerOrder(5, 'Pedido duplicado', 'senha-cliente');
 
     const requestInit = fetchSpy.mock.calls[0][1] as RequestInit;
     expect(requestInit.headers).toMatchObject({ Authorization: 'Bearer token-cliente' });
-    expect(requestInit.body).toBe(JSON.stringify({ reason: 'Pedido duplicado' }));
+    expect(requestInit.body).toBe(
+      JSON.stringify({ reason: 'Pedido duplicado', customer_password: 'senha-cliente' })
+    );
   });
 });

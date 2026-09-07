@@ -17,7 +17,7 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #D4825C 0%, #c26e47 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: #fff;
   padding: 0.85rem 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -93,7 +93,7 @@
   margin: 0 0 1.5rem 0;
   color: #333;
   font-size: 1.25rem;
-  border-bottom: 2px solid #D4825C;
+  border-bottom: 2px solid var(--color-primary);
   padding-bottom: 0.75rem;
 }
 
@@ -132,7 +132,7 @@
 
 .primaryButton {
   padding: 1rem 2rem;
-  background-color: #D4825C;
+  background-color: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 0.5rem;
@@ -140,13 +140,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 2px 8px rgba(212, 130, 92, 0.3);
+  box-shadow: 0 2px 8px rgba(217, 130, 93, 0.3);
 }
 
 .primaryButton:hover {
-  background-color: #c26f47;
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(212, 130, 92, 0.4);
+  box-shadow: 0 4px 12px rgba(217, 130, 93, 0.4);
 }
 
 .primaryButton:active {

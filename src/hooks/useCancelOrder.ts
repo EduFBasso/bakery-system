@@ -62,7 +62,8 @@ export function useCancelOrder() {
 
   const cancelCustomerOrder = async (
     orderId: number,
-    reason: string
+    reason: string,
+    customerPassword: string
   ): Promise<CancelOrderResponse | null> => {
     const token = localStorage.getItem('bread_customer_token');
     if (!token) {
@@ -79,7 +80,7 @@ export function useCancelOrder() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason, customer_password: customerPassword }),
       });
       if (!response.ok) {
         const errorData = await response.json();
