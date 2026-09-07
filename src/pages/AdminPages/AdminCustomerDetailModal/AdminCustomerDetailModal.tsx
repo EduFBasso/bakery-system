@@ -6,7 +6,7 @@ import {
   openWhatsAppMessage,
 } from '../../../utils/whatsapp';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
-import styles from './CustomerDetailModal.module.css';
+import styles from './AdminCustomerDetailModal.module.css';
 
 const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -81,7 +81,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-interface CustomerDetailModalProps {
+interface AdminCustomerDetailModalProps {
   customerId: number | null;
   isOpen: boolean;
   onClose: () => void;
@@ -89,7 +89,7 @@ interface CustomerDetailModalProps {
   autoOpenApproveConfirm?: boolean;
 }
 
-export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
+export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> = ({
   customerId,
   isOpen,
   onClose,

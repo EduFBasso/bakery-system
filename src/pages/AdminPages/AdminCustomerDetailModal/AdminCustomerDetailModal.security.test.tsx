@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CustomerDetailModal } from './CustomerDetailModal';
+import { AdminCustomerDetailModal } from './AdminCustomerDetailModal';
 
 const fetchCustomerDetailMock = vi.fn();
 const onCustomerUpdatedMock = vi.fn();
@@ -63,7 +63,7 @@ const blockedCustomer = {
   status: 'BLOQUEADO',
 };
 
-describe('CustomerDetailModal security flows', () => {
+describe('AdminCustomerDetailModal security flows', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -88,7 +88,7 @@ describe('CustomerDetailModal security flows', () => {
 
   const renderModal = () =>
     render(
-      <CustomerDetailModal
+      <AdminCustomerDetailModal
         customerId={12}
         isOpen
         onClose={onCloseMock}

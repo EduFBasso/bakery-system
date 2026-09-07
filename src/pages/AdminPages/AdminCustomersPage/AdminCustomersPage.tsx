@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
-import { CustomerDetailModal } from '../CustomerDetailModal/CustomerDetailModal';
-import BlockConfirmModal from '../BlockConfirmModal/BlockConfirmModal';
-import styles from './CustomersPage.module.css';
+import { AdminCustomerDetailModal } from '../AdminCustomerDetailModal/AdminCustomerDetailModal';
+import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
+import styles from './AdminCustomersPage.module.css';
 
-interface CustomersPageProps {
+interface AdminCustomersPageProps {
   initialFilter?: string;
   onError?: (error: string) => void;
   onSuccess?: (message: string) => void;
 }
 
-export function CustomersPage({ initialFilter, onError, onSuccess }: CustomersPageProps) {
+export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminCustomersPageProps) {
   const { allCustomers, loading, error, fetchAllCustomers } = useAdminCustomers({
     onError,
     onSuccess,
@@ -217,7 +217,7 @@ export function CustomersPage({ initialFilter, onError, onSuccess }: CustomersPa
         )}
       </section>
 
-      <CustomerDetailModal
+      <AdminCustomerDetailModal
         customerId={selectedCustomerId}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -226,7 +226,7 @@ export function CustomersPage({ initialFilter, onError, onSuccess }: CustomersPa
       />
 
       {blockCustomerData && (
-        <BlockConfirmModal
+        <AdminBlockConfirmModal
           isOpen={showBlockConfirmModal}
           customerId={blockCustomerData.id}
           customerNickname={blockCustomerData.nickname}

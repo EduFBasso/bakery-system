@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
-import styles from './DashboardPage.module.css';
+import styles from './AdminDashboardPage.module.css';
 
-interface DashboardPageProps {
+interface AdminDashboardPageProps {
   onNavigateToCustomers?: (filter?: string) => void;
   onError?: (error: string) => void;
   onSuccess?: (message: string) => void;
 }
 
-export function DashboardPage({ onNavigateToCustomers, onError, onSuccess }: DashboardPageProps) {
+export function AdminDashboardPage({
+  onNavigateToCustomers,
+  onError,
+  onSuccess,
+}: AdminDashboardPageProps) {
   const { stats, loading, error, fetchAdminStats } = useAdminCustomers({
     onError,
     onSuccess,

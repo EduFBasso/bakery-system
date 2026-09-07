@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { AdminLayout } from '../AdminLayout/AdminLayout';
-import { DashboardPage } from '../DashboardPage/DashboardPage';
-import { CustomersPage } from '../CustomersPage/CustomersPage';
-import { ProductsPage } from '../ProductsPage/ProductsPage';
+import { AdminDashboardPage } from '../AdminDashboardPage/AdminDashboardPage';
+import { AdminCustomersPage } from '../AdminCustomersPage/AdminCustomersPage';
+import { AdminProductsPage } from '../AdminProductsPage/AdminProductsPage';
 import { AdminOrdersPage } from '../AdminOrdersPage/AdminOrdersPage';
-import { SettingsPage } from '../SettingsPage/SettingsPage';
+import { AdminSettingsPage } from '../AdminSettingsPage/AdminSettingsPage';
 import styles from './AdminPages.module.css';
 
 export function AdminPages() {
@@ -57,7 +57,7 @@ export function AdminPages() {
       {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
 
       {activeTab === 'dashboard' && (
-        <DashboardPage
+        <AdminDashboardPage
           onNavigateToCustomers={handleNavigateToCustomers}
           onError={handleError}
           onSuccess={handleSuccess}
@@ -65,18 +65,20 @@ export function AdminPages() {
       )}
 
       {activeTab === 'customers' && (
-        <CustomersPage
+        <AdminCustomersPage
           initialFilter={customerFilter}
           onError={handleError}
           onSuccess={handleSuccess}
         />
       )}
 
-      {activeTab === 'products' && <ProductsPage />}
+      {activeTab === 'products' && <AdminProductsPage />}
 
       {activeTab === 'orders' && <AdminOrdersPage />}
 
-      {activeTab === 'settings' && <SettingsPage onError={handleError} onSuccess={handleSuccess} />}
+      {activeTab === 'settings' && (
+        <AdminSettingsPage onError={handleError} onSuccess={handleSuccess} />
+      )}
     </AdminLayout>
   );
 }

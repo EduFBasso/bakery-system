@@ -1,6 +1,6 @@
 import { ProductsPanel } from '../../../components/ProductsPanel';
 
-export function ProductsPage() {
+export function AdminProductsPage() {
   return (
     <div>
       <ProductsPanel />

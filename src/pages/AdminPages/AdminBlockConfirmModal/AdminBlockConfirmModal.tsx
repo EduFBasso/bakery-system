@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 
-interface BlockConfirmModalProps {
+interface AdminBlockConfirmModalProps {
   isOpen: boolean;
   customerId: number;
   customerNickname: string;
@@ -10,14 +10,14 @@ interface BlockConfirmModalProps {
   onCustomerUpdated: () => void;
 }
 
-export default function BlockConfirmModal({
+export default function AdminBlockConfirmModal({
   isOpen,
   customerId,
   customerNickname,
   action,
   onClose,
   onCustomerUpdated,
-}: BlockConfirmModalProps) {
+}: AdminBlockConfirmModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 

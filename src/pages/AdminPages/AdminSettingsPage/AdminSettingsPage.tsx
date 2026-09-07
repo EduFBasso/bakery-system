@@ -5,14 +5,14 @@ import {
   startTelegramLink,
   verifyTelegramLink,
 } from '../../../services/telegramLink';
-import styles from './SettingsPage.module.css';
+import styles from './AdminSettingsPage.module.css';
 
-interface SettingsPageProps {
+interface AdminSettingsPageProps {
   onError?: (error: string) => void;
   onSuccess?: (message: string) => void;
 }
 
-export function SettingsPage({ onError, onSuccess }: SettingsPageProps) {
+export function AdminSettingsPage({ onError, onSuccess }: AdminSettingsPageProps) {
   const [linked, setLinked] = useState(false);
   const [linkActive, setLinkActive] = useState(false);
   const [username, setUsername] = useState('');
