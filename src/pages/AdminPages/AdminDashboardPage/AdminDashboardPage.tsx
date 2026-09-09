@@ -19,6 +19,7 @@ export function AdminDashboardPage({
   });
 
   const [successMessage, setSuccessMessage] = useState('');
+  const showInitialLoading = loading && !stats;
 
   useEffect(() => {
     fetchAdminStats();
@@ -66,7 +67,7 @@ export function AdminDashboardPage({
   };
 
   return (
-    <div>
+    <div aria-busy={loading}>
       {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
       {error && <div className={styles.errorAlert}>{error}</div>}
 
@@ -78,7 +79,9 @@ export function AdminDashboardPage({
           title="Clique para ver todos os clientes"
         >
           <h3>👥 Total de Clientes</h3>
-          <p className={styles.kpiValue}>{loading ? '...' : stats?.total_customers || 0}</p>
+          <p className={styles.kpiValue}>
+            {showInitialLoading ? '...' : stats?.total_customers || 0}
+          </p>
           <p className={styles.kpiHint}>Clique para listar</p>
         </button>
 
@@ -88,7 +91,9 @@ export function AdminDashboardPage({
           title="Clique para ver pendentes"
         >
           <h3>⏳ Pendentes</h3>
-          <p className={styles.kpiValue}>{loading ? '...' : stats?.pending_customers || 0}</p>
+          <p className={styles.kpiValue}>
+            {showInitialLoading ? '...' : stats?.pending_customers || 0}
+          </p>
           <p className={styles.kpiHint}>Clique para listar</p>
         </button>
 
@@ -98,7 +103,9 @@ export function AdminDashboardPage({
           title="Clique para ver aprovados"
         >
           <h3>✅ Aprovados</h3>
-          <p className={styles.kpiValue}>{loading ? '...' : stats?.approved_customers || 0}</p>
+          <p className={styles.kpiValue}>
+            {showInitialLoading ? '...' : stats?.approved_customers || 0}
+          </p>
           <p className={styles.kpiHint}>Clique para listar</p>
         </button>
       </section>
@@ -108,7 +115,10 @@ export function AdminDashboardPage({
         <h2>💰 Saldo Utilizado</h2>
         <div className={styles.balanceCard}>
           <p className={styles.balanceValue}>
-            R$ {loading ? '...' : stats?.used_balance || stats?.balance_receivable || '0.00'}
+            R${' '}
+            {showInitialLoading
+              ? '...'
+              : stats?.used_balance || stats?.balance_receivable || '0.00'}
           </p>
           <p className={styles.balanceLabel}>Total de gasto em pedidos no crédito</p>
         </div>
