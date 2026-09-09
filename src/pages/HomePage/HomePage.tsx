@@ -1,21 +1,33 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { consumeAuthExpiryMessage } from '@/services/authExpiry';
+import { ApiService } from '@/services/api';
 import { Card, Button } from '@/components';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
   const navigate = useNavigate();
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+  const [tenantName, setTenantName] = useState('Panificadora Sistema de Pedidos');
 
   useEffect(() => {
     setSessionMessage(consumeAuthExpiryMessage());
+
+    ApiService.getTenantIdentity()
+      .then((identity) => {
+        if (identity.trade_name) {
+          setTenantName(identity.trade_name);
+        }
+      })
+      .catch(() => {
+        // Mantém o nome genérico quando a identidade pública não estiver disponível.
+      });
   }, []);
 
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
-        <h1>🥖 Panificadora Sistema de Pedidos</h1>
+        <h1>🥖 {tenantName}</h1>
         <p>Gerenciamento simples e eficiente para seu negócio</p>
         {sessionMessage && <div className={styles.sessionMessage}>{sessionMessage}</div>}
       </div>
