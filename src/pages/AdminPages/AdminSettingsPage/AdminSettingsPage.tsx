@@ -26,6 +26,8 @@ export function AdminSettingsPage({ onError, onSuccess, onTenantUpdated }: Admin
   const [tenantProfile, setTenantProfile] = useState<BakeryTenantProfile | null>(null);
   const [tenantBusy, setTenantBusy] = useState(false);
   const [tenantLoading, setTenantLoading] = useState(true);
+  const [cepLookupBusy, setCepLookupBusy] = useState(false);
+  const [cepLookupError, setCepLookupError] = useState('');
 
   useEffect(() => {
     fetchTelegramStatus()
@@ -100,6 +102,42 @@ export function AdminSettingsPage({ onError, onSuccess, onTenantUpdated }: Admin
     }
   }
 
+  async function handleZipCodeChange(zipCode: string) {
+    const cleanZipCode = zipCode.replace(/\D/g, '').slice(0, 8);
+    const formattedZipCode =
+      cleanZipCode.length > 5
+        ? `${cleanZipCode.slice(0, 5)}-${cleanZipCode.slice(5)}`
+        : cleanZipCode;
+
+    setTenantProfile((previous) =>
+      previous ? { ...previous, zip_code: formattedZipCode } : previous
+    );
+    setCepLookupError('');
+
+    if (cleanZipCode.length !== 8) return;
+
+    setCepLookupBusy(true);
+    try {
+      const address = await ApiService.lookupCEP(cleanZipCode);
+      setTenantProfile((previous) =>
+        previous
+          ? {
+              ...previous,
+              zip_code: address.zip_code || formattedZipCode,
+              street: address.street || '',
+              neighborhood: address.neighborhood || '',
+              city: address.city || '',
+              state: address.state || '',
+            }
+          : previous
+      );
+    } catch (error) {
+      setCepLookupError(error instanceof Error ? error.message : 'CEP não encontrado.');
+    } finally {
+      setCepLookupBusy(false);
+    }
+  }
+
   async function handleTenantSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!tenantProfile) return;
@@ -149,10 +187,13 @@ export function AdminSettingsPage({ onError, onSuccess, onTenantUpdated }: Admin
               CEP
               <input
                 value={tenantProfile.zip_code}
-                onChange={(event) =>
-                  setTenantProfile({ ...tenantProfile, zip_code: event.target.value })
-                }
+                inputMode="numeric"
+                maxLength={9}
+                placeholder="00000-000"
+                onChange={(event) => void handleZipCodeChange(event.target.value)}
               />
+              {cepLookupBusy && <span className={styles.fieldHint}>Consultando CEP...</span>}
+              {cepLookupError && <span className={styles.fieldError}>{cepLookupError}</span>}
             </label>
             <label className={styles.wideField}>
               Rua / avenida

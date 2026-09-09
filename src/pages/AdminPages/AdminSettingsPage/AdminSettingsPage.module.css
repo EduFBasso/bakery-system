@@ -43,6 +43,20 @@
   font: inherit;
 }
 
+.fieldHint,
+.fieldError {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.fieldHint {
+  color: #6b7280;
+}
+
+.fieldError {
+  color: #b91c1c;
+}
+
 .wideField {
   grid-column: span 2;
 }
