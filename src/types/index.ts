@@ -111,6 +111,8 @@ export interface BakeryTenantProfile {
   complement: string;
 }
 
+export type BakeryTenantIdentity = Omit<BakeryTenantProfile, 'name'>;
+
 export interface ViaCEPResponse {
   street: string;
   neighborhood: string;

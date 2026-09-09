@@ -1,12 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useAdminLogin } from '../../../hooks/useAdminLogin';
+import { ApiService } from '../../../services/api';
+import { resolveTenantSlug } from '../../../config/tenant';
 import styles from './AdminLoginPage.module.css';
 
 export function AdminLoginPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [tenantName, setTenantName] = useState('Painel Admin');
+  const [tenantLoading, setTenantLoading] = useState(true);
+
+  useEffect(() => {
+    ApiService.getTenantIdentity(resolveTenantSlug())
+      .then((identity) => setTenantName(identity.trade_name || 'Painel Admin'))
+      .catch(() => setTenantName('Painel Admin'))
+      .finally(() => setTenantLoading(false));
+  }, []);
 
   const {
     login: login_fn,
@@ -46,8 +57,9 @@ export function AdminLoginPage() {
     <div className={styles.container}>
       <div className={styles.formWrapper}>
         <header className={styles.header}>
-          <h1>🛠️ Painel Admin</h1>
-          <p className={styles.subtitle}>Acesso Restrito</p>
+          <p className={styles.eyebrow}>🛠️ Painel Admin</p>
+          <h1>{tenantLoading ? 'Carregando empresa...' : tenantName}</h1>
+          <p className={styles.subtitle}>Acesso restrito</p>
         </header>
 
         <form className={styles.form} onSubmit={handleSubmit}>

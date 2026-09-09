@@ -24,9 +24,18 @@
 }
 
 .header h1 {
-  font-size: 1.8rem;
+  font-size: 1.65rem;
   margin: 0;
   font-weight: 700;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.55rem;
+  opacity: 0.9;
+  text-transform: uppercase;
 }
 
 .subtitle {

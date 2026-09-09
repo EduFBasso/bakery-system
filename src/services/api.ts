@@ -1,4 +1,11 @@
-import { BakeryTenantProfile, Customer, LoginResponse, Address, PendingCustomer } from '../types';
+import {
+  BakeryTenantIdentity,
+  BakeryTenantProfile,
+  Customer,
+  LoginResponse,
+  Address,
+  PendingCustomer,
+} from '../types';
 
 const API_BASE_URL = '/api/v1/bakery';
 const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/';
@@ -73,6 +80,19 @@ export class ApiService {
     }
 
     return response.json();
+  }
+
+  static async getTenantIdentity(tenantSlug = resolveTenantSlug()): Promise<BakeryTenantIdentity> {
+    const response = await fetch(
+      `${API_BASE_URL}/tenant/identity/?tenant_slug=${encodeURIComponent(tenantSlug)}`,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || 'Não foi possível carregar os dados da empresa.');
+    }
+    return payload as BakeryTenantIdentity;
   }
 
   static async getCurrentCustomer(token: string): Promise<Customer> {
