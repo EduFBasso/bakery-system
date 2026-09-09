@@ -49,7 +49,8 @@ export function installAuthExpiryHandler() {
       if (!redirecting && window.location.pathname !== '/') {
         redirecting = true;
         sessionStorage.setItem(EXPIRY_MESSAGE_KEY, EXPIRY_MESSAGE);
-        window.location.replace('/');
+        const currentRoute = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.replace(currentRoute);
       }
     }
 

@@ -26,6 +26,15 @@ interface StoredAdminUser {
   tenant?: AdminTenantSnapshot;
 }
 
+type AdminTab = 'dashboard' | 'customers' | 'products' | 'orders' | 'settings';
+
+const ADMIN_TABS: AdminTab[] = ['dashboard', 'customers', 'products', 'orders', 'settings'];
+
+function readStoredAdminTab(): AdminTab {
+  const storedTab = sessionStorage.getItem('bread_admin_active_tab');
+  return ADMIN_TABS.includes(storedTab as AdminTab) ? (storedTab as AdminTab) : 'dashboard';
+}
+
 function readStoredAdminUser(): StoredAdminUser {
   const storedUser = localStorage.getItem('bread_admin_user');
   if (!storedUser) return {};
@@ -37,9 +46,7 @@ function readStoredAdminUser(): StoredAdminUser {
 }
 
 export function AdminPages() {
-  const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'customers' | 'products' | 'orders' | 'settings'
-  >('dashboard');
+  const [activeTab, setActiveTab] = useState<AdminTab>(readStoredAdminTab);
   const [customerFilter, setCustomerFilter] = useState<string | undefined>();
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -56,8 +63,9 @@ export function AdminPages() {
     setActiveTab('customers');
   };
 
-  const handleTabChange = (tab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings') => {
+  const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);
+    sessionStorage.setItem('bread_admin_active_tab', tab);
   };
 
   const handleError = (error: string) => {
