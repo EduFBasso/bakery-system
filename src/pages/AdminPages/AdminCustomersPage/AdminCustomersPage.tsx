@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { AdminCustomerDetailModal } from '../AdminCustomerDetailModal/AdminCustomerDetailModal';
 import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
+import { formatPhone } from '../../../utils/formatPhone';
 import styles from './AdminCustomersPage.module.css';
 
 interface AdminCustomersPageProps {
@@ -16,8 +17,8 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     onSuccess,
   });
 
-  const [activeSubTab, setActiveSubTab] = useState<'pending' | 'all'>(
-    initialFilter === 'PENDENTE' ? 'pending' : 'all'
+  const [activeSubTab, setActiveSubTab] = useState<'active' | 'pending' | 'blocked'>(
+    initialFilter === 'PENDENTE' ? 'pending' : initialFilter === 'BLOQUEADO' ? 'blocked' : 'active'
   );
   const [searchInput, setSearchInput] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -32,7 +33,12 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   const [openApproveDirectly, setOpenApproveDirectly] = useState(false);
 
   useEffect(() => {
-    const status = activeSubTab === 'pending' ? 'PENDENTE' : undefined;
+    const status =
+      activeSubTab === 'pending'
+        ? 'PENDENTE'
+        : activeSubTab === 'blocked'
+          ? 'BLOQUEADO'
+          : 'APROVADO';
     fetchAllCustomers({ status, search: searchInput || undefined });
   }, [activeSubTab, searchInput, fetchAllCustomers]);
 
@@ -61,7 +67,12 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   const handleBlockCustomerUpdated = () => {
     setSuccessMessage(`✅ Ação realizada com sucesso!`);
     fetchAllCustomers({
-      status: activeSubTab === 'pending' ? 'PENDENTE' : undefined,
+      status:
+        activeSubTab === 'pending'
+          ? 'PENDENTE'
+          : activeSubTab === 'blocked'
+            ? 'BLOQUEADO'
+            : 'APROVADO',
       search: searchInput || undefined,
     });
   };
@@ -83,12 +94,16 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   };
 
   const handleCustomerUpdated = () => {
-    const status = activeSubTab === 'pending' ? 'PENDENTE' : undefined;
+    const status =
+      activeSubTab === 'pending'
+        ? 'PENDENTE'
+        : activeSubTab === 'blocked'
+          ? 'BLOQUEADO'
+          : 'APROVADO';
     fetchAllCustomers({ status, search: searchInput || undefined });
   };
 
-  const displayedCustomers =
-    activeSubTab === 'pending' ? allCustomers.filter((c) => c.status === 'PENDENTE') : allCustomers;
+  const displayedCustomers = allCustomers;
 
   const formatCurrency = (value?: string) => {
     const numeric = Number.parseFloat(value || '0');
@@ -101,8 +116,14 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
       {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
       {error && <div className={styles.errorAlert}>{error}</div>}
 
-      {/* Sub-tabs: Pendentes / Todos */}
+      {/* Sub-tabs: estado do cliente */}
       <div className={styles.subTabs}>
+        <button
+          className={`${styles.subTab} ${activeSubTab === 'active' ? styles.active : ''}`}
+          onClick={() => setActiveSubTab('active')}
+        >
+          ✅ Clientes Ativos
+        </button>
         <button
           className={`${styles.subTab} ${activeSubTab === 'pending' ? styles.active : ''}`}
           onClick={() => setActiveSubTab('pending')}
@@ -110,10 +131,10 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
           ⏳ Pendentes de Aprovação
         </button>
         <button
-          className={`${styles.subTab} ${activeSubTab === 'all' ? styles.active : ''}`}
-          onClick={() => setActiveSubTab('all')}
+          className={`${styles.subTab} ${activeSubTab === 'blocked' ? styles.active : ''}`}
+          onClick={() => setActiveSubTab('blocked')}
         >
-          👥 Todos os Clientes
+          🚫 Bloqueados
         </button>
       </div>
 
@@ -131,14 +152,22 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
       {/* Table Section */}
       <section className={styles.tableSection}>
         <h2>
-          {activeSubTab === 'pending' ? 'Clientes Pendentes de Aprovação' : 'Todos os Clientes'}
+          {activeSubTab === 'pending'
+            ? 'Clientes Pendentes de Aprovação'
+            : activeSubTab === 'blocked'
+              ? 'Clientes Bloqueados'
+              : 'Clientes Ativos'}
         </h2>
 
         {loading && <p className={styles.emptyState}>Carregando clientes...</p>}
 
         {!loading && displayedCustomers.length === 0 ? (
           <p className={styles.emptyState}>
-            {activeSubTab === 'pending' ? 'Nenhum cliente pendente!' : 'Nenhum cliente encontrado!'}
+            {activeSubTab === 'pending'
+              ? 'Nenhum cliente pendente!'
+              : activeSubTab === 'blocked'
+                ? 'Nenhum cliente bloqueado!'
+                : 'Nenhum cliente ativo!'}
           </p>
         ) : (
           <div className={styles.tableWrapper}>
@@ -148,8 +177,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                   <th>Apelido</th>
                   <th>Tipo</th>
                   <th>Telefone</th>
-                  <th>Status</th>
-                  <th>Gasto</th>
+                  <th>GASTOS</th>
                   <th className={styles.actionHeader}>Ação</th>
                 </tr>
               </thead>
@@ -160,18 +188,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                       <strong>{customer.nickname}</strong>
                     </td>
                     <td>{customer.customer_type === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
-                    <td>{customer.phone || '—'}</td>
-                    <td>
-                      <span
-                        className={`${styles.statusBadge} ${styles[`status-${(customer.status || 'pendente').toLowerCase()}`]}`}
-                      >
-                        {customer.status === 'PENDENTE'
-                          ? '⏳ Pendente'
-                          : customer.status === 'APROVADO'
-                            ? '✅ Aprovado'
-                            : '🚫 Bloqueado'}
-                      </span>
-                    </td>
+                    <td>{formatPhone(customer.phone) || '—'}</td>
                     <td>{formatCurrency(customer.financial_used || customer.current_balance)}</td>
                     <td className={styles.actionCell}>
                       <div className={styles.actionButtonsGroup}>

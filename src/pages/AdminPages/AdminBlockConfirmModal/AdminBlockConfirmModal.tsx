@@ -101,7 +101,7 @@ export default function AdminBlockConfirmModal({
     <AdminPasswordDialog
       isOpen={isOpen}
       title={action === 'block' ? 'Confirmar Bloqueio' : 'Confirmar Desbloqueio'}
-      description={`Digite a senha do dono para ${action === 'block' ? 'bloquear' : 'desbloquear'} ${customerNickname}.`}
+      description={`Digite novamente a senha do dono para ${action === 'block' ? 'bloquear' : 'desbloquear'} ${customerNickname}.`}
       confirmLabel={action === 'block' ? 'Bloquear Cliente' : 'Desbloquear Cliente'}
       isLoading={isLoading}
       error={actionError}

@@ -32,11 +32,11 @@ interface Customer {
 }
 
 interface AdminStats {
-  total_customers: number;
+  active_customers: number;
   pending_customers: number;
-  approved_customers: number;
-  used_balance?: string;
-  balance_receivable: string;
+  blocked_customers: number;
+  active_open_balance: string;
+  blocked_open_balance: string;
   currency: string;
 }
 
@@ -59,8 +59,6 @@ const normalizeStatus = (value?: string) => {
 };
 
 const isPending = (value?: string) => normalizeStatus(value) === STATUS_PENDING;
-const isApproved = (value?: string) => normalizeStatus(value) === STATUS_APPROVED;
-
 export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   const [pendingCustomers, setPendingCustomers] = useState<Customer[]>([]);
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
@@ -108,7 +106,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(CUSTOMERS_ENDPOINT, {
+      const response = await fetch(`${CUSTOMERS_ENDPOINT}stats/`, {
         method: 'GET',
         headers: getAuthHeaders(),
         cache: 'no-store',
@@ -118,20 +116,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
         throw new Error(`Erro ao carregar estatísticas: ${response.status}`);
       }
 
-      const rows = parseRows(await response.json());
-      const pendingCount = rows.filter((row) => isPending(row.status)).length;
-      const approvedCount = rows.filter((row) => isApproved(row.status)).length;
-      const computedStats: AdminStats = {
-        // Regra de negocio atual: total = pendentes + aprovados.
-        total_customers: pendingCount + approvedCount,
-        pending_customers: pendingCount,
-        approved_customers: approvedCount,
-        balance_receivable: rows
-          .reduce((acc, row) => acc + Number.parseFloat(row.current_balance || '0'), 0)
-          .toFixed(2),
-        currency: 'BRL',
-      };
-
+      const computedStats = (await response.json()) as AdminStats;
       setStats(computedStats);
       return computedStats;
     } catch (err) {
@@ -174,38 +159,42 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
     }
   }, []);
 
-  const fetchAllCustomers = useCallback(async (filters?: { status?: string; search?: string }) => {
-    setLoading(true);
-    setError(null);
+  const fetchAllCustomers = useCallback(
+    async (filters?: { status?: string; search?: string; has_open_balance?: boolean }) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.append('status', filters.status);
-      if (filters?.search) params.append('search', filters.search);
+      try {
+        const params = new URLSearchParams();
+        if (filters?.status) params.append('status', filters.status);
+        if (filters?.search) params.append('search', filters.search);
+        if (filters?.has_open_balance) params.append('has_open_balance', 'true');
 
-      const url = `${CUSTOMERS_ENDPOINT}${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: getAuthHeaders(),
-        cache: 'no-store',
-      });
+        const url = `${CUSTOMERS_ENDPOINT}${params.toString() ? `?${params.toString()}` : ''}`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: getAuthHeaders(),
+          cache: 'no-store',
+        });
 
-      if (!response.ok) {
-        throw new Error(`Erro ao carregar clientes: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Erro ao carregar clientes: ${response.status}`);
+        }
+
+        const customers = parseRows(await response.json());
+        setAllCustomers(customers);
+        return customers;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao carregar clientes';
+        setError(msg);
+        optionsRef.current?.onError?.(msg);
+        return [];
+      } finally {
+        setLoading(false);
       }
-
-      const customers = parseRows(await response.json());
-      setAllCustomers(customers);
-      return customers;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao carregar clientes';
-      setError(msg);
-      optionsRef.current?.onError?.(msg);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const fetchCustomerDetail = useCallback(async (customerId: number) => {
     setLoading(true);

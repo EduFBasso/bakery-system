@@ -54,16 +54,16 @@ export function AdminDashboardPage({
     }
   }, [successMessage]);
 
-  const handleTotalClick = () => {
-    onNavigateToCustomers?.();
-  };
-
   const handlePendingClick = () => {
     onNavigateToCustomers?.('PENDENTE');
   };
 
-  const handleApprovedClick = () => {
+  const handleActiveClick = () => {
     onNavigateToCustomers?.('APROVADO');
+  };
+
+  const handleBlockedClick = () => {
+    onNavigateToCustomers?.('BLOQUEADO');
   };
 
   return (
@@ -75,14 +75,16 @@ export function AdminDashboardPage({
       <section className={styles.kpisSection}>
         <button
           className={`${styles.kpiCard} ${styles.kpiButton}`}
-          onClick={handleTotalClick}
-          title="Clique para ver todos os clientes"
+          onClick={handleActiveClick}
+          title="Clique para ver clientes ativos"
         >
-          <h3>👥 Total de Clientes</h3>
+          <h3>👥 Clientes Ativos</h3>
           <p className={styles.kpiValue}>
-            {showInitialLoading ? '...' : stats?.total_customers || 0}
+            {showInitialLoading ? '...' : stats?.active_customers || 0}
           </p>
-          <p className={styles.kpiHint}>Clique para listar</p>
+          <p className={styles.kpiHint}>
+            Saldo em aberto: R$ {stats?.active_open_balance || '0.00'}
+          </p>
         </button>
 
         <button
@@ -99,29 +101,17 @@ export function AdminDashboardPage({
 
         <button
           className={`${styles.kpiCard} ${styles.kpiButton}`}
-          onClick={handleApprovedClick}
-          title="Clique para ver aprovados"
+          onClick={handleBlockedClick}
+          title="Clique para ver clientes bloqueados"
         >
-          <h3>✅ Aprovados</h3>
+          <h3>🚫 Bloqueados</h3>
           <p className={styles.kpiValue}>
-            {showInitialLoading ? '...' : stats?.approved_customers || 0}
+            {showInitialLoading ? '...' : stats?.blocked_customers || 0}
           </p>
-          <p className={styles.kpiHint}>Clique para listar</p>
+          <p className={styles.kpiHint}>
+            Saldo em aberto: R$ {stats?.blocked_open_balance || '0.00'}
+          </p>
         </button>
-      </section>
-
-      {/* Balance Section */}
-      <section className={styles.balanceSection}>
-        <h2>💰 Saldo Utilizado</h2>
-        <div className={styles.balanceCard}>
-          <p className={styles.balanceValue}>
-            R${' '}
-            {showInitialLoading
-              ? '...'
-              : stats?.used_balance || stats?.balance_receivable || '0.00'}
-          </p>
-          <p className={styles.balanceLabel}>Total de gasto em pedidos no crédito</p>
-        </div>
       </section>
     </div>
   );
