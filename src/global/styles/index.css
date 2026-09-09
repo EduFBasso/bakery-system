@@ -1,6 +1,35 @@
 @import './variables.css';
 @import './theme.css';
 
+@media print {
+  [data-screen-only],
+  body > *:not(#root) {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  [data-print-card],
+  [data-print-card] * {
+    visibility: visible !important;
+  }
+
+  [data-print-card] {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 20mm !important;
+    background: #fff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;

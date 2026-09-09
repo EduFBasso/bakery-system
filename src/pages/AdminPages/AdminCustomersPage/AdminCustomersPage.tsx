@@ -66,10 +66,8 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     });
   };
 
-  const handleOpenModal = (customerId: number) => {
-    setOpenApproveDirectly(false);
-    setSelectedCustomerId(customerId);
-    setIsModalOpen(true);
+  const handleOpenSummary = (customerId: number) => {
+    window.open(`/admin/customers/${customerId}/summary`, '_blank', 'noopener,noreferrer');
   };
 
   const handleOpenApproveFlow = (customerId: number) => {
@@ -179,7 +177,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                       <div className={styles.actionButtonsGroup}>
                         <button
                           className={`${styles.detailsButton} ${styles.tableActionButton}`}
-                          onClick={() => handleOpenModal(customer.id)}
+                          onClick={() => handleOpenSummary(customer.id)}
                         >
                           📋 Detalhes
                         </button>

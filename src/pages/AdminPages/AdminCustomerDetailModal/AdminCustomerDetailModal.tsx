@@ -6,6 +6,7 @@ import {
   openWhatsAppMessage,
 } from '../../../utils/whatsapp';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
+import { CustomerPrintView, type PrintableCustomer } from './CustomerPrintView';
 import styles from './AdminCustomerDetailModal.module.css';
 
 const EyeIcon = () => (
@@ -160,6 +161,43 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
   const formatCurrency = (value?: string | number | null) => {
     return `R$ ${parseMoney(value).toFixed(2).replace('.', ',')}`;
   };
+
+  const formatDocument = (value?: string | null, type?: string) => {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (!digits) return 'Não informado';
+    if (type === 'PF' && digits.length === 11) {
+      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    if (type !== 'PF' && digits.length === 14) {
+      return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+    return value || 'Não informado';
+  };
+
+  const formatPhone = (value?: string | null) => {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (digits.length === 11) return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    if (digits.length === 10) return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    return value || 'Não informado';
+  };
+
+  const formatDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';
+
+  const formatAddress = (value: PrintableCustomer) =>
+    [
+      value?.street,
+      value?.number,
+      value?.complement,
+      value?.neighborhood,
+      value?.city,
+      value?.state,
+      value?.zip_code ? `CEP ${value.zip_code}` : undefined,
+    ]
+      .filter(Boolean)
+      .join(', ') || 'Não informado';
+
+  const handlePrint = () => window.print();
 
   const normalizeSecretInput = (value: string) =>
     value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '').trim();
@@ -648,6 +686,13 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
           </div>
         ) : customer ? (
           <div className={styles.modalBody}>
+            <div className={styles.readOnlyNotice}>
+              <strong>Consulta administrativa</strong>
+              <span>
+                Os dados cadastrais são somente leitura. Apenas o limite de crédito e a senha do
+                cliente possuem ações administrativas.
+              </span>
+            </div>
             {/* Customer Info Section */}
             <div className={styles.detailSection}>
               <h3>Informações do Cliente</h3>
@@ -669,12 +714,12 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
                 </div>
                 <div className={styles.detailItem}>
                   <label>{documentLabel}</label>
-                  <p>{documentValue || 'Não informado'}</p>
+                  <p>{formatDocument(documentValue, customer.customer_type)}</p>
                 </div>
                 <div className={styles.detailItem}>
                   <label>Telefone</label>
                   <p>
-                    {customer.phone || '-'}
+                    {formatPhone(customer.phone)}
                     {normalizedWhatsAppPhone && (
                       <a
                         href={`https://wa.me/${normalizedWhatsAppPhone}`}
@@ -739,11 +784,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
                 <div className={styles.detailInfoPair}>
                   <div className={styles.detailItem}>
                     <label>Cadastro em</label>
-                    <p>
-                      {customer.created_at
-                        ? new Date(customer.created_at).toLocaleDateString('pt-BR')
-                        : '-'}
-                    </p>
+                    <p>{formatDate(customer.created_at)}</p>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Limite de Crédito</label>
@@ -766,61 +807,67 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
                 </div>
 
                 <div className={`${styles.detailItem} ${styles.detailFullWidth}`}>
-                  <label>Senha</label>
-                  <div className={styles.passwordInlineRow}>
-                    <input
-                      type={showPassword && canManageSensitiveActions ? 'text' : 'password'}
-                      value={
-                        showPassword && canManageSensitiveActions && currentPassword
-                          ? currentPassword
-                          : '********'
-                      }
-                      readOnly
-                      className={styles.passwordReadOnlyInput}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => openSecurityDialog('view-password')}
-                      className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
-                      disabled={isActionLoading || !canManageSensitiveActions}
-                      title="Visualizar senha"
-                      aria-label="Visualizar senha"
-                    >
-                      <EyeIcon />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openSecurityDialog('copy-password')}
-                      className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
-                      disabled={isActionLoading || !canManageSensitiveActions}
-                      title="Copiar senha"
-                      aria-label="Copiar senha"
-                    >
-                      {copiedToClipboard ? <CheckIcon /> : <CopyIcon />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openSecurityDialog('set-password')}
-                      className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.editActionIcon}`}
-                      disabled={isActionLoading || !canManageSensitiveActions}
-                      title="Editar senha"
-                      aria-label="Editar senha"
-                    >
-                      <PencilIcon />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openSecurityDialog('share-password')}
-                      className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.whatsAppAction}`}
-                      disabled={
-                        isActionLoading || !canManageSensitiveActions || !normalizedWhatsAppPhone
-                      }
-                      title="Compartilhar senha no WhatsApp"
-                      aria-label="Compartilhar senha no WhatsApp"
-                    >
-                      <WhatsAppIcon />
-                    </button>
-                  </div>
+                  <label>Senha do cliente (acesso)</label>
+                  {isPending ? (
+                    <p className={styles.pendingReadOnly}>
+                      Será gerada após a aprovação do cadastro.
+                    </p>
+                  ) : (
+                    <div className={styles.passwordInlineRow}>
+                      <input
+                        type={showPassword && canManageSensitiveActions ? 'text' : 'password'}
+                        value={
+                          showPassword && canManageSensitiveActions && currentPassword
+                            ? currentPassword
+                            : '********'
+                        }
+                        readOnly
+                        className={styles.passwordReadOnlyInput}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => openSecurityDialog('view-password')}
+                        className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
+                        disabled={isActionLoading || !canManageSensitiveActions}
+                        title="Visualizar senha"
+                        aria-label="Visualizar senha"
+                      >
+                        <EyeIcon />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openSecurityDialog('copy-password')}
+                        className={`${styles.inlinePasswordAction} ${styles.iconActionButton}`}
+                        disabled={isActionLoading || !canManageSensitiveActions}
+                        title="Copiar senha"
+                        aria-label="Copiar senha"
+                      >
+                        {copiedToClipboard ? <CheckIcon /> : <CopyIcon />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openSecurityDialog('set-password')}
+                        className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.editActionIcon}`}
+                        disabled={isActionLoading || !canManageSensitiveActions}
+                        title="Editar senha"
+                        aria-label="Editar senha"
+                      >
+                        <PencilIcon />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openSecurityDialog('share-password')}
+                        className={`${styles.inlinePasswordAction} ${styles.iconActionButton} ${styles.whatsAppAction}`}
+                        disabled={
+                          isActionLoading || !canManageSensitiveActions || !normalizedWhatsAppPhone
+                        }
+                        title="Compartilhar senha no WhatsApp"
+                        aria-label="Compartilhar senha no WhatsApp"
+                      >
+                        <WhatsAppIcon />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -859,6 +906,13 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
 
             {/* Action Buttons */}
             <div className={styles.modalActions}>
+              <button
+                className={styles.printButton}
+                onClick={handlePrint}
+                disabled={isActionLoading}
+              >
+                🖨️ Imprimir resumo
+              </button>
               {isPending && (
                 <>
                   <button
@@ -895,6 +949,17 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
           <div className={styles.modalBody}>
             <p>Cliente não encontrado.</p>
           </div>
+        )}
+
+        {customer && (
+          <CustomerPrintView
+            customer={customer}
+            formatCurrency={formatCurrency}
+            formatDocument={formatDocument}
+            formatPhone={formatPhone}
+            formatDate={formatDate}
+            formatAddress={formatAddress}
+          />
         )}
 
         <AdminPasswordDialog

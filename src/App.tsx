@@ -3,16 +3,17 @@ import { HomePage, RegisterPage, PendingPage, AdminPages, ClientPages } from './
 import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage/AdminLoginPage';
 import { CustomerLoginPage } from './pages/ClientPages/CustomerLoginPage';
 import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage/CustomerCreateOrderPage';
+import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummaryPage/AdminCustomerSummaryPage';
 import './App.css';
 
-function AdminRoute() {
+function AdminRoute({ summary = false }: { summary?: boolean } = {}) {
   const hasToken = !!localStorage.getItem('bread_admin_token');
 
   if (!hasToken) {
     return <AdminLoginPage />;
   }
 
-  return <AdminPages />;
+  return summary ? <AdminCustomerSummaryPage /> : <AdminPages />;
 }
 
 function CustomerRoute({ page = 'dashboard' }: { page?: string } = {}) {
@@ -46,6 +47,7 @@ export default function App() {
 
         {/* Admin */}
         <Route path="/admin" element={<AdminRoute />} />
+        <Route path="/admin/customers/:customerId/summary" element={<AdminRoute summary />} />
 
         {/* Cliente */}
         <Route path="/customer/dashboard" element={<CustomerRoute />} />

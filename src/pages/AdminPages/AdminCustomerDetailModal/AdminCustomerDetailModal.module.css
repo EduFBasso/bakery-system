@@ -84,6 +84,27 @@
   flex: 1;
 }
 
+.readOnlyNotice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #6b7280;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.85rem;
+}
+
+.readOnlyNotice strong {
+  color: #111827;
+}
+
+.pendingReadOnly {
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
 .detailSection {
   margin-bottom: 2rem;
 }
@@ -453,6 +474,23 @@
   background-color: #f9f7f4;
   border-radius: 0 0 12px 12px;
   flex-wrap: wrap;
+}
+
+.printButton {
+  flex: 1 1 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid #9ca3af;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.printButton:hover {
+  border-color: #4b5563;
+  background: #f9fafb;
 }
 
 .approveButton {
