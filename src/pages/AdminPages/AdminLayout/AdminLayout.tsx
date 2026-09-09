@@ -6,9 +6,25 @@ interface AdminLayoutProps {
   activeTab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings';
   onTabChange: (tab: 'dashboard' | 'customers' | 'products' | 'orders' | 'settings') => void;
   userName: string;
+  tenant?: {
+    trade_name?: string;
+    address?: {
+      street?: string;
+      number?: string;
+      neighborhood?: string;
+      city?: string;
+      state?: string;
+    };
+  };
 }
 
-export function AdminLayout({ children, activeTab, onTabChange, userName }: AdminLayoutProps) {
+export function AdminLayout({
+  children,
+  activeTab,
+  onTabChange,
+  userName,
+  tenant,
+}: AdminLayoutProps) {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('bread_admin_token');
     localStorage.removeItem('bread_admin_refresh');
@@ -26,6 +42,19 @@ export function AdminLayout({ children, activeTab, onTabChange, userName }: Admi
           <h1>🛠️ Painel Admin</h1>
           <p className={styles.userName}>
             Olá, <strong>{userName}</strong>
+          </p>
+          <p className={styles.tenantInfo}>
+            {tenant?.trade_name || 'Gerenciamento simples e eficiente para seu negócio'}
+            {tenant?.address &&
+              [
+                [tenant.address.street, tenant.address.number].filter(Boolean).join(', '),
+                [tenant.address.neighborhood, tenant.address.city, tenant.address.state]
+                  .filter(Boolean)
+                  .join(' - '),
+              ]
+                .filter(Boolean)
+                .map((part) => ` · ${part}`)
+                .join('')}
           </p>
         </div>
         <button className={styles.logoutButton} onClick={handleLogout}>

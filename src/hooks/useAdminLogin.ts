@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { resolveTenantSlug } from '../config/tenant';
 
 interface AdminUser {
   id: number;
@@ -12,6 +13,21 @@ interface AdminLoginResponse {
   refresh: string;
   professional: AdminUser;
   ecosystem: string;
+  tenant: AdminTenant;
+}
+
+export interface AdminTenant {
+  slug: string;
+  trade_name: string;
+  address: {
+    zip_code: string;
+    street: string;
+    number: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    complement: string;
+  };
 }
 
 interface UseAdminLoginOptions {
@@ -57,8 +73,9 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
 
       const sanitizedLogin = removeInvisibleCharacters(loginValue).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
+
       // Slug do tenant definido por variável de ambiente — com fallback para o tenant local padrao
-      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
+      const tenantSlug = resolveTenantSlug();
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
@@ -89,7 +106,10 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
         localStorage.setItem('bread_admin_token', data.access);
         localStorage.setItem('bread_admin_refresh', data.refresh);
         localStorage.setItem('bread_admin_role', 'admin');
-        localStorage.setItem('bread_admin_user', JSON.stringify(data.professional || {}));
+        localStorage.setItem(
+          'bread_admin_user',
+          JSON.stringify({ ...(data.professional || {}), tenant: data.tenant })
+        );
 
         optionsRef.current?.onSuccess?.(data);
         return true;

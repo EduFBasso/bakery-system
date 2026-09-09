@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { resolveTenantSlug } from '../config/tenant';
 
 interface CustomerUser {
   id: number;
@@ -42,7 +43,8 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
 
       const sanitizedEmail = removeInvisibleCharacters(nickname).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
-      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
+
+      const tenantSlug = resolveTenantSlug();
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
