@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdminLogin } from '../../../hooks/useAdminLogin';
 import { ApiService } from '../../../services/api';
 import { resolveTenantSlug } from '../../../config/tenant';
 import styles from './AdminLoginPage.module.css';
 
 export function AdminLoginPage() {
+  const navigate = useNavigate();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -109,6 +111,9 @@ export function AdminLoginPage() {
         </form>
 
         <footer className={styles.footer}>
+          <button type="button" className={styles.backButton} onClick={() => navigate('/')}>
+            ← Voltar para Home
+          </button>
           <p>Sistema de Administração</p>
         </footer>
       </div>
