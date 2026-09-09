@@ -34,8 +34,9 @@ export function HomePage() {
     <div className={styles.container}>
       <div className={styles.hero}>
         <h1>🥖 {tenantName}</h1>
-        <p>Gerenciamento simples e eficiente para seu negócio</p>
-        {tenantAddress && <p className={styles.tenantAddress}>{tenantAddress}</p>}
+        <p className={tenantAddress ? styles.tenantAddress : undefined}>
+          {tenantAddress || 'Gerenciamento simples e eficiente para seu negócio'}
+        </p>
         {sessionMessage && <div className={styles.sessionMessage}>{sessionMessage}</div>}
       </div>
 
