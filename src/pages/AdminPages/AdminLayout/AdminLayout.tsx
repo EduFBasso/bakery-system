@@ -39,7 +39,7 @@ export function AdminLayout({
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1>🛠️ Painel Admin · {userName}</h1>
+          <h1>🛠️ {userName}</h1>
           <p className={styles.tenantName}>
             {tenant?.trade_name || 'Gerenciamento simples e eficiente para seu negócio'}
           </p>
