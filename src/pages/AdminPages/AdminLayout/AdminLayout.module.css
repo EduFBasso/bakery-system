@@ -18,20 +18,22 @@
 }
 
 .header h1 {
-  font-size: 2rem;
+  font-size: 1.85rem;
   margin: 0;
   font-weight: 700;
 }
 
-.userName {
-  font-size: 0.875rem;
-  margin: 0.5rem 0 0;
-  opacity: 0.9;
+.tenantName {
+  font-size: 1.3rem;
+  line-height: 1.25;
+  margin: 0.45rem 0 0;
+  font-weight: 700;
 }
 
-.tenantInfo {
+.tenantAddress {
   font-size: 0.8rem;
-  margin: 0.35rem 0 0;
+  line-height: 1.4;
+  margin: 0.2rem 0 0;
   opacity: 0.9;
 }
 
@@ -103,6 +105,10 @@
 
   .header h1 {
     font-size: 1.5rem;
+  }
+
+  .tenantName {
+    font-size: 1.15rem;
   }
 
   .main {

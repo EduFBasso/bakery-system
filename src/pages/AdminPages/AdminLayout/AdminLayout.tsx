@@ -39,23 +39,22 @@ export function AdminLayout({
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1>🛠️ Painel Admin</h1>
-          <p className={styles.userName}>
-            Olá, <strong>{userName}</strong>
-          </p>
-          <p className={styles.tenantInfo}>
+          <h1>🛠️ Painel Admin · {userName}</h1>
+          <p className={styles.tenantName}>
             {tenant?.trade_name || 'Gerenciamento simples e eficiente para seu negócio'}
-            {tenant?.address &&
-              [
+          </p>
+          {tenant?.address && (
+            <p className={styles.tenantAddress}>
+              {[
                 [tenant.address.street, tenant.address.number].filter(Boolean).join(', '),
                 [tenant.address.neighborhood, tenant.address.city, tenant.address.state]
                   .filter(Boolean)
                   .join(' - '),
               ]
                 .filter(Boolean)
-                .map((part) => ` · ${part}`)
-                .join('')}
-          </p>
+                .join(' · ')}
+            </p>
+          )}
         </div>
         <button className={styles.logoutButton} onClick={handleLogout}>
           🚪 Sair
