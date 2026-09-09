@@ -36,6 +36,12 @@
   color: #666;
 }
 
+.hero .tenantAddress {
+  margin-top: -0.5rem;
+  font-size: 0.95rem;
+  color: #805f4e;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

@@ -9,6 +9,7 @@ export function HomePage() {
   const navigate = useNavigate();
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
   const [tenantName, setTenantName] = useState('Panificadora Sistema de Pedidos');
+  const [tenantAddress, setTenantAddress] = useState('');
 
   useEffect(() => {
     setSessionMessage(consumeAuthExpiryMessage());
@@ -18,6 +19,11 @@ export function HomePage() {
         if (identity.trade_name) {
           setTenantName(identity.trade_name);
         }
+        const addressParts = [
+          [identity.street, identity.number].filter(Boolean).join(', '),
+          [identity.neighborhood, identity.city, identity.state].filter(Boolean).join(' - '),
+        ].filter(Boolean);
+        setTenantAddress(addressParts.join(' · '));
       })
       .catch(() => {
         // Mantém o nome genérico quando a identidade pública não estiver disponível.
@@ -29,6 +35,7 @@ export function HomePage() {
       <div className={styles.hero}>
         <h1>🥖 {tenantName}</h1>
         <p>Gerenciamento simples e eficiente para seu negócio</p>
+        {tenantAddress && <p className={styles.tenantAddress}>{tenantAddress}</p>}
         {sessionMessage && <div className={styles.sessionMessage}>{sessionMessage}</div>}
       </div>
 
