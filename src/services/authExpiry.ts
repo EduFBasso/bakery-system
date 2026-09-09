@@ -23,15 +23,11 @@ function clearSessionForToken(token: string) {
   }
 }
 
-function isAdminPasswordFailure(input: RequestInfo | URL, init?: RequestInit): boolean {
+function isAdminPasswordEndpoint(input: RequestInfo | URL): boolean {
   const url = input instanceof Request ? input.url : String(input);
   return (
     url.includes('/api/v1/bakery/customers/') &&
-    /\/(approve|block|unblock|update-credit-limit|set-password|reveal-password)\/?(?:\?|$)/.test(
-      url
-    ) &&
-    typeof init?.body === 'string' &&
-    init.body.includes('admin_password')
+    /\/(approve|block|unblock|update-credit-limit|set-password|reveal-password)\/?(?:\?|$)/.test(url)
   );
 }
 
@@ -57,7 +53,7 @@ export function installAuthExpiryHandler() {
     if (
       response.status === 401 &&
       authorization?.startsWith('Bearer ') &&
-      !isAdminPasswordFailure(input, init)
+      !isAdminPasswordEndpoint(input)
     ) {
       const token = authorization.slice('Bearer '.length).trim();
       clearSessionForToken(token);
