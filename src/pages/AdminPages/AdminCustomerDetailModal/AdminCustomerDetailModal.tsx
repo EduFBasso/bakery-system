@@ -877,15 +877,15 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
               <h3>Resumo Financeiro</h3>
               <div className={styles.balanceDetail}>
                 <div className={styles.balanceItem}>
-                  <label>Saldo Limite</label>
+                  <label>Limite de Crédito</label>
                   <p className={styles.balanceValue}>{formatCurrency(customer.financial_limit)}</p>
                 </div>
                 <div className={styles.balanceItem}>
-                  <label>Saldo Utilizado</label>
+                  <label>Em Aberto</label>
                   <p className={styles.balanceValue}>{formatCurrency(customer.financial_used)}</p>
                 </div>
                 <div className={styles.balanceItem}>
-                  <label>Saldo Disponível</label>
+                  <label>Limite Disponível</label>
                   <p className={styles.balanceValue}>
                     {formatCurrency(customer.financial_available ?? customer.available_credit)}
                   </p>

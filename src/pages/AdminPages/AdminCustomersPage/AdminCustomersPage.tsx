@@ -177,7 +177,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                   <th>Apelido</th>
                   <th>Tipo</th>
                   <th>Telefone</th>
-                  <th>GASTOS</th>
+                  <th>EM ABERTO</th>
                   <th className={styles.actionHeader}>Ação</th>
                 </tr>
               </thead>
@@ -189,7 +189,11 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                     </td>
                     <td>{customer.customer_type === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
                     <td>{formatPhone(customer.phone) || '—'}</td>
-                    <td>{formatCurrency(customer.financial_used || customer.current_balance)}</td>
+                    <td>
+                      {activeSubTab === 'pending'
+                        ? '—'
+                        : formatCurrency(customer.financial_used || customer.current_balance)}
+                    </td>
                     <td className={styles.actionCell}>
                       <div className={styles.actionButtonsGroup}>
                         <button

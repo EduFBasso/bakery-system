@@ -62,6 +62,8 @@ export function CustomerPrintView({
     customer.customer_type === 'PF'
       ? customer.cpf || customer.cnpj_cpf
       : customer.cnpj || customer.cnpj_cpf;
+  const normalizedStatus = (customer.status || '').trim().toUpperCase();
+  const isPending = normalizedStatus === 'PENDENTE' || normalizedStatus === 'PENDING';
   const issuedAt = new Date().toLocaleString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -97,7 +99,7 @@ export function CustomerPrintView({
           <p className={styles.printSubtitle}>{companyAddress || 'Endereço não informado'}</p>
         </div>
         <div className={styles.headerMeta}>
-          <strong>Resumo do cliente</strong>
+          <strong>{isPending ? 'Ficha cadastral' : 'Resumo do cliente'}</strong>
           <p className={styles.printDate}>Emitido em {issuedAt}</p>
         </div>
       </header>
@@ -106,7 +108,7 @@ export function CustomerPrintView({
         <div className={styles.sectionHeading}>
           <h2>Dados cadastrais</h2>
           <span
-            className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''}`}
+            className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''} ${isPending ? styles.statusPending : ''}`}
           >
             Status: {customer.status || 'Não informado'}
           </span>
@@ -143,76 +145,88 @@ export function CustomerPrintView({
         </dl>
       </section>
 
-      <section className={styles.section}>
-        <h2>Resumo financeiro</h2>
-        <dl className={styles.financeGrid}>
-          <div>
-            <dt>Limite de crédito:</dt>
-            <dd>{formatCurrency(customer.credit_limit ?? customer.financial_limit)}</dd>
-          </div>
-          <div>
-            <dt>Pedidos em aberto:</dt>
-            <dd>{formatCurrency(customer.financial_used)}</dd>
-          </div>
-          <div>
-            <dt>Saldo disponível:</dt>
-            <dd>{formatCurrency(customer.financial_available ?? customer.available_credit)}</dd>
-          </div>
-        </dl>
-      </section>
+      {isPending ? (
+        <section className={`${styles.section} ${styles.pendingNotice}`}>
+          <h2>Cadastro pendente</h2>
+          <p>
+            Limite de crédito, saldo e pedidos em aberto estarão disponíveis após a aprovação do
+            cliente.
+          </p>
+        </section>
+      ) : (
+        <>
+          <section className={styles.section}>
+            <h2>Resumo financeiro</h2>
+            <dl className={styles.financeGrid}>
+              <div>
+                <dt>Limite de crédito:</dt>
+                <dd>{formatCurrency(customer.credit_limit ?? customer.financial_limit)}</dd>
+              </div>
+              <div>
+                <dt>Pedidos em aberto:</dt>
+                <dd>{formatCurrency(customer.financial_used)}</dd>
+              </div>
+              <div>
+                <dt>Limite disponível:</dt>
+                <dd>{formatCurrency(customer.financial_available ?? customer.available_credit)}</dd>
+              </div>
+            </dl>
+          </section>
 
-      <section className={`${styles.section} ${styles.ordersSection}`}>
-        <h2>Histórico de pedidos (em aberto)</h2>
-        {ordersLoading ? (
-          <p className={styles.ordersMessage}>Carregando pedidos...</p>
-        ) : ordersError ? (
-          <p className={styles.ordersMessage}>{ordersError}</p>
-        ) : displayedOrders.length === 0 ? (
-          <p className={styles.ordersMessage}>Nenhum pedido registrado.</p>
-        ) : (
-          <>
-            <table className={styles.ordersTable}>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Descrição</th>
-                  <th>Quantidade</th>
-                  <th>Valor unitário</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedOrders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{formatOrderDate(order.created_at)}</td>
-                    <td>{formatOrderItems(order)}</td>
-                    <td>{formatOrderQuantity(order)}</td>
-                    <td>
-                      {getOrderItems(order).length === 1
-                        ? formatCurrency(getOrderItems(order)[0].unit_price)
-                        : 'Vários'}
-                    </td>
-                    <td>{formatCurrency(order.total_value)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th colSpan={4}>Saldo dos pedidos (em aberto):</th>
-                  <th className={styles.ordersTotalValue}>
-                    {formatCurrency(displayedOrdersTotal)}
-                  </th>
-                </tr>
-              </tfoot>
-            </table>
-            {ordersTotal > displayedOrders.length && (
-              <p className={styles.ordersNote}>
-                Exibindo {displayedOrders.length} de {ordersTotal} pedidos.
-              </p>
+          <section className={`${styles.section} ${styles.ordersSection}`}>
+            <h2>Histórico de pedidos (em aberto)</h2>
+            {ordersLoading ? (
+              <p className={styles.ordersMessage}>Carregando pedidos...</p>
+            ) : ordersError ? (
+              <p className={styles.ordersMessage}>{ordersError}</p>
+            ) : displayedOrders.length === 0 ? (
+              <p className={styles.ordersMessage}>Nenhum pedido registrado.</p>
+            ) : (
+              <>
+                <table className={styles.ordersTable}>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Descrição</th>
+                      <th>Quantidade</th>
+                      <th>Valor unitário</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayedOrders.map((order) => (
+                      <tr key={order.id}>
+                        <td>{formatOrderDate(order.created_at)}</td>
+                        <td>{formatOrderItems(order)}</td>
+                        <td>{formatOrderQuantity(order)}</td>
+                        <td>
+                          {getOrderItems(order).length === 1
+                            ? formatCurrency(getOrderItems(order)[0].unit_price)
+                            : 'Vários'}
+                        </td>
+                        <td>{formatCurrency(order.total_value)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th colSpan={4}>Saldo dos pedidos (em aberto):</th>
+                      <th className={styles.ordersTotalValue}>
+                        {formatCurrency(displayedOrdersTotal)}
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+                {ordersTotal > displayedOrders.length && (
+                  <p className={styles.ordersNote}>
+                    Exibindo {displayedOrders.length} de {ordersTotal} pedidos.
+                  </p>
+                )}
+              </>
             )}
-          </>
-        )}
-      </section>
+          </section>
+        </>
+      )}
 
       <footer className={styles.printFooter}>Documento informativo para uso administrativo.</footer>
     </article>

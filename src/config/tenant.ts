@@ -1,4 +1,16 @@
 const DEFAULT_TENANT_SLUG = 'admin-panificadora';
+const LOCAL_TENANT_ALIASES: Record<string, string> = {
+  'admin1-panificadora1': 'admin-panificadora',
+};
+
+export function resolveLocalTenantSlug(hostname: string): string | null {
+  if (!hostname.endsWith('.localhost')) {
+    return null;
+  }
+
+  const localSlug = hostname.split('.')[0];
+  return LOCAL_TENANT_ALIASES[localSlug] || localSlug;
+}
 
 export function resolveTenantSlug(): string {
   const hostname = window.location.hostname;
@@ -6,8 +18,9 @@ export function resolveTenantSlug(): string {
 
   // Desenvolvimento local:
   // admin-panificadora.localhost
-  if (hostname.endsWith('.localhost')) {
-    return hostname.split('.')[0];
+  const localTenantSlug = resolveLocalTenantSlug(hostname);
+  if (localTenantSlug) {
+    return localTenantSlug;
   }
 
   const rootDomain = import.meta.env.VITE_BAKERY_ROOT_DOMAIN;

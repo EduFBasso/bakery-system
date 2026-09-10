@@ -105,7 +105,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
       state: address.state,
       ...(formData.complement && { complement: formData.complement }),
       ...(customerType === 'PF'
-        ? { cpf: cpfMask.value }
+        ? { cpf: cpfMask.value, company_name: formData.name }
         : { cnpj: cnpjMask.value, company_name: formData.companyName }),
     };
 

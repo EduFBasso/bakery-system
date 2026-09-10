@@ -42,6 +42,7 @@
 .dataGrid > div { line-height: 1.5; }
 .statusApproved dd { color: #15803d; font-weight: 600; }
 .statusBlocked { color: #dc2626; }
+.statusPending { padding: 5px 10px; border-radius: 4px; background: #fff; color: #8f3f22; }
 .financeGrid dd { font-size: 16px; font-weight: 700; }
 .ordersSection { margin-top: 36px; }
 .ordersSection h2 { padding-bottom: 12px; border-bottom: 1px solid #cfcfcf; }
@@ -53,4 +54,5 @@
 .ordersTotalValue { font-size: 16px; }
 .ordersMessage, .ordersNote { color: #6b7280; font-size: 12px; }
 .ordersNote { margin: 8px 0 0; }
+.pendingNotice p { margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6; text-align: center; }
 .printFooter { margin-top: 40px; border-top: 1px solid #d1d5db; padding-top: 10px; color: #6b7280; font-size: 10px; }

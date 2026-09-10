@@ -38,7 +38,6 @@ export function useRegister(options: UseRegisterOptions = {}) {
         const submitData = { ...data };
         if (submitData.customer_type === 'PF') {
           delete submitData.cnpj;
-          delete submitData.company_name;
         } else {
           delete submitData.cpf;
         }
