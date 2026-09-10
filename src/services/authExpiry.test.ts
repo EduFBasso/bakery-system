@@ -15,18 +15,21 @@ describe('auth expiry handler', () => {
     vi.restoreAllMocks();
   });
 
-  it('nao encerra a sessao quando a senha administrativa esta incorreta', async () => {
-    const originalFetch = vi.fn().mockResolvedValue(new Response('{}', { status: 401 }));
-    vi.stubGlobal('fetch', originalFetch);
-    restoreFetch = installAuthExpiryHandler();
+  it.each(['/block/', '/reject/'])(
+    'nao encerra a sessao quando a senha administrativa esta incorreta em %s',
+    async (action) => {
+      const originalFetch = vi.fn().mockResolvedValue(new Response('{}', { status: 401 }));
+      vi.stubGlobal('fetch', originalFetch);
+      restoreFetch = installAuthExpiryHandler();
 
-    const response = await window.fetch('/api/v1/bakery/customers/12/block/', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer token-admin' },
-      body: JSON.stringify({ admin_password: 'senha-errada' }),
-    });
+      const response = await window.fetch(`/api/v1/bakery/customers/12${action}`, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer token-admin' },
+        body: JSON.stringify({ admin_password: 'senha-errada' }),
+      });
 
-    expect(response.status).toBe(401);
-    expect(localStorage.getItem('bread_admin_token')).toBe('token-admin');
-  });
+      expect(response.status).toBe(401);
+      expect(localStorage.getItem('bread_admin_token')).toBe('token-admin');
+    }
+  );
 });

@@ -26,10 +26,7 @@ export function openWhatsAppMessage(phone?: string | null, message?: string | nu
     return false;
   }
 
-  const popup = window.open(url, '_blank', 'noopener,noreferrer');
-  if (!popup) {
-    window.location.href = url;
-  }
+  window.open(url, 'bread-whatsapp-share', 'noopener,noreferrer');
 
   return true;
 }

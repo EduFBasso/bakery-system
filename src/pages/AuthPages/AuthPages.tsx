@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PageFlashMessage } from '../../components/PageFlashMessage/PageFlashMessage';
 import { CustomerForm } from '../../components/forms/CustomerForm';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -14,7 +15,7 @@ export function RegisterPage() {
   const [registeredNickname, setRegisteredNickname] = useState('');
   const [formErrors, setFormErrors] = useState({});
 
-  const { loading, error, register } = useRegister({
+  const { loading, error, register, clearError } = useRegister({
     onSuccess: (response) => {
       setRegisteredNickname(response.nickname);
       setShowSuccessModal(true);
@@ -49,14 +50,20 @@ export function RegisterPage() {
         <h1 className={styles.title}>🥖 Registrar Novo Cliente</h1>
         <p className={styles.subtitle}>Preencha os dados para se cadastrar no sistema</p>
 
-        {error && <div className={styles.errorAlert}>❌ {error}</div>}
-
         <CustomerForm onSubmit={handleRegisterSubmit} isLoading={loading} errors={formErrors} />
 
         <button className={styles.backLink} onClick={handleGoHome}>
           ← Voltar para Home
         </button>
       </div>
+
+      <PageFlashMessage
+        open={!!error}
+        message={error}
+        type="error"
+        autoCloseMs={3000}
+        onClose={clearError}
+      />
 
       {/* Modal de Sucesso */}
       <Modal isOpen={showSuccessModal} onClose={handleCloseModal}>

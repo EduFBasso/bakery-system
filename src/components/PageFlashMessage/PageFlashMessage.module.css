@@ -1,0 +1,47 @@
+.container {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1600;
+  width: min(92vw, 460px);
+  pointer-events: none;
+}
+
+.message {
+  width: 100%;
+  pointer-events: auto;
+  border: 1px solid;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.success {
+  background: color-mix(in oklab, var(--color-success, #28a745) 10%, white);
+  color: var(--color-success-dark, #155724);
+  border-color: color-mix(in oklab, var(--color-success, #28a745) 45%, white);
+}
+
+.error {
+  background: var(--color-danger-bg, #fff1f2);
+  color: var(--color-danger, #b42318);
+  border-color: color-mix(in oklab, var(--color-danger, #b42318) 55%, white);
+}
+
+.warning {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+.info {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #60a5fa;
+}

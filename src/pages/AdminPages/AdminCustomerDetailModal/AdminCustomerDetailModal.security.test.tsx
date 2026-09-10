@@ -63,6 +63,11 @@ const blockedCustomer = {
   status: 'BLOQUEADO',
 };
 
+const pendingCustomer = {
+  ...approvedCustomer,
+  status: 'PENDENTE',
+};
+
 describe('AdminCustomerDetailModal security flows', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -210,6 +215,122 @@ describe('AdminCustomerDetailModal security flows', () => {
     expect(screen.getByRole('button', { name: 'Copiar senha' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Editar senha' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Compartilhar senha no WhatsApp' })).toBeDisabled();
+  });
+
+  it('abre descarte pendente sem renderizar o modal de detalhes', () => {
+    mockedUseAdminCustomers.mockReturnValue({
+      customerDetail: pendingCustomer,
+      fetchCustomerDetail: fetchCustomerDetailMock,
+      loading: false,
+      error: null,
+      pendingCustomers: [],
+      allCustomers: [],
+      stats: null,
+      fetchAdminStats: vi.fn(),
+      fetchPendingCustomers: vi.fn(),
+      fetchAllCustomers: vi.fn(),
+      approveCustomer: vi.fn(),
+      blockCustomer: vi.fn(),
+      clearError: vi.fn(),
+    });
+
+    render(
+      <AdminCustomerDetailModal
+        customerId={12}
+        isOpen
+        onClose={onCloseMock}
+        onCustomerUpdated={onCustomerUpdatedMock}
+        autoOpenDiscardConfirm
+      />
+    );
+
+    expect(screen.getByText('Descartar cadastro pendente')).toBeInTheDocument();
+    expect(screen.queryByText('Detalhes do Cliente')).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Ex: 5000.00')).not.toBeInTheDocument();
+  });
+
+  it('abre aprovacao direta sem renderizar o modal de detalhes', () => {
+    mockedUseAdminCustomers.mockReturnValue({
+      customerDetail: pendingCustomer,
+      fetchCustomerDetail: fetchCustomerDetailMock,
+      loading: false,
+      error: null,
+      pendingCustomers: [],
+      allCustomers: [],
+      stats: null,
+      fetchAdminStats: vi.fn(),
+      fetchPendingCustomers: vi.fn(),
+      fetchAllCustomers: vi.fn(),
+      approveCustomer: vi.fn(),
+      blockCustomer: vi.fn(),
+      clearError: vi.fn(),
+    });
+
+    render(
+      <AdminCustomerDetailModal
+        customerId={12}
+        isOpen
+        onClose={onCloseMock}
+        onCustomerUpdated={onCustomerUpdatedMock}
+        autoOpenApproveConfirm
+      />
+    );
+
+    expect(screen.getByRole('heading', { name: 'Confirmar Aprovação' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Ex: 5000.00')).toBeInTheDocument();
+    expect(screen.queryByText('Detalhes do Cliente')).not.toBeInTheDocument();
+  });
+
+  it('mostra sucesso nominal ao aprovar e compartilha uma vez no whatsapp', async () => {
+    mockedUseAdminCustomers.mockReturnValue({
+      customerDetail: pendingCustomer,
+      fetchCustomerDetail: fetchCustomerDetailMock,
+      loading: false,
+      error: null,
+      pendingCustomers: [],
+      allCustomers: [],
+      stats: null,
+      fetchAdminStats: vi.fn(),
+      fetchPendingCustomers: vi.fn(),
+      fetchAllCustomers: vi.fn(),
+      approveCustomer: vi.fn(),
+      blockCustomer: vi.fn(),
+      clearError: vi.fn(),
+    });
+
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(createJsonResponse({ password_plain_text: 'Senha@123' }));
+
+    const user = userEvent.setup();
+    render(
+      <AdminCustomerDetailModal
+        customerId={12}
+        isOpen
+        onClose={onCloseMock}
+        onCustomerUpdated={onCustomerUpdatedMock}
+        autoOpenApproveConfirm
+      />
+    );
+
+    await user.type(screen.getByPlaceholderText('Ex: 5000.00'), '500');
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Confirmar Aprovação' }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/v1/bakery/customers/12/approve/',
+        expect.objectContaining({ method: 'POST' })
+      );
+      expect(
+        screen.getByRole('button', {
+          name: '✅ Aprovação de Cliente Aprovado efetivada com sucesso.',
+        })
+      ).toBeInTheDocument();
+    });
+
+    expect(mockedOpenWhatsAppMessage).toHaveBeenCalledTimes(1);
+    expect(onCustomerUpdatedMock).toHaveBeenCalledTimes(1);
   });
 
   it('editar senha nao dispara compartilhamento automatico no whatsapp', async () => {

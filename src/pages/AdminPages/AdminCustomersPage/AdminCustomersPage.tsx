@@ -31,6 +31,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     action: 'block' | 'unblock';
   } | null>(null);
   const [openApproveDirectly, setOpenApproveDirectly] = useState(false);
+  const [openDiscardDirectly, setOpenDiscardDirectly] = useState(false);
 
   useEffect(() => {
     const status =
@@ -83,14 +84,23 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
 
   const handleOpenApproveFlow = (customerId: number) => {
     setOpenApproveDirectly(true);
+    setOpenDiscardDirectly(false);
     setSelectedCustomerId(customerId);
-    setIsModalOpen(true);
+    setIsModalOpen(false);
+  };
+
+  const handleOpenDiscardFlow = (customerId: number) => {
+    setOpenApproveDirectly(false);
+    setOpenDiscardDirectly(true);
+    setSelectedCustomerId(customerId);
+    setIsModalOpen(false);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedCustomerId(null);
     setOpenApproveDirectly(false);
+    setOpenDiscardDirectly(false);
   };
 
   const handleCustomerUpdated = () => {
@@ -203,12 +213,22 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                           📋 Detalhes
                         </button>
                         {customer.status === 'PENDENTE' && (
-                          <button
-                            className={`${styles.approveButton} ${styles.tableActionButton}`}
-                            onClick={() => handleOpenApproveFlow(customer.id)}
-                          >
-                            ✅ Aprovar
-                          </button>
+                          <>
+                            <button
+                              className={`${styles.approveButton} ${styles.tableActionButton}`}
+                              onClick={() => handleOpenApproveFlow(customer.id)}
+                            >
+                              ✅ Aprovar
+                            </button>
+                            <button
+                              className={`${styles.blockButton} ${styles.tableActionButton}`}
+                              onClick={() => {
+                                handleOpenDiscardFlow(customer.id);
+                              }}
+                            >
+                              🗑️ Descartar
+                            </button>
+                          </>
                         )}
                         {customer.status === 'APROVADO' && (
                           <button
@@ -238,10 +258,11 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
 
       <AdminCustomerDetailModal
         customerId={selectedCustomerId}
-        isOpen={isModalOpen}
+        isOpen={isModalOpen || openApproveDirectly || openDiscardDirectly}
         onClose={handleCloseModal}
         onCustomerUpdated={handleCustomerUpdated}
         autoOpenApproveConfirm={openApproveDirectly}
+        autoOpenDiscardConfirm={openDiscardDirectly}
       />
 
       {blockCustomerData && (

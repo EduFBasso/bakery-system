@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 
 interface AdminBlockConfirmModalProps {
@@ -20,6 +21,7 @@ export default function AdminBlockConfirmModal({
 }: AdminBlockConfirmModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   if (!isOpen) {
     return null;
@@ -52,6 +54,7 @@ export default function AdminBlockConfirmModal({
 
     setIsLoading(true);
     setActionError(null);
+    setActionSuccess(null);
 
     try {
       const token = localStorage.getItem('bread_admin_token');
@@ -79,8 +82,12 @@ export default function AdminBlockConfirmModal({
         throw new Error(message);
       }
 
+      setActionSuccess(
+        `✅ ${customerNickname} foi ${
+          action === 'block' ? 'bloqueado' : 'desbloqueado'
+        } com sucesso.`
+      );
       onCustomerUpdated();
-      onClose();
     } catch (err) {
       const errorMsg =
         err instanceof Error
@@ -94,19 +101,41 @@ export default function AdminBlockConfirmModal({
 
   const handleClose = () => {
     setActionError(null);
+    setActionSuccess(null);
+    onClose();
+  };
+
+  const handleToastClose = () => {
+    setActionError(null);
+    setActionSuccess(null);
     onClose();
   };
 
   return (
-    <AdminPasswordDialog
-      isOpen={isOpen}
-      title={action === 'block' ? 'Confirmar Bloqueio' : 'Confirmar Desbloqueio'}
-      description={`Digite novamente a senha do dono para ${action === 'block' ? 'bloquear' : 'desbloquear'} ${customerNickname}.`}
-      confirmLabel={action === 'block' ? 'Bloquear Cliente' : 'Desbloquear Cliente'}
-      isLoading={isLoading}
-      error={actionError}
-      onClose={handleClose}
-      onConfirm={handleConfirm}
-    />
+    <>
+      <AdminPasswordDialog
+        isOpen={isOpen && !actionSuccess}
+        title={action === 'block' ? 'Confirmar Bloqueio' : 'Confirmar Desbloqueio'}
+        description={`Digite novamente a senha do dono para ${action === 'block' ? 'bloquear' : 'desbloquear'} ${customerNickname}.`}
+        confirmLabel={action === 'block' ? 'Bloquear Cliente' : 'Desbloquear Cliente'}
+        isLoading={isLoading}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+      />
+      <PageFlashMessage
+        open={!!actionSuccess}
+        message={actionSuccess}
+        type="success"
+        autoCloseMs={3000}
+        onClose={handleToastClose}
+      />
+      <PageFlashMessage
+        open={!!actionError}
+        message={actionError}
+        type="error"
+        autoCloseMs={3000}
+        onClose={() => setActionError(null)}
+      />
+    </>
   );
 }

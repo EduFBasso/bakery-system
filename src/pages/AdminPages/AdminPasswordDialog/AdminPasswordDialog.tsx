@@ -52,7 +52,7 @@ export const AdminPasswordDialog: React.FC<AdminPasswordDialogProps> = ({
   const isExtraFieldInvalid = shouldRequireExtraField && !(extraFieldValue || '').trim();
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay}>
       <div className={styles.passwordDialogContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{title}</h2>

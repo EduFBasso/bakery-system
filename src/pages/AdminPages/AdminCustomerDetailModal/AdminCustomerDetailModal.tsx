@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import {
   buildAccessWhatsAppMessage,
@@ -88,6 +89,7 @@ interface AdminCustomerDetailModalProps {
   onClose: () => void;
   onCustomerUpdated: () => void;
   autoOpenApproveConfirm?: boolean;
+  autoOpenDiscardConfirm?: boolean;
 }
 
 export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> = ({
@@ -96,11 +98,13 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
   onClose,
   onCustomerUpdated,
   autoOpenApproveConfirm = false,
+  autoOpenDiscardConfirm = false,
 }) => {
   const { customerDetail, fetchCustomerDetail, loading, error } = useAdminCustomers();
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [closeAfterSuccess, setCloseAfterSuccess] = useState(false);
   const [securityDialogOpen, setSecurityDialogOpen] = useState(false);
   const [securityDialogTitle, setSecurityDialogTitle] = useState('');
   const [securityDialogDescription, setSecurityDialogDescription] = useState('');
@@ -126,25 +130,33 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
       fetchCustomerDetail(customerId);
       setActionError(null);
       setActionSuccess(null);
+      setCloseAfterSuccess(false);
       setCreditLimit('');
       setShowPassword(false);
       setCurrentPassword('');
       setCopiedToClipboard(false);
 
-      if (autoOpenApproveConfirm) {
-        setPendingSecureAction('approve');
-        setSecurityDialogTitle('Confirmar Aprovação');
-        setSecurityDialogDescription(
-          'Digite a senha do dono para aprovar este cadastro e gerar a senha oficial.'
+      if (autoOpenApproveConfirm || autoOpenDiscardConfirm) {
+        const action = autoOpenApproveConfirm ? 'approve' : 'cancel-pending';
+        setPendingSecureAction(action);
+        setSecurityDialogTitle(
+          autoOpenApproveConfirm ? 'Confirmar Aprovação' : 'Descartar cadastro pendente'
         );
-        setSecurityDialogConfirmLabel('Confirmar Aprovação');
+        setSecurityDialogDescription(
+          autoOpenApproveConfirm
+            ? 'Digite a senha do dono para aprovar este cadastro e gerar a senha oficial.'
+            : 'Digite a senha para remover este cadastro pendente permanentemente.'
+        );
+        setSecurityDialogConfirmLabel(
+          autoOpenApproveConfirm ? 'Confirmar Aprovação' : 'Descartar cadastro'
+        );
         setSecurityDialogOpen(true);
       } else {
         setSecurityDialogOpen(false);
         setPendingSecureAction(null);
       }
     }
-  }, [isOpen, customerId, fetchCustomerDetail, autoOpenApproveConfirm]);
+  }, [isOpen, customerId, fetchCustomerDetail, autoOpenApproveConfirm, autoOpenDiscardConfirm]);
 
   if (!isOpen || !customerId) {
     return null;
@@ -275,6 +287,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
     setIsActionLoading(true);
     setActionError(null);
     setActionSuccess(null);
+    setCloseAfterSuccess(false);
     try {
       const token = localStorage.getItem('bread_admin_token');
       if (!token) {
@@ -301,7 +314,8 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
       const data = await response.json();
       const approvedPassword = data.password_plain_text || '';
       setCurrentPassword(approvedPassword);
-      setActionSuccess('✅ Cliente aprovado! Agora você pode copiar ou compartilhar a senha.');
+      setCloseAfterSuccess(true);
+      setActionSuccess(`✅ Aprovação de ${customer?.nickname || 'cliente'} efetivada com sucesso.`);
       setSecurityDialogOpen(false);
       setPendingSecureAction(null);
       onCustomerUpdated();
@@ -362,6 +376,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
     setIsActionLoading(true);
     setActionError(null);
     setActionSuccess(null);
+    setCloseAfterSuccess(false);
 
     try {
       const token = localStorage.getItem('bread_admin_token');
@@ -385,11 +400,11 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
         throw new Error(message);
       }
 
-      setActionSuccess('✅ Cadastro recusado e removido permanentemente.');
+      setCloseAfterSuccess(true);
+      setActionSuccess(`✅ Cadastro de ${customer?.nickname || 'cliente'} descartado com sucesso.`);
       setSecurityDialogOpen(false);
       setPendingSecureAction(null);
       onCustomerUpdated();
-      onClose();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Erro ao cancelar cadastro';
       setActionError(errorMsg);
@@ -418,6 +433,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
     setIsActionLoading(true);
     setActionError(null);
     setActionSuccess(null);
+    setCloseAfterSuccess(false);
 
     try {
       const token = localStorage.getItem('bread_admin_token');
@@ -486,6 +502,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
 
     setIsActionLoading(true);
     setActionError(null);
+    setCloseAfterSuccess(false);
     try {
       const token = localStorage.getItem('bread_admin_token');
       if (!token) {
@@ -553,11 +570,11 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
         (customer?.credit_limit as string) || (customer?.financial_limit as string) || ''
       );
     } else if (action === 'cancel-pending') {
-      setSecurityDialogTitle('Confirmar Cancelamento');
+      setSecurityDialogTitle('Descartar cadastro pendente');
       setSecurityDialogDescription(
         'Digite a senha do dono para recusar este cadastro pendente. O cliente será removido permanentemente.'
       );
-      setSecurityDialogConfirmLabel('Cancelar Cadastro');
+      setSecurityDialogConfirmLabel('Descartar cadastro');
     } else if (action === 'set-password') {
       setSecurityDialogTitle('Confirmar Nova Senha');
       setSecurityDialogDescription(
@@ -659,6 +676,53 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
       }
     }
   };
+
+  const handleErrorToastClose = () => {
+    setActionError(null);
+  };
+
+  const handleSuccessToastClose = () => {
+    setActionSuccess(null);
+    if (closeAfterSuccess) {
+      onClose();
+    }
+  };
+
+  if (autoOpenApproveConfirm || autoOpenDiscardConfirm) {
+    return (
+      <>
+        <AdminPasswordDialog
+          isOpen={securityDialogOpen}
+          title={securityDialogTitle}
+          description={securityDialogDescription}
+          confirmLabel={securityDialogConfirmLabel}
+          isLoading={isActionLoading}
+          extraFieldLabel={autoOpenApproveConfirm ? 'Limite de Crédito (R$)*' : undefined}
+          extraFieldValue={autoOpenApproveConfirm ? creditLimit : undefined}
+          extraFieldPlaceholder={autoOpenApproveConfirm ? 'Ex: 5000.00' : undefined}
+          extraFieldType={autoOpenApproveConfirm ? 'number' : undefined}
+          extraFieldRequired={autoOpenApproveConfirm}
+          onExtraFieldChange={autoOpenApproveConfirm ? setCreditLimit : undefined}
+          onClose={onClose}
+          onConfirm={handleSecurityConfirm}
+        />
+        <PageFlashMessage
+          open={!!actionError}
+          message={actionError}
+          type="error"
+          autoCloseMs={3000}
+          onClose={handleErrorToastClose}
+        />
+        <PageFlashMessage
+          open={!!actionSuccess}
+          message={actionSuccess}
+          type="success"
+          autoCloseMs={3000}
+          onClose={handleSuccessToastClose}
+        />
+      </>
+    );
+  }
 
   const documentLabel = customer?.customer_type === 'PF' ? 'CPF' : 'CNPJ';
   const documentValue =
@@ -900,10 +964,6 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
               </div>
             )}
 
-            {/* Action Messages */}
-            {actionError && <div className={styles.errorMessage}>{actionError}</div>}
-            {actionSuccess && <div className={styles.successMessage}>{actionSuccess}</div>}
-
             {/* Action Buttons */}
             <div className={styles.modalActions}>
               <button
@@ -927,7 +987,7 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
                     onClick={() => openSecurityDialog('cancel-pending')}
                     disabled={isActionLoading}
                   >
-                    Cancelar
+                    🗑️ Descartar
                   </button>
                 </>
               )}
@@ -968,7 +1028,6 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
           description={securityDialogDescription}
           confirmLabel={securityDialogConfirmLabel}
           isLoading={isActionLoading}
-          error={actionError}
           extraFieldLabel={
             pendingSecureAction === 'approve' || pendingSecureAction === 'edit-credit-limit'
               ? 'Limite de Crédito (R$)*'
@@ -1001,6 +1060,22 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
           onConfirm={handleSecurityConfirm}
         />
       </div>
+
+      <PageFlashMessage
+        open={!!actionSuccess}
+        message={actionSuccess}
+        type="success"
+        autoCloseMs={3000}
+        onClose={handleSuccessToastClose}
+      />
+
+      <PageFlashMessage
+        open={!!actionError}
+        message={actionError}
+        type="error"
+        autoCloseMs={3000}
+        onClose={handleErrorToastClose}
+      />
     </div>
   );
 };

@@ -106,7 +106,7 @@ export function CustomerPrintView({
 
       <section className={styles.section}>
         <div className={styles.sectionHeading}>
-          <h2>Dados cadastrais</h2>
+          <h2>Dados do Cliente</h2>
           <span
             className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''} ${isPending ? styles.statusPending : ''}`}
           >
