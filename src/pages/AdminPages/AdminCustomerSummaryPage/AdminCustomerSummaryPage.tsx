@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiService } from '../../../services/api';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import { useAdminOrders } from '../../../hooks/useAdminOrders';
 import {
   CustomerPrintView,
   type PrintableCustomer,
@@ -22,6 +23,8 @@ const formatDocument = (value?: string | null, type?: string) => {
     return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
   return value || 'Não informado';
 };
+
+const DEFAULT_PRINT_ORDER_LIMIT = 5;
 
 const formatPhone = (value?: string | null) => {
   const digits = String(value || '').replace(/\D/g, '');
@@ -45,6 +48,12 @@ const formatAddress = (customer: PrintableCustomer) =>
 export function AdminCustomerSummaryPage() {
   const { customerId } = useParams<{ customerId: string }>();
   const { fetchCustomerDetail, loading, error } = useAdminCustomers();
+  const numericCustomerId = Number(customerId);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  const { orders, loading: ordersLoading, error: ordersError, pagination } = useAdminOrders({
+    customer_id: Number.isInteger(numericCustomerId) && numericCustomerId > 0 ? numericCustomerId : undefined,
+    page_size: showAllOrders ? 100 : DEFAULT_PRINT_ORDER_LIMIT,
+  });
   const [customer, setCustomer] = useState<PrintableCustomer | null>(null);
   const [tenant, setTenant] = useState<{
     trade_name?: string;
@@ -58,7 +67,7 @@ export function AdminCustomerSummaryPage() {
   const [tenantError, setTenantError] = useState('');
 
   useEffect(() => {
-    const id = Number(customerId);
+    const id = numericCustomerId;
     if (!Number.isInteger(id) || id <= 0) return;
 
     void fetchCustomerDetail(id).then((result) => {
@@ -69,7 +78,7 @@ export function AdminCustomerSummaryPage() {
       .catch((err: unknown) => {
         setTenantError(err instanceof Error ? err.message : 'Dados da empresa indisponíveis');
       });
-  }, [customerId, fetchCustomerDetail]);
+  }, [numericCustomerId, fetchCustomerDetail]);
 
   const tenantAddress = tenant
     ? [
@@ -107,9 +116,19 @@ export function AdminCustomerSummaryPage() {
           formatAddress={formatAddress}
           companyName={tenant?.trade_name || 'Panificadora'}
           companyAddress={tenantAddress || tenantError}
+          orders={orders}
+          ordersTotal={pagination.count}
+          ordersLimit={showAllOrders ? pagination.count : DEFAULT_PRINT_ORDER_LIMIT}
+          ordersLoading={ordersLoading}
+          ordersError={ordersError}
           screenPreview
         />
       </section>
+      {!showAllOrders && pagination.count > DEFAULT_PRINT_ORDER_LIMIT && (
+        <button type="button" className={styles.showAllOrdersButton} onClick={() => setShowAllOrders(true)}>
+          Ver todos os pedidos ({pagination.count})
+        </button>
+      )}
     </main>
   );
 }

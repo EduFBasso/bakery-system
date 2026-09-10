@@ -1,4 +1,5 @@
 import styles from './CustomerPrintView.module.css';
+import type { AdminOrder } from '../../../hooks/useAdminOrders';
 
 export interface PrintableCustomer {
   nickname?: string;
@@ -34,6 +35,11 @@ interface CustomerPrintViewProps {
   companyName?: string;
   companyAddress?: string;
   screenPreview?: boolean;
+  orders?: AdminOrder[];
+  ordersTotal?: number;
+  ordersLimit?: number;
+  ordersLoading?: boolean;
+  ordersError?: string | null;
 }
 
 export function CustomerPrintView({
@@ -46,11 +52,31 @@ export function CustomerPrintView({
   companyName = 'Sistema de Pedidos da Panificadora',
   companyAddress,
   screenPreview = false,
+  orders = [],
+  ordersTotal = 0,
+  ordersLimit = 5,
+  ordersLoading = false,
+  ordersError = null,
 }: CustomerPrintViewProps) {
   const documentValue =
     customer.customer_type === 'PF'
       ? customer.cpf || customer.cnpj_cpf
       : customer.cnpj || customer.cnpj_cpf;
+  const formatOrderDate = (value?: string) =>
+    value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';
+  const formatOrderItems = (order: AdminOrder) => {
+    const items = order.order_items ?? order.items ?? [];
+    return items.length
+      ? items
+          .map((item) => `${item.product_name || 'Produto'} x${item.quantity || 0}`)
+          .join(', ')
+      : 'Pedido sem itens';
+  };
+  const displayedOrders = orders.slice(0, ordersLimit);
+  const displayedOrdersTotal = displayedOrders.reduce(
+    (total, order) => total + Number.parseFloat(order.total_value || '0'),
+    0
+  );
 
   return (
     <article
@@ -69,7 +95,12 @@ export function CustomerPrintView({
       </header>
 
       <section className={styles.section}>
-        <h2>Dados cadastrais</h2>
+        <div className={styles.sectionHeading}>
+          <h2>Dados cadastrais</h2>
+          <span className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''}`}>
+            Status: {customer.status || 'Não informado'}
+          </span>
+        </div>
         <dl className={styles.dataGrid}>
           <div>
             <dt>Apelido:</dt>
@@ -86,10 +117,6 @@ export function CustomerPrintView({
           <div>
             <dt>Telefone:</dt>
             <dd>{formatPhone(customer.phone)}</dd>
-          </div>
-          <div>
-            <dt>Status:</dt>
-            <dd>{customer.status || 'Não informado'}</dd>
           </div>
           <div>
             <dt>Cadastro em:</dt>
@@ -118,6 +145,39 @@ export function CustomerPrintView({
             <dd>{formatCurrency(customer.financial_available ?? customer.available_credit)}</dd>
           </div>
         </dl>
+      </section>
+
+      <section className={`${styles.section} ${styles.ordersSection}`}>
+        <h2>Histórico de compras</h2>
+        {ordersLoading ? (
+          <p className={styles.ordersMessage}>Carregando pedidos...</p>
+        ) : ordersError ? (
+          <p className={styles.ordersMessage}>{ordersError}</p>
+        ) : displayedOrders.length === 0 ? (
+          <p className={styles.ordersMessage}>Nenhuma compra registrada.</p>
+        ) : (
+          <>
+            <table className={styles.ordersTable}>
+              <thead>
+                <tr><th>Data</th><th>Descrição</th><th>Valor unitário</th><th>Total</th></tr>
+              </thead>
+              <tbody>
+                {displayedOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td>{formatOrderDate(order.created_at)}</td>
+                    <td>{formatOrderItems(order)}</td>
+                    <td>{order.order_items?.length === 1 ? formatCurrency(order.order_items[0].unit_price) : 'Vários'}</td>
+                    <td>{formatCurrency(order.total_value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot><tr><th colSpan={3}>Total dos pedidos exibidos</th><th>{formatCurrency(displayedOrdersTotal)}</th></tr></tfoot>
+            </table>
+            {ordersTotal > displayedOrders.length && (
+              <p className={styles.ordersNote}>Exibindo {displayedOrders.length} de {ordersTotal} pedidos.</p>
+            )}
+          </>
+        )}
       </section>
 
       <footer className={styles.printFooter}>Documento informativo para uso administrativo.</footer>

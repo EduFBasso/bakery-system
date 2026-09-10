@@ -47,6 +47,8 @@
 
 .state { padding: 48px; color: #374151; text-align: center; }
 
+.showAllOrdersButton { display: block; margin: 18px auto 0; padding: 10px 16px; border: 0; border-radius: 6px; background: #8f3f22; color: #fff; font-weight: 700; cursor: pointer; }
+
 @media (max-width: 700px) {
   .page { padding: 12px; }
   .paper { min-height: auto; padding: 24px; }

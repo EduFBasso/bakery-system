@@ -25,7 +25,9 @@
 .headerMeta { display: flex; flex-direction: column; gap: 4px; color: #4b5563; font-size: 12px; text-align: right; }
 .headerMeta strong { color: #111827; font-size: 14px; }
 .section { margin-top: 26px; break-inside: avoid; page-break-inside: avoid; }
-.section h2 { margin: 0 0 12px; padding: 0 0 7px; border-bottom: 1px solid #cfcfcf; color: #1f1f1f; font-size: 16px; font-weight: 800; }
+.section h2 { margin: 0; color: #1f1f1f; font-size: 16px; font-weight: 800; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid #cfcfcf; }
+.sectionStatus { color: #166534; font-size: 14px; font-weight: 600; }
 .dataGrid, .financeGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px 28px; margin: 0; }
 .financeGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .dataGrid div, .financeGrid div { min-width: 0; }
@@ -34,5 +36,13 @@
 .printSheet dd { display: inline; margin: 0 0 0 5px; color: #262626; font-size: 14px; line-height: 1.5; }
 .printSheet dt::after { content: ''; }
 .dataGrid > div { line-height: 1.5; }
+.statusApproved dd { color: #15803d; font-weight: 600; }
+.statusBlocked { color: #dc2626; }
 .financeGrid dd { font-size: 16px; font-weight: 700; }
+.ordersTable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ordersTable th, .ordersTable td { border-bottom: 1px solid #e5e7eb; padding: 7px 5px; text-align: left; vertical-align: top; }
+.ordersTable th:nth-child(3), .ordersTable th:last-child, .ordersTable td:nth-child(3), .ordersTable td:last-child { text-align: right; white-space: nowrap; }
+.ordersTable tfoot th { border-top: 1px solid #9ca3af; border-bottom: 0; font-weight: 800; }
+.ordersMessage, .ordersNote { color: #6b7280; font-size: 12px; }
+.ordersNote { margin: 8px 0 0; }
 .printFooter { margin-top: 40px; border-top: 1px solid #d1d5db; padding-top: 10px; color: #6b7280; font-size: 10px; }

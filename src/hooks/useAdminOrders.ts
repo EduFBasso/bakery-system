@@ -28,6 +28,7 @@ export interface AdminOrdersResponse {
 export function useAdminOrders(filters?: {
   status?: string;
   customer_nickname?: string;
+  customer_id?: number;
   date_from?: string;
   date_to?: string;
   page?: number;
@@ -63,6 +64,7 @@ export function useAdminOrders(filters?: {
         }
         if (filters?.customer_nickname)
           params.append('customer_nickname', filters.customer_nickname);
+        if (filters?.customer_id) params.append('customer_id', filters.customer_id.toString());
         if (filters?.date_from) params.append('date_from', filters.date_from);
         if (filters?.date_to) params.append('date_to', filters.date_to);
         if (filters?.page) params.append('page', filters.page.toString());
