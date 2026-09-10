@@ -1,0 +1,92 @@
+.controls {
+  display: grid;
+  grid-template-columns: 116px 220px 42px;
+  align-items: end;
+  gap: 0.65rem;
+  grid-column: 1 / span 3;
+  margin-right: 0;
+}
+
+.field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 116px;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  background: #fff;
+}
+
+.passwordField {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.passwordField input {
+  width: 132px;
+}
+
+.iconButton {
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0.45rem;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  border-color: var(--color-admin-accent);
+}
+
+.actionButtons {
+  display: inline-flex;
+  grid-column: 4;
+  vertical-align: bottom;
+}
+
+.actionButton {
+  width: 190px;
+  min-width: 190px;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0.5rem 0.85rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.blockButton {
+  background: #f44336;
+}
+
+.saveButton {
+  background: #198754;
+}
+
+@media (max-width: 900px) {
+  .controls {
+    margin: 0;
+  }
+}

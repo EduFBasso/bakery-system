@@ -9,6 +9,10 @@
 }
 
 .message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   width: 100%;
   pointer-events: auto;
   border: 1px solid;
@@ -19,6 +23,18 @@
   font-size: 14px;
   font-weight: 600;
   text-align: center;
+}
+
+.closeButton {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 

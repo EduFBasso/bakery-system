@@ -87,7 +87,7 @@ interface AdminCustomerDetailModalProps {
   customerId: number | null;
   isOpen: boolean;
   onClose: () => void;
-  onCustomerUpdated: () => void;
+  onCustomerUpdated: (message?: string) => void;
   autoOpenApproveConfirm?: boolean;
   autoOpenDiscardConfirm?: boolean;
 }
@@ -318,7 +318,9 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
       setActionSuccess(`✅ Aprovação de ${customer?.nickname || 'cliente'} efetivada com sucesso.`);
       setSecurityDialogOpen(false);
       setPendingSecureAction(null);
-      onCustomerUpdated();
+      onCustomerUpdated(
+        `✅ Aprovação de ${customer?.nickname || 'cliente'} efetivada com sucesso.`
+      );
       await fetchCustomerDetail(customerId);
 
       if (customer?.phone && approvedPassword) {

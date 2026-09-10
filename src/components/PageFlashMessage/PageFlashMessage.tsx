@@ -33,9 +33,12 @@ export function PageFlashMessage({
 
   return (
     <div className={styles.container} role="status" aria-live="polite">
-      <button type="button" className={`${styles.message} ${styles[type]}`} onClick={onClose}>
-        {message}
-      </button>
+      <div className={`${styles.message} ${styles[type]}`}>
+        <span>{message}</span>
+        <button type="button" className={styles.closeButton} onClick={onClose}>
+          OK
+        </button>
+      </div>
     </div>
   );
 }

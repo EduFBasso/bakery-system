@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { AdminCustomerDetailModal } from '../AdminCustomerDetailModal/AdminCustomerDetailModal';
 import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
-import { formatPhone } from '../../../utils/formatPhone';
+import { ActiveCustomerControls } from './ActiveCustomerControls';
+import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import styles from './AdminCustomersPage.module.css';
 
 interface AdminCustomersPageProps {
@@ -32,8 +33,10 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   } | null>(null);
   const [openApproveDirectly, setOpenApproveDirectly] = useState(false);
   const [openDiscardDirectly, setOpenDiscardDirectly] = useState(false);
+  const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
 
   useEffect(() => {
+    setExpandedCustomerId(null);
     const status =
       activeSubTab === 'pending'
         ? 'PENDENTE'
@@ -42,13 +45,6 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
           : 'APROVADO';
     fetchAllCustomers({ status, search: searchInput || undefined });
   }, [activeSubTab, searchInput, fetchAllCustomers]);
-
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => setSuccessMessage(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
 
   const handleBlock = (id: number, nickname: string) => {
     setBlockCustomerData({ id, nickname, action: 'block' });
@@ -103,7 +99,10 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     setOpenDiscardDirectly(false);
   };
 
-  const handleCustomerUpdated = () => {
+  const handleCustomerUpdated = (message?: string) => {
+    if (message) {
+      setSuccessMessage(message);
+    }
     const status =
       activeSubTab === 'pending'
         ? 'PENDENTE'
@@ -123,7 +122,13 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
 
   return (
     <div>
-      {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
+      <PageFlashMessage
+        open={!!successMessage}
+        message={successMessage}
+        type="success"
+        autoCloseMs={0}
+        onClose={() => setSuccessMessage('')}
+      />
       {error && <div className={styles.errorAlert}>{error}</div>}
 
       {/* Sub-tabs: estado do cliente */}
@@ -185,10 +190,14 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
               <thead>
                 <tr>
                   <th>Apelido</th>
-                  <th>Tipo</th>
-                  <th>Telefone</th>
                   <th>EM ABERTO</th>
-                  <th className={styles.actionHeader}>Ação</th>
+                  <th className={styles.optionsHeader}>{activeSubTab !== 'blocked' && 'Opções'}</th>
+                  <th className={styles.actionHeader}>
+                    <div className={styles.actionHeaderLabels}>
+                      {expandedCustomerId !== null && <span>Limite</span>}
+                      {expandedCustomerId !== null && <span>Senha</span>}
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -197,56 +206,87 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                     <td>
                       <strong>{customer.nickname}</strong>
                     </td>
-                    <td>{customer.customer_type === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
-                    <td>{formatPhone(customer.phone) || '—'}</td>
                     <td>
                       {activeSubTab === 'pending'
                         ? '—'
                         : formatCurrency(customer.financial_used || customer.current_balance)}
                     </td>
-                    <td className={styles.actionCell}>
-                      <div className={styles.actionButtonsGroup}>
+                    <td className={styles.optionsCell}>
+                      {customer.status === 'APROVADO' && (
                         <button
-                          className={`${styles.detailsButton} ${styles.tableActionButton}`}
-                          onClick={() => handleOpenSummary(customer.id)}
+                          type="button"
+                          className={styles.optionsToggle}
+                          aria-label={`${expandedCustomerId === customer.id ? 'Ocultar' : 'Mostrar'} operações de ${customer.nickname}`}
+                          aria-expanded={expandedCustomerId === customer.id}
+                          title={
+                            expandedCustomerId === customer.id
+                              ? 'Ocultar operações'
+                              : 'Mostrar operações'
+                          }
+                          onClick={() =>
+                            setExpandedCustomerId((currentId) =>
+                              currentId === customer.id ? null : customer.id
+                            )
+                          }
                         >
-                          📋 Detalhes
+                          {expandedCustomerId === customer.id ? '↓' : '→'}
                         </button>
-                        {customer.status === 'PENDENTE' && (
-                          <>
-                            <button
-                              className={`${styles.approveButton} ${styles.tableActionButton}`}
-                              onClick={() => handleOpenApproveFlow(customer.id)}
-                            >
-                              ✅ Aprovar
-                            </button>
+                      )}
+                    </td>
+                    <td className={styles.actionCell}>
+                      {customer.status === 'APROVADO' && expandedCustomerId === customer.id ? (
+                        <div className={`${styles.primaryActions} ${styles.operationActions}`}>
+                          <ActiveCustomerControls
+                            customer={customer}
+                            onBlock={() => handleBlock(customer.id, customer.nickname)}
+                            onCustomerUpdated={handleBlockCustomerUpdated}
+                            showBlockButton={false}
+                          />
+                        </div>
+                      ) : (
+                        <div className={styles.primaryActions}>
+                          <button
+                            className={`${styles.detailsButton} ${styles.tableActionButton}`}
+                            onClick={() => handleOpenSummary(customer.id)}
+                          >
+                            📋 Detalhes
+                          </button>
+                          {customer.status === 'PENDENTE' && (
+                            <>
+                              <button
+                                className={`${styles.approveButton} ${styles.tableActionButton}`}
+                                onClick={() => handleOpenApproveFlow(customer.id)}
+                              >
+                                ✅ Aprovar
+                              </button>
+                              <button
+                                className={`${styles.blockButton} ${styles.tableActionButton}`}
+                                onClick={() => {
+                                  handleOpenDiscardFlow(customer.id);
+                                }}
+                              >
+                                🗑️ Descartar
+                              </button>
+                            </>
+                          )}
+                          {customer.status === 'APROVADO' && (
                             <button
                               className={`${styles.blockButton} ${styles.tableActionButton}`}
-                              onClick={() => {
-                                handleOpenDiscardFlow(customer.id);
-                              }}
+                              onClick={() => handleBlock(customer.id, customer.nickname)}
                             >
-                              🗑️ Descartar
+                              🚫 Bloquear
                             </button>
-                          </>
-                        )}
-                        {customer.status === 'APROVADO' && (
-                          <button
-                            className={`${styles.blockButton} ${styles.tableActionButton}`}
-                            onClick={() => handleBlock(customer.id, customer.nickname)}
-                          >
-                            🚫 Bloquear
-                          </button>
-                        )}
-                        {customer.status === 'BLOQUEADO' && (
-                          <button
-                            className={`${styles.unblockButton} ${styles.tableActionButton}`}
-                            onClick={() => handleUnblock(customer.id, customer.nickname)}
-                          >
-                            🔓 Desbloquear
-                          </button>
-                        )}
-                      </div>
+                          )}
+                          {customer.status === 'BLOQUEADO' && (
+                            <button
+                              className={`${styles.unblockButton} ${styles.tableActionButton}`}
+                              onClick={() => handleUnblock(customer.id, customer.nickname)}
+                            >
+                              🔓 Desbloquear
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

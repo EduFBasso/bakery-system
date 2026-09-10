@@ -323,10 +323,9 @@ describe('AdminCustomerDetailModal security flows', () => {
         expect.objectContaining({ method: 'POST' })
       );
       expect(
-        screen.getByRole('button', {
-          name: '✅ Aprovação de Cliente Aprovado efetivada com sucesso.',
-        })
+        screen.getByText('✅ Aprovação de Cliente Aprovado efetivada com sucesso.')
       ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'OK' })).toBeInTheDocument();
     });
 
     expect(mockedOpenWhatsAppMessage).toHaveBeenCalledTimes(1);
