@@ -50,8 +50,15 @@ export function AdminCustomerSummaryPage() {
   const { fetchCustomerDetail, loading, error } = useAdminCustomers();
   const numericCustomerId = Number(customerId);
   const [showAllOrders, setShowAllOrders] = useState(false);
-  const { orders, loading: ordersLoading, error: ordersError, pagination } = useAdminOrders({
-    customer_id: Number.isInteger(numericCustomerId) && numericCustomerId > 0 ? numericCustomerId : undefined,
+  const {
+    orders,
+    loading: ordersLoading,
+    error: ordersError,
+    pagination,
+  } = useAdminOrders({
+    customer_id:
+      Number.isInteger(numericCustomerId) && numericCustomerId > 0 ? numericCustomerId : undefined,
+    open_only: true,
     page_size: showAllOrders ? 100 : DEFAULT_PRINT_ORDER_LIMIT,
   });
   const [customer, setCustomer] = useState<PrintableCustomer | null>(null);
@@ -125,7 +132,11 @@ export function AdminCustomerSummaryPage() {
         />
       </section>
       {!showAllOrders && pagination.count > DEFAULT_PRINT_ORDER_LIMIT && (
-        <button type="button" className={styles.showAllOrdersButton} onClick={() => setShowAllOrders(true)}>
+        <button
+          type="button"
+          className={styles.showAllOrdersButton}
+          onClick={() => setShowAllOrders(true)}
+        >
           Ver todos os pedidos ({pagination.count})
         </button>
       )}

@@ -62,16 +62,24 @@ export function CustomerPrintView({
     customer.customer_type === 'PF'
       ? customer.cpf || customer.cnpj_cpf
       : customer.cnpj || customer.cnpj_cpf;
+  const issuedAt = new Date().toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
   const formatOrderDate = (value?: string) =>
     value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';
+  const getOrderItems = (order: AdminOrder) => order.order_items ?? order.items ?? [];
   const formatOrderItems = (order: AdminOrder) => {
-    const items = order.order_items ?? order.items ?? [];
+    const items = getOrderItems(order);
     return items.length
-      ? items
-          .map((item) => `${item.product_name || 'Produto'} x${item.quantity || 0}`)
-          .join(', ')
+      ? items.map((item) => `${item.product_name || 'Produto'} x${item.quantity || 0}`).join(', ')
       : 'Pedido sem itens';
   };
+  const formatOrderQuantity = (order: AdminOrder) =>
+    getOrderItems(order).reduce((total, item) => total + Number(item.quantity || 0), 0);
   const displayedOrders = orders.slice(0, ordersLimit);
   const displayedOrdersTotal = displayedOrders.reduce(
     (total, order) => total + Number.parseFloat(order.total_value || '0'),
@@ -90,14 +98,16 @@ export function CustomerPrintView({
         </div>
         <div className={styles.headerMeta}>
           <strong>Resumo do cliente</strong>
-          <p className={styles.printDate}>Emitido em {formatDate(new Date().toISOString())}</p>
+          <p className={styles.printDate}>Emitido em {issuedAt}</p>
         </div>
       </header>
 
       <section className={styles.section}>
         <div className={styles.sectionHeading}>
           <h2>Dados cadastrais</h2>
-          <span className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''}`}>
+          <span
+            className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''}`}
+          >
             Status: {customer.status || 'Não informado'}
           </span>
         </div>
@@ -105,6 +115,10 @@ export function CustomerPrintView({
           <div>
             <dt>Apelido:</dt>
             <dd>{customer.nickname || 'Não informado'}</dd>
+          </div>
+          <div>
+            <dt>Nome:</dt>
+            <dd>{customer.company_name || 'Não informado'}</dd>
           </div>
           <div>
             <dt>Tipo:</dt>
@@ -123,7 +137,7 @@ export function CustomerPrintView({
             <dd>{formatDate(customer.created_at)}</dd>
           </div>
           <div className={styles.fullWidth}>
-            <dt>Endereço:</dt>
+            <dt>Endereço de entrega:</dt>
             <dd>{formatAddress(customer)}</dd>
           </div>
         </dl>
@@ -137,7 +151,7 @@ export function CustomerPrintView({
             <dd>{formatCurrency(customer.credit_limit ?? customer.financial_limit)}</dd>
           </div>
           <div>
-            <dt>Saldo utilizado:</dt>
+            <dt>Pedidos em aberto:</dt>
             <dd>{formatCurrency(customer.financial_used)}</dd>
           </div>
           <div>
@@ -148,33 +162,53 @@ export function CustomerPrintView({
       </section>
 
       <section className={`${styles.section} ${styles.ordersSection}`}>
-        <h2>Histórico de compras</h2>
+        <h2>Histórico de pedidos (em aberto)</h2>
         {ordersLoading ? (
           <p className={styles.ordersMessage}>Carregando pedidos...</p>
         ) : ordersError ? (
           <p className={styles.ordersMessage}>{ordersError}</p>
         ) : displayedOrders.length === 0 ? (
-          <p className={styles.ordersMessage}>Nenhuma compra registrada.</p>
+          <p className={styles.ordersMessage}>Nenhum pedido registrado.</p>
         ) : (
           <>
             <table className={styles.ordersTable}>
               <thead>
-                <tr><th>Data</th><th>Descrição</th><th>Valor unitário</th><th>Total</th></tr>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Quantidade</th>
+                  <th>Valor unitário</th>
+                  <th>Total</th>
+                </tr>
               </thead>
               <tbody>
                 {displayedOrders.map((order) => (
                   <tr key={order.id}>
                     <td>{formatOrderDate(order.created_at)}</td>
                     <td>{formatOrderItems(order)}</td>
-                    <td>{order.order_items?.length === 1 ? formatCurrency(order.order_items[0].unit_price) : 'Vários'}</td>
+                    <td>{formatOrderQuantity(order)}</td>
+                    <td>
+                      {getOrderItems(order).length === 1
+                        ? formatCurrency(getOrderItems(order)[0].unit_price)
+                        : 'Vários'}
+                    </td>
                     <td>{formatCurrency(order.total_value)}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot><tr><th colSpan={3}>Total dos pedidos exibidos</th><th>{formatCurrency(displayedOrdersTotal)}</th></tr></tfoot>
+              <tfoot>
+                <tr>
+                  <th colSpan={4}>Saldo dos pedidos (em aberto):</th>
+                  <th className={styles.ordersTotalValue}>
+                    {formatCurrency(displayedOrdersTotal)}
+                  </th>
+                </tr>
+              </tfoot>
             </table>
             {ordersTotal > displayedOrders.length && (
-              <p className={styles.ordersNote}>Exibindo {displayedOrders.length} de {ordersTotal} pedidos.</p>
+              <p className={styles.ordersNote}>
+                Exibindo {displayedOrders.length} de {ordersTotal} pedidos.
+              </p>
             )}
           </>
         )}
