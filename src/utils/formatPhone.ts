@@ -1,13 +1,13 @@
 export function formatPhone(value?: string | null): string {
-  if (!value) return '';
+  if (!value) return 'Não informado';
 
-  const digits = value.replace(/\D/g, '');
-  const localDigits = digits.length > 11 && digits.startsWith('55') ? digits.slice(2) : digits;
-
-  if (localDigits.length <= 2) return localDigits;
-  if (localDigits.length <= 6) return `(${localDigits.slice(0, 2)}) ${localDigits.slice(2)}`;
-  if (localDigits.length <= 10) {
-    return `(${localDigits.slice(0, 2)}) ${localDigits.slice(2, 6)}-${localDigits.slice(6)}`;
+  const digits = String(value).replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   }
-  return `(${localDigits.slice(0, 2)}) ${localDigits.slice(2, 7)}-${localDigits.slice(7, 11)}`;
+  if (digits.length === 10) {
+    return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  }
+
+  return value || 'Não informado';
 }

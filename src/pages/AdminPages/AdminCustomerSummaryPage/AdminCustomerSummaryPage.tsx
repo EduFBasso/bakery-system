@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ApiService } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { formatDocument } from '../../../utils/formatDocument';
+import { formatPhone } from '../../../utils/formatPhone';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { useAdminOrders } from '../../../hooks/useAdminOrders';
 import {
@@ -12,13 +13,6 @@ import {
 import styles from './AdminCustomerSummaryPage.module.css';
 
 const DEFAULT_PRINT_ORDER_LIMIT = 5;
-
-const formatPhone = (value?: string | null) => {
-  const digits = String(value || '').replace(/\D/g, '');
-  if (digits.length === 11) return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-  if (digits.length === 10) return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-  return value || 'Não informado';
-};
 
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';

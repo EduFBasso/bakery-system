@@ -3,6 +3,7 @@ import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlash
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { formatDocument } from '../../../utils/formatDocument';
+import { formatPhone } from '../../../utils/formatPhone';
 import {
   buildAccessWhatsAppMessage,
   normalizeWhatsAppPhone,
@@ -163,13 +164,6 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
   if (!isOpen || !customerId) {
     return null;
   }
-
-  const formatPhone = (value?: string | null) => {
-    const digits = String(value || '').replace(/\D/g, '');
-    if (digits.length === 11) return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    if (digits.length === 10) return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-    return value || 'Não informado';
-  };
 
   const formatDate = (value?: string | null) =>
     value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';
