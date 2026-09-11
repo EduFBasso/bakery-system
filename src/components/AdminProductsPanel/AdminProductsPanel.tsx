@@ -4,6 +4,7 @@ import { useProducts, Product } from '../../hooks/useProducts';
 import { useCreateProduct, CreateProductInput } from '../../hooks/useCreateProduct';
 import { useUpdateProduct } from '../../hooks/useUpdateProduct';
 import { useDeleteProduct } from '../../hooks/useDeleteProduct';
+import { formatCurrency } from '../../utils/formatCurrency';
 import styles from './AdminProductsPanel.module.css';
 
 interface ProductsPanelProps {
@@ -214,7 +215,7 @@ export function AdminProductsPanel({ onRefresh }: ProductsPanelProps) {
                 <p className={styles.description}>{product.description || 'Sem descrição'}</p>
 
                 <div className={styles.price}>
-                  <strong>R$ {parseFloat(product.price).toFixed(2)}</strong>
+                  <strong>{formatCurrency(product.price)}</strong>
                 </div>
 
                 <div className={styles.actions}>

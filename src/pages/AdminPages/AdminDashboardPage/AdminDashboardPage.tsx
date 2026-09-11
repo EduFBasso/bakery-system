@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import styles from './AdminDashboardPage.module.css';
+import { formatCurrency } from '../../../utils/formatCurrency';
 
 interface AdminDashboardPageProps {
   onNavigateToCustomers?: (filter?: string) => void;
@@ -83,7 +84,7 @@ export function AdminDashboardPage({
             {showInitialLoading ? '...' : stats?.active_customers || 0}
           </p>
           <p className={styles.kpiHint}>
-            Saldo em aberto: R$ {stats?.active_open_balance || '0.00'}
+            Saldo em aberto: {formatCurrency(stats?.active_open_balance)}
           </p>
         </button>
 
@@ -109,7 +110,7 @@ export function AdminDashboardPage({
             {showInitialLoading ? '...' : stats?.blocked_customers || 0}
           </p>
           <p className={styles.kpiHint}>
-            Saldo em aberto: R$ {stats?.blocked_open_balance || '0.00'}
+            Saldo em aberto: {formatCurrency(stats?.blocked_open_balance)}
           </p>
         </button>
       </section>

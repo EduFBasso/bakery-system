@@ -1,4 +1,5 @@
 import styles from '../Table.module.css';
+import { formatCurrency } from '../../../utils/formatCurrency';
 
 interface OrdersTableProps {
   data: any[];
@@ -23,7 +24,7 @@ export function OrdersTable({ data, onRowClick }: OrdersTableProps) {
           <tr key={row.id} className={styles.row}>
             <td>#{row.id}</td>
             <td>{row.customer?.nickname}</td>
-            <td>R$ {row.total_value?.toFixed(2)}</td>
+            <td>{formatCurrency(row.total_value)}</td>
             <td>{row.status}</td>
             <td>{new Date(row.created_at).toLocaleDateString('pt-BR')}</td>
             <td>

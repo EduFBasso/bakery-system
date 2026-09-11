@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCancelOrder } from '../../hooks/useCancelOrder';
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
+import { formatCurrency } from '../../utils/formatCurrency';
 import styles from './CustomerOrdersList.module.css';
 
 export function OrdersList() {
@@ -79,10 +80,7 @@ export function OrdersList() {
 
   const formatUnitPrice = (value: string) => {
     const amount = Number.parseFloat(value || '0');
-    return amount.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+    return formatCurrency(amount);
   };
 
   const openCancellationDialog = (orderId: number) => {
@@ -149,7 +147,7 @@ export function OrdersList() {
               </div>
 
               <div className={styles.amount}>
-                R$ {parseFloat(order.total_value).toFixed(2).replace('.', ',')}
+                {formatCurrency(order.total_value)}
               </div>
             </div>
             {order.status === 'PENDING' && (

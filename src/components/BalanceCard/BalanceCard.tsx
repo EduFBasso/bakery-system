@@ -1,4 +1,5 @@
 import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
+import { formatCurrency } from '../../utils/formatCurrency';
 import styles from './BalanceCard.module.css';
 
 interface BalanceCardProps {
@@ -29,13 +30,13 @@ export function BalanceCard({ showHeader = true }: BalanceCardProps) {
       <div className={styles.content}>
         <div className={styles.item}>
           <div className={styles.label}>Saldo Limite</div>
-          <div className={styles.value}>R$ {financialLimit.toFixed(2)}</div>
+          <div className={styles.value}>{formatCurrency(financialLimit)}</div>
           <div className={styles.subtext}>Limite total aprovado</div>
         </div>
 
         <div className={styles.item}>
           <div className={styles.label}>Saldo Utilizado</div>
-          <div className={styles.value}>R$ {financialUsed.toFixed(2)}</div>
+          <div className={styles.value}>{formatCurrency(financialUsed)}</div>
           <div className={styles.progressBar}>
             <div className={styles.progressFill} style={{ width: `${usedPercentage}%` }} />
           </div>
@@ -44,7 +45,7 @@ export function BalanceCard({ showHeader = true }: BalanceCardProps) {
 
         <div className={styles.item}>
           <div className={styles.label}>Saldo Disponível</div>
-          <div className={styles.value}>R$ {financialAvailable.toFixed(2)}</div>
+          <div className={styles.value}>{formatCurrency(financialAvailable)}</div>
           <div className={styles.subtext}>Disponível para compra</div>
         </div>
       </div>

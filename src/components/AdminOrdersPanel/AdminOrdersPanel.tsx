@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../utils/formatCurrency';
 import { AdminPasswordDialog } from '../../pages/AdminPages/AdminPasswordDialog/AdminPasswordDialog';
 import { AdminOrder, useAdminOrders } from '../../hooks/useAdminOrders';
 import { useUpdateOrderStatus } from '../../hooks/useUpdateOrderStatus';
@@ -192,9 +193,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
                           </span>
                         </td>
                         <td>{formatDate(order.created_at)}</td>
-                        <td className={styles.value}>
-                          R$ {parseFloat(order.total_value).toFixed(2)}
-                        </td>
+                        <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
                           <button
                             className={`${styles.expandBtn} ${
@@ -238,8 +237,8 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
                                   <ul className={styles.itemsList}>
                                     {order.items.map((item, idx) => (
                                       <li key={idx}>
-                                        {item.product_name} × {item.quantity} = R${' '}
-                                        {parseFloat(item.subtotal).toFixed(2)}
+                                        {item.product_name} × {item.quantity} ={' '}
+                                        {formatCurrency(item.subtotal)}
                                       </li>
                                     ))}
                                   </ul>

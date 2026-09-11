@@ -1,4 +1,5 @@
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
+import { formatCurrency } from '../../utils/formatCurrency';
 import styles from './CustomerTransactionHistory.module.css';
 
 export function TransactionHistory() {
@@ -58,23 +59,6 @@ export function TransactionHistory() {
     });
   };
 
-  const formatCurrency = (value: string) => {
-    const amount = Number.parseFloat(value || '0');
-    const safeAmount = Number.isFinite(amount) ? amount : 0;
-    return safeAmount.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
-  };
-
-  const formatUnitPrice = (value: string) => {
-    const amount = Number.parseFloat(value || '0');
-    return amount.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
-  };
-
   const formatItemsPreview = (
     orderItems: Array<{ product_name: string; quantity: number; unit_price: string }>
   ) => {
@@ -82,7 +66,7 @@ export function TransactionHistory() {
       .slice(0, 2)
       .map(
         (item) =>
-          `${item.product_name} x ${item.quantity} · ${formatUnitPrice(item.unit_price)}/un.`
+          `${item.product_name} x ${item.quantity} · ${formatCurrency(item.unit_price)}/un.`
       );
     const extraCount = Math.max(orderItems.length - 2, 0);
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProducts, Product } from '../../../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../../../hooks/useCreateOrder';
 import { useCustomerAuth } from '../../../hooks/useCustomerAuth';
+import { formatCurrency } from '../../../utils/formatCurrency';
 import { SmartSection } from '../../SmartSection/SmartSection';
 import { SystemMessageToast } from '../../ui/SystemMessageToast/SystemMessageToast';
 import styles from './CreateOrderForm.module.css';
@@ -272,10 +273,6 @@ export function CreateOrderForm() {
   );
   const isSubmitDisabled = orderLoading || cartItems.length === 0 || exceedsAvailableCredit;
 
-  const formatCurrency = (value: number) => {
-    return `R$ ${value.toFixed(2).replace('.', ',')}`;
-  };
-
   const formatDeliveryDateLabel = (value: string) => {
     if (!value) {
       return '';
@@ -312,7 +309,7 @@ export function CreateOrderForm() {
 
     if (exceedsAvailableCredit) {
       alert(
-        `Pedido excede o limite disponível. Total: R$ ${orderTotal.toFixed(2)} | Disponível: R$ ${availableCredit.toFixed(2)}`
+        `Pedido excede o limite disponível. Total: ${formatCurrency(orderTotal)} | Disponível: ${formatCurrency(availableCredit)}`
       );
       return;
     }
@@ -450,7 +447,7 @@ export function CreateOrderForm() {
                 <option value="">Escolha um produto...</option>
                 {products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.name} - R$ {parseFloat(product.price).toFixed(2)}
+                    {product.name} - {formatCurrency(product.price)}
                   </option>
                 ))}
               </select>
@@ -498,7 +495,7 @@ export function CreateOrderForm() {
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{item.product.name}</span>
                         <span className={styles.itemPrice}>
-                          R$ {parseFloat(item.product.price).toFixed(2)} cada
+                          {formatCurrency(item.product.price)} cada
                         </span>
                       </div>
 
@@ -508,7 +505,7 @@ export function CreateOrderForm() {
                       </div>
 
                       <div className={styles.itemSubtotal}>
-                        R$ {(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+                        {formatCurrency(parseFloat(item.product.price) * item.quantity)}
                       </div>
 
                       <button
@@ -524,7 +521,7 @@ export function CreateOrderForm() {
 
                   <div className={styles.cartTotal}>
                     <strong>Total:</strong>
-                    <strong className={styles.totalAmount}>R$ {calculateTotal().toFixed(2)}</strong>
+                    <strong className={styles.totalAmount}>{formatCurrency(calculateTotal())}</strong>
                   </div>
                 </div>
               )}
@@ -584,8 +581,8 @@ export function CreateOrderForm() {
 
           {exceedsAvailableCredit && (
             <div className={styles.error}>
-              Limite insuficiente para este pedido. Disponível: R$ {availableCredit.toFixed(2)} |
-              Total: R$ {orderTotal.toFixed(2)}
+              Limite insuficiente para este pedido. Disponível: {formatCurrency(availableCredit)} |
+              Total: {formatCurrency(orderTotal)}
             </div>
           )}
 
