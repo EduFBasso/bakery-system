@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ApiService } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { formatDocument } from '../../../utils/formatDocument';
+import { formatDate } from '../../../utils/formatDate';
 import { formatPhone } from '../../../utils/formatPhone';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { useAdminOrders } from '../../../hooks/useAdminOrders';
@@ -13,9 +14,6 @@ import {
 import styles from './AdminCustomerSummaryPage.module.css';
 
 const DEFAULT_PRINT_ORDER_LIMIT = 5;
-
-const formatDate = (value?: string | null) =>
-  value ? new Date(value).toLocaleDateString('pt-BR') : 'Não informado';
 
 const formatAddress = (customer: PrintableCustomer) =>
   [
