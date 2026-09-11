@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ActiveCustomerControls } from './ActiveCustomerControls';
@@ -83,5 +83,33 @@ describe('ActiveCustomerControls', () => {
 
     expect(screen.getByRole('heading', { name: 'Visualizar senha' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Digite sua senha')).toBeInTheDocument();
+  });
+
+  it('atualiza a senha sem compartilhar automaticamente', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ password_plain_text: 'NovaSenha@456' }),
+    } as Response);
+    const user = userEvent.setup();
+
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Atualizar senha de Cliente Teste' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Atualizar Senha' }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/v1/bakery/customers/12/set-password/',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+    expect(screen.getByDisplayValue('NovaSenha@456')).toBeInTheDocument();
   });
 });

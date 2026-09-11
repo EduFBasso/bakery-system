@@ -19,7 +19,7 @@ interface ActiveCustomerControlsProps {
   showBlockButton?: boolean;
 }
 
-type ProtectedAction = 'reveal' | 'share' | 'update-limit' | null;
+type ProtectedAction = 'reveal' | 'share' | 'update-limit' | 'set-password' | null;
 
 export function ActiveCustomerControls({
   customer,
@@ -70,6 +70,24 @@ export function ActiveCustomerControls({
     return data.password_plain_text as string;
   };
 
+  const updateOfficialPassword = async (adminPassword: string) => {
+    const response = await fetch(`/api/v1/bakery/customers/${customer.id}/set-password/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ admin_password: adminPassword.trim() }),
+    });
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response, 'Erro ao atualizar senha do cliente'));
+    }
+    const data = await response.json();
+    if (!data.password_plain_text) {
+      throw new Error('Senha oficial não está disponível para este cliente');
+    }
+    setOfficialPassword(data.password_plain_text);
+    setShowPassword(true);
+    setActionSuccess('✅ Nova senha definida com sucesso. Use copiar ou compartilhar para enviar.');
+  };
+
   const handleConfirm = async (adminPassword: string) => {
     setIsLoading(true);
     setActionError(null);
@@ -100,6 +118,8 @@ export function ActiveCustomerControls({
         }
         setActionSuccess(`✅ Limite de ${customer.nickname} atualizado com sucesso.`);
         onCustomerUpdated();
+      } else if (protectedAction === 'set-password') {
+        await updateOfficialPassword(adminPassword);
       }
       setProtectedAction(null);
     } catch (err) {
@@ -172,6 +192,15 @@ export function ActiveCustomerControls({
             >
               📋
             </button>
+            <button
+              type="button"
+              className={styles.iconButton}
+              aria-label={`Atualizar senha de ${customer.nickname}`}
+              title="Atualizar senha"
+              onClick={() => openProtectedAction('set-password')}
+            >
+              ✏️
+            </button>
           </div>
         </label>
         <button
@@ -209,10 +238,18 @@ export function ActiveCustomerControls({
             ? 'Visualizar senha'
             : protectedAction === 'share'
               ? 'Compartilhar senha'
-              : 'Alterar limite de crédito'
+              : protectedAction === 'set-password'
+                ? 'Confirmar Nova Senha'
+                : 'Alterar limite de crédito'
         }
         description="Digite a senha do dono para confirmar esta ação."
-        confirmLabel={protectedAction === 'update-limit' ? 'Salvar alteração' : 'Confirmar'}
+        confirmLabel={
+          protectedAction === 'update-limit'
+            ? 'Salvar alteração'
+            : protectedAction === 'set-password'
+              ? 'Atualizar Senha'
+              : 'Confirmar'
+        }
         isLoading={isLoading}
         onClose={() => setProtectedAction(null)}
         onConfirm={handleConfirm}

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { formatCurrency } from '../../../utils/formatCurrency';
-import { AdminCustomerDetailModal } from '../AdminCustomerDetailModal/AdminCustomerDetailModal';
 import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
 import { ActiveCustomerControls } from './ActiveCustomerControls';
+import { PendingCustomerAction } from './PendingCustomerAction';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import styles from './AdminCustomersPage.module.css';
 
@@ -24,16 +24,16 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   );
   const [searchInput, setSearchInput] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showBlockConfirmModal, setShowBlockConfirmModal] = useState(false);
   const [blockCustomerData, setBlockCustomerData] = useState<{
     id: number;
     nickname: string;
     action: 'block' | 'unblock';
   } | null>(null);
-  const [openApproveDirectly, setOpenApproveDirectly] = useState(false);
-  const [openDiscardDirectly, setOpenDiscardDirectly] = useState(false);
+  const [pendingCustomerAction, setPendingCustomerAction] = useState<{
+    customer: { id: number; nickname: string; phone?: string };
+    action: 'approve' | 'discard';
+  } | null>(null);
   const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -79,25 +79,16 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     window.open(`/admin/customers/${customerId}/summary`, '_blank', 'noopener,noreferrer');
   };
 
-  const handleOpenApproveFlow = (customerId: number) => {
-    setOpenApproveDirectly(true);
-    setOpenDiscardDirectly(false);
-    setSelectedCustomerId(customerId);
-    setIsModalOpen(false);
+  const handleOpenApproveFlow = (customer: { id: number; nickname: string; phone?: string }) => {
+    setPendingCustomerAction({ customer, action: 'approve' });
   };
 
-  const handleOpenDiscardFlow = (customerId: number) => {
-    setOpenApproveDirectly(false);
-    setOpenDiscardDirectly(true);
-    setSelectedCustomerId(customerId);
-    setIsModalOpen(false);
+  const handleOpenDiscardFlow = (customer: { id: number; nickname: string; phone?: string }) => {
+    setPendingCustomerAction({ customer, action: 'discard' });
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedCustomerId(null);
-    setOpenApproveDirectly(false);
-    setOpenDiscardDirectly(false);
+  const handleClosePendingAction = () => {
+    setPendingCustomerAction(null);
   };
 
   const handleCustomerUpdated = (message?: string) => {
@@ -250,14 +241,14 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                             <>
                               <button
                                 className={`${styles.approveButton} ${styles.tableActionButton}`}
-                                onClick={() => handleOpenApproveFlow(customer.id)}
+                                onClick={() => handleOpenApproveFlow(customer)}
                               >
                                 ✅ Aprovar
                               </button>
                               <button
                                 className={`${styles.blockButton} ${styles.tableActionButton}`}
                                 onClick={() => {
-                                  handleOpenDiscardFlow(customer.id);
+                                  handleOpenDiscardFlow(customer);
                                 }}
                               >
                                 🗑️ Descartar
@@ -291,14 +282,14 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
         )}
       </section>
 
-      <AdminCustomerDetailModal
-        customerId={selectedCustomerId}
-        isOpen={isModalOpen || openApproveDirectly || openDiscardDirectly}
-        onClose={handleCloseModal}
-        onCustomerUpdated={handleCustomerUpdated}
-        autoOpenApproveConfirm={openApproveDirectly}
-        autoOpenDiscardConfirm={openDiscardDirectly}
-      />
+      {pendingCustomerAction && (
+        <PendingCustomerAction
+          customer={pendingCustomerAction.customer}
+          action={pendingCustomerAction.action}
+          onClose={handleClosePendingAction}
+          onCustomerUpdated={handleCustomerUpdated}
+        />
+      )}
 
       {blockCustomerData && (
         <AdminBlockConfirmModal
