@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiService } from '../../../services/api';
+import { formatCurrency } from '../../../utils/formatCurrency';
+import { formatDocument } from '../../../utils/formatDocument';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { useAdminOrders } from '../../../hooks/useAdminOrders';
 import {
@@ -8,21 +10,6 @@ import {
   type PrintableCustomer,
 } from '../AdminCustomerDetailModal/CustomerPrintView';
 import styles from './AdminCustomerSummaryPage.module.css';
-
-const formatCurrency = (value?: string | number | null) => {
-  const numeric = typeof value === 'number' ? value : Number.parseFloat(value || '0');
-  return `R$ ${(Number.isFinite(numeric) ? numeric : 0).toFixed(2).replace('.', ',')}`;
-};
-
-const formatDocument = (value?: string | null, type?: string) => {
-  const digits = String(value || '').replace(/\D/g, '');
-  if (!digits) return 'Não informado';
-  if (type === 'PF' && digits.length === 11)
-    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  if (type !== 'PF' && digits.length === 14)
-    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-  return value || 'Não informado';
-};
 
 const DEFAULT_PRINT_ORDER_LIMIT = 5;
 

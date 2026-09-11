@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import { formatCurrency } from '../../../utils/formatCurrency';
 import { AdminCustomerDetailModal } from '../AdminCustomerDetailModal/AdminCustomerDetailModal';
 import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
 import { ActiveCustomerControls } from './ActiveCustomerControls';
@@ -113,12 +114,6 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
   };
 
   const displayedCustomers = allCustomers;
-
-  const formatCurrency = (value?: string) => {
-    const numeric = Number.parseFloat(value || '0');
-    const safe = Number.isFinite(numeric) ? numeric : 0;
-    return `R$ ${safe.toFixed(2).replace('.', ',')}`;
-  };
 
   return (
     <div>

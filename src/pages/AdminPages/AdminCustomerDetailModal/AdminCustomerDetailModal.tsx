@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
+import { formatCurrency } from '../../../utils/formatCurrency';
+import { formatDocument } from '../../../utils/formatDocument';
 import {
   buildAccessWhatsAppMessage,
   normalizeWhatsAppPhone,
@@ -161,30 +163,6 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
   if (!isOpen || !customerId) {
     return null;
   }
-
-  const parseMoney = (value?: string | number | null) => {
-    if (value === undefined || value === null || value === '') {
-      return 0;
-    }
-    const parsed = typeof value === 'string' ? Number.parseFloat(value) : value;
-    return Number.isFinite(parsed) ? parsed : 0;
-  };
-
-  const formatCurrency = (value?: string | number | null) => {
-    return `R$ ${parseMoney(value).toFixed(2).replace('.', ',')}`;
-  };
-
-  const formatDocument = (value?: string | null, type?: string) => {
-    const digits = String(value || '').replace(/\D/g, '');
-    if (!digits) return 'Não informado';
-    if (type === 'PF' && digits.length === 11) {
-      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    }
-    if (type !== 'PF' && digits.length === 14) {
-      return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-    }
-    return value || 'Não informado';
-  };
 
   const formatPhone = (value?: string | null) => {
     const digits = String(value || '').replace(/\D/g, '');
