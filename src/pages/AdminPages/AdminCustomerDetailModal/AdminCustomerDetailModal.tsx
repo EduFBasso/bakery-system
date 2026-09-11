@@ -5,6 +5,7 @@ import { formatCurrency } from '../../../utils/formatCurrency';
 import { formatDocument } from '../../../utils/formatDocument';
 import { formatDate } from '../../../utils/formatDate';
 import { formatPhone } from '../../../utils/formatPhone';
+import { normalizeCustomerStatus } from '../../../utils/normalizeCustomerStatus';
 import {
   buildAccessWhatsAppMessage,
   normalizeWhatsAppPhone,
@@ -212,24 +213,6 @@ export const AdminCustomerDetailModal: React.FC<AdminCustomerDetailModalProps> =
   };
 
   const customer = customerDetail;
-
-  const normalizeCustomerStatus = (status?: string | null) => {
-    const value = String(status || '')
-      .trim()
-      .toUpperCase();
-
-    if (value === 'PENDING') {
-      return 'PENDENTE';
-    }
-    if (value === 'APPROVED') {
-      return 'APROVADO';
-    }
-    if (value === 'BLOCKED') {
-      return 'BLOQUEADO';
-    }
-
-    return value || 'PENDENTE';
-  };
 
   const normalizedStatus = normalizeCustomerStatus(customer?.status);
   const isPending = normalizedStatus === 'PENDENTE';
