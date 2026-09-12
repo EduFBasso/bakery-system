@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminOrdersPanel } from './AdminOrdersPanel';
@@ -128,5 +128,22 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
       'CREDIT',
       'SenhaAdmin!123'
     );
+  });
+
+  it('informa sucesso ao pai ao marcar pedido como pago', async () => {
+    updateStatusMock.mockResolvedValue({ id: 1, status: 'CONFIRMED' });
+    const onRefresh = vi.fn();
+    const user = userEvent.setup();
+
+    render(<AdminOrdersPanel onRefresh={onRefresh} />);
+
+    await user.click(screen.getByRole('button', { name: 'Ver' }));
+    await user.click(screen.getByRole('button', { name: '✅ Marcar como pago' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'SenhaAdmin!123');
+    await user.click(screen.getByRole('button', { name: 'Confirmar Pagamento' }));
+
+    await waitFor(() => {
+      expect(onRefresh).toHaveBeenCalledWith('✅ Pedido ORD-001 marcado como pago.');
+    });
   });
 });

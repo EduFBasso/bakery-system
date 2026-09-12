@@ -26,10 +26,11 @@ function clearSessionForToken(token: string) {
 function isAdminPasswordEndpoint(input: RequestInfo | URL): boolean {
   const url = input instanceof Request ? input.url : String(input);
   return (
-    url.includes('/api/v1/bakery/customers/') &&
-    /\/(approve|block|unblock|reject|update-credit-limit|set-password|reveal-password)\/?(?:\?|$)/.test(
-      url
-    )
+    (url.includes('/api/v1/bakery/customers/') &&
+      /\/(approve|block|unblock|reject|update-credit-limit|set-password|reveal-password)\/?(?:\?|$)/.test(
+        url
+      )) ||
+    (url.includes('/api/v1/bakery/orders/') && /\/(cancel|status)\/?(?:\?|$)/.test(url))
   );
 }
 

@@ -15,14 +15,19 @@ describe('auth expiry handler', () => {
     vi.restoreAllMocks();
   });
 
-  it.each(['/block/', '/reject/'])(
+  it.each([
+    '/api/v1/bakery/customers/12/block/',
+    '/api/v1/bakery/customers/12/reject/',
+    '/api/v1/bakery/orders/12/cancel/',
+    '/api/v1/bakery/orders/12/status/',
+  ])(
     'nao encerra a sessao quando a senha administrativa esta incorreta em %s',
-    async (action) => {
+    async (endpoint) => {
       const originalFetch = vi.fn().mockResolvedValue(new Response('{}', { status: 401 }));
       vi.stubGlobal('fetch', originalFetch);
       restoreFetch = installAuthExpiryHandler();
 
-      const response = await window.fetch(`/api/v1/bakery/customers/12${action}`, {
+      const response = await window.fetch(endpoint, {
         method: 'POST',
         headers: { Authorization: 'Bearer token-admin' },
         body: JSON.stringify({ admin_password: 'senha-errada' }),

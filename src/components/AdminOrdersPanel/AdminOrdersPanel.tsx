@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { AdminPasswordDialog } from '../../pages/AdminPages/AdminPasswordDialog/AdminPasswordDialog';
 import { AdminOrder, useAdminOrders } from '../../hooks/useAdminOrders';
@@ -14,10 +14,11 @@ const PAYMENT_FILTERS = [
 ];
 
 interface AdminOrdersPanelProps {
-  onRefresh?: () => void;
+  onRefresh?: (successMessage?: string) => void;
+  onActionError?: (errorMessage: string) => void;
 }
 
-export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
+export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelProps) {
   const [filters, setFilters] = useState({
     status: '',
     customer_nickname: '',
@@ -37,6 +38,13 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
   const { cancelOrder, loading: cancelLoading, error: cancelError } = useCancelOrder();
 
   const isActionLoading = statusLoading || cancelLoading;
+  const actionError = statusError || cancelError;
+
+  useEffect(() => {
+    if (actionError) {
+      onActionError?.(actionError);
+    }
+  }, [actionError, onActionError]);
 
   const getPaymentInfo = (order: AdminOrder) => {
     if (order.status === 'CANCELLED') {
@@ -87,7 +95,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
       const result = await updateStatus(selectedOrder.id, 'CONFIRMED', adminPassword);
       if (result) {
         closeSecurityDialog();
-        onRefresh?.();
+        onRefresh?.(`✅ Pedido ${selectedOrder.order_number} marcado como pago.`);
       }
       return;
     }
@@ -100,7 +108,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
     );
     if (result) {
       closeSecurityDialog();
-      onRefresh?.();
+      onRefresh?.(`✅ Pedido ${selectedOrder.order_number} cancelado com sucesso.`);
     }
   };
 
@@ -150,9 +158,7 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
         />
       </div>
 
-      {(error || statusError || cancelError) && (
-        <div className={styles.error}>Erro: {error || statusError || cancelError}</div>
-      )}
+      {error && <div className={styles.error}>Erro: {error}</div>}
 
       <section className={styles.tableSection}>
         <h2>Gerenciamento de Pedidos</h2>
@@ -307,7 +313,6 @@ export function AdminOrdersPanel({ onRefresh }: AdminOrdersPanelProps) {
         }
         confirmLabel={securityAction === 'pay' ? 'Confirmar Pagamento' : 'Confirmar Cancelamento'}
         isLoading={isActionLoading}
-        error={statusError || cancelError}
         onClose={closeSecurityDialog}
         onConfirm={handleSecurityConfirm}
       />
