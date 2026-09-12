@@ -105,6 +105,33 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     expect(screen.queryByRole('button', { name: '✖ Cancelar Pedido' })).not.toBeInTheDocument();
   });
 
+  it.each(['CONFIRMED', 'DELIVERED'])(
+    'nao exibe cancelamento para pedido com status %s',
+    async (status) => {
+      mockedUseAdminOrders.mockReturnValue({
+        orders: [
+          makeOrder({
+            id: 4,
+            order_number: `ORD-${status}`,
+            status,
+            paid_at: '2026-09-12T12:00:00Z',
+          }),
+        ],
+        loading: false,
+        error: null,
+        pagination: { count: 1, next: null, previous: null },
+      });
+
+      const user = userEvent.setup();
+      render(<AdminOrdersPanel />);
+
+      await user.click(screen.getByRole('button', { name: 'Ver' }));
+
+      expect(screen.queryByRole('button', { name: '✖ Cancelar Pedido' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '✅ Marcar como pago' })).not.toBeInTheDocument();
+    }
+  );
+
   it('exige senha admin para confirmar cancelamento do pedido', async () => {
     cancelOrderMock.mockResolvedValue({ id: 1, status: 'CANCELLED' });
 

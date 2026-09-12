@@ -262,7 +262,7 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                                   </button>
                                 )}
 
-                                {order.status !== 'CANCELLED' && (
+                                {order.status === 'PENDING' && (
                                   <button
                                     className={styles.cancelBtn}
                                     disabled={isActionLoading}
