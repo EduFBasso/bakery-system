@@ -189,7 +189,11 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                             type="button"
                             className={styles.actionButton}
                             onClick={() =>
-                              window.open(`/admin/orders/${order.id}/print`, '_blank', 'noopener,noreferrer')
+                              window.open(
+                                `/admin/orders/${order.id}/print`,
+                                '_blank',
+                                'noopener,noreferrer'
+                              )
                             }
                           >
                             📋 Detalhes
@@ -216,7 +220,6 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                           )}
                         </td>
                       </tr>
-
                     </React.Fragment>
                   ))}
                 </tbody>

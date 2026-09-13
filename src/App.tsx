@@ -7,7 +7,10 @@ import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummar
 import { AdminOrderPrintPage } from './pages/AdminPages/AdminOrderPrintPage/AdminOrderPrintPage';
 import './App.css';
 
-function AdminRoute({ summary = false, orderPrint = false }: { summary?: boolean; orderPrint?: boolean } = {}) {
+function AdminRoute({
+  summary = false,
+  orderPrint = false,
+}: { summary?: boolean; orderPrint?: boolean } = {}) {
   const hasToken = !!localStorage.getItem('bread_admin_token');
 
   if (!hasToken) {

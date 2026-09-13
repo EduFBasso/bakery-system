@@ -1,4 +1,5 @@
 import styles from './AdminOrderPrintView.module.css';
+import { formatPhone } from '../../../utils/formatPhone';
 
 export interface PrintableOrderItem {
   id: number;
@@ -42,14 +43,10 @@ interface AdminOrderPrintViewProps {
   screenPreview?: boolean;
 }
 
+const ITEMS_PER_PAGE = 8;
+
 const formatCurrency = (value: string | number | null | undefined) =>
   Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-const formatDateTime = (value?: string) => {
-  if (!value) return 'Não informado';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? 'Não informado' : date.toLocaleString('pt-BR');
-};
 
 const formatDate = (value?: string) => {
   if (!value) return 'Não informado';
@@ -78,106 +75,127 @@ export function AdminOrderPrintView({
   screenPreview = false,
 }: AdminOrderPrintViewProps) {
   const items = order.order_items ?? order.items ?? [];
+  const pages = [];
+  for (let index = 0; index < Math.max(items.length, 1); index += ITEMS_PER_PAGE) {
+    pages.push(items.slice(index, index + ITEMS_PER_PAGE));
+  }
+  const totalPages = pages.length;
 
   return (
     <div
       className={`${styles.printSheet} ${screenPreview ? styles.screenPreview : ''}`}
       data-print-card="order-print"
     >
-      <article className={styles.printPage}>
-        <header className={styles.printHeader}>
-          <div>
-            <p className={styles.companyName}>{companyName}</p>
-            <p className={styles.companyAddress}>{companyAddress || 'Endereço não informado'}</p>
-            {companyPhone && <p className={styles.companyAddress}>{companyPhone}</p>}
-          </div>
-          <div className={styles.headerMeta}>
-            <strong>Pedido nº {order.order_number}</strong>
-            <span>Realizado em {formatDateTime(order.created_at)}</span>
-          </div>
-        </header>
+      {pages.map((pageItems, pageIndex) => {
+        const isFirstPage = pageIndex === 0;
+        const isLastPage = pageIndex === totalPages - 1;
 
-        <h1>Pedido</h1>
+        return (
+          <article className={styles.printPage} key={pageIndex} data-page-number={pageIndex + 1}>
+            <header className={styles.printHeader}>
+              <div>
+                <p className={styles.companyName}>{companyName}</p>
+                <p className={styles.companyAddress}>
+                  {companyAddress || 'Endereço não informado'}
+                </p>
+              </div>
+              {companyPhone && <p className={styles.companyPhone}>{formatPhone(companyPhone)}</p>}
+            </header>
 
-        <section className={styles.section}>
-          <h2>Dados do cliente</h2>
-          <div className={styles.dataGrid}>
-            <p><strong>Nome:</strong> {customer.company_name || 'Não informado'}</p>
-            <p><strong>Apelido:</strong> {customer.nickname || 'Não informado'}</p>
-            <p><strong>Telefone:</strong> {customer.phone || 'Não informado'}</p>
-          </div>
-        </section>
+            {isFirstPage && (
+              <>
+                <h1>
+                  Pedido nº {order.order_number} - {formatDate(order.created_at)}
+                </h1>
 
-        <section className={styles.section}>
-          <h2>Entrega</h2>
-          <div className={styles.dataGrid}>
-            <p><strong>Data prevista:</strong> {formatDate(order.delivery_date)}</p>
-            <p className={styles.fullWidth}><strong>Endereço:</strong> {formatAddress(order)}</p>
-          </div>
-        </section>
+                <section className={styles.section}>
+                  <div className={styles.customerLine}>
+                    <p>
+                      <strong>Cliente:</strong> {customer.nickname || 'Não informado'}
+                    </p>
+                    <p>
+                      <strong>Nome:</strong> {customer.company_name || 'Não informado'}
+                    </p>
+                    <p>
+                      <strong>Telefone:</strong>{' '}
+                      {customer.phone ? formatPhone(customer.phone) : 'Não informado'}
+                    </p>
+                  </div>
+                  <p className={styles.deliveryAddress}>
+                    <strong>Endereço:</strong> {formatAddress(order)}
+                  </p>
+                </section>
+              </>
+            )}
 
-        <section className={styles.section}>
-          <h2>Itens do pedido</h2>
-          {items.length === 0 ? (
-            <p>Pedido sem itens registrados.</p>
-          ) : (
-            <table className={styles.itemsTable}>
-              <thead>
-                <tr>
-                  <th>Produto</th>
-                  <th>Quantidade</th>
-                  <th>Valor unitário</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.product_name || 'Produto'}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatCurrency(item.unit_price)}</td>
-                    <td>{formatCurrency(item.subtotal)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th colSpan={3}>Total do pedido</th>
-                  <th>{formatCurrency(order.total_value)}</th>
-                </tr>
-              </tfoot>
-            </table>
-          )}
-        </section>
+            <section className={`${styles.section} ${styles.itemsSection}`}>
+              <h2>{isFirstPage ? 'Produtos Solicitados' : 'Produtos Solicitados (continuação)'}</h2>
+              {pageItems.length === 0 ? (
+                <p>Pedido sem itens registrados.</p>
+              ) : (
+                <table className={styles.itemsTable}>
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th>Quantidade</th>
+                      <th>Valor unitário</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.product_name || 'Produto'}</td>
+                        <td>{item.quantity}</td>
+                        <td>{formatCurrency(item.unit_price)}</td>
+                        <td>{formatCurrency(item.subtotal)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {isLastPage && (
+                    <tfoot>
+                      <tr>
+                        <th colSpan={3}>Total do pedido</th>
+                        <th>{formatCurrency(order.total_value)}</th>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              )}
+            </section>
 
-        {order.notes && (
-          <section className={styles.section}>
-            <h2>Observações</h2>
-            <p className={styles.notes}>{order.notes}</p>
-          </section>
-        )}
+            {isLastPage && order.notes && (
+              <section className={styles.section}>
+                <h2>Observações</h2>
+                <p className={styles.notes}>{order.notes}</p>
+              </section>
+            )}
 
-        <section className={styles.signatureSection}>
-          <h2>Recebimento</h2>
-          <p>Confirmo o recebimento do pedido na data abaixo.</p>
-          <div className={styles.signatureGrid}>
-            <div className={styles.signatureField}>
-              <span>Nome de quem recebeu</span>
-              <div />
-            </div>
-            <div className={styles.signatureField}>
-              <span>Data da entrega</span>
-              <div />
-            </div>
-          </div>
-          <div className={styles.signatureField}>
-            <span>Assinatura do cliente</span>
-            <div />
-          </div>
-        </section>
+            {isLastPage && (
+              <section className={styles.signatureSection}>
+                <div className={styles.signatureGrid}>
+                  <div className={styles.signatureField}>
+                    <div />
+                    <span>Recebido por</span>
+                  </div>
+                  <div className={styles.signatureField}>
+                    <div />
+                    <span>Data</span>
+                  </div>
+                  <div className={styles.signatureField}>
+                    <div />
+                    <span>Assinatura</span>
+                  </div>
+                </div>
+              </section>
+            )}
 
-        <footer className={styles.printFooter}>Documento para conferência e assinatura no momento da entrega.</footer>
-      </article>
+            <footer className={styles.pageFooter}>
+              Página {pageIndex + 1} de {totalPages}
+            </footer>
+          </article>
+        );
+      })}
     </div>
   );
 }

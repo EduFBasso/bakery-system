@@ -191,4 +191,21 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
       expect(onRefresh).toHaveBeenCalledWith('✅ Pedido ORD-001 marcado como pago.');
     });
   });
+
+  it('informa sucesso ao pai ao cancelar pedido', async () => {
+    cancelOrderMock.mockResolvedValue({ id: 1, status: 'CANCELLED' });
+    const onRefresh = vi.fn();
+    const user = userEvent.setup();
+
+    render(<AdminOrdersPanel onRefresh={onRefresh} />);
+
+    await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
+    await user.click(screen.getByRole('button', { name: '🗑️ Cancelar' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'SenhaAdmin!123');
+    await user.click(screen.getByRole('button', { name: 'Confirmar Cancelamento' }));
+
+    await waitFor(() => {
+      expect(onRefresh).toHaveBeenCalledWith('✅ Pedido ORD-001 cancelado com sucesso.');
+    });
+  });
 });

@@ -56,7 +56,9 @@ export function AdminOrderPrintPage() {
       try {
         const orderResponse = await fetch(`/api/v1/bakery/orders/${numericOrderId}/`, { headers });
         if (!orderResponse.ok) throw new Error('Não foi possível carregar o pedido.');
-        const loadedOrder = (await orderResponse.json()) as PrintableOrder & { customer_id: number };
+        const loadedOrder = (await orderResponse.json()) as PrintableOrder & {
+          customer_id: number;
+        };
 
         const [customerResponse, tenantProfile] = await Promise.all([
           fetch(`/api/v1/bakery/customers/${loadedOrder.customer_id}/`, { headers }),
