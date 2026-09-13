@@ -7,6 +7,7 @@ interface SystemMessageToastProps {
   message: string;
   onClose: () => void;
   autoCloseMs?: number;
+  variant?: 'success' | 'error';
 }
 
 export function SystemMessageToast({
@@ -15,6 +16,7 @@ export function SystemMessageToast({
   message,
   onClose,
   autoCloseMs = 10000,
+  variant = 'success',
 }: SystemMessageToastProps) {
   useEffect(() => {
     if (!open || autoCloseMs <= 0) {
@@ -30,7 +32,11 @@ export function SystemMessageToast({
   }
 
   return (
-    <div className={styles.toast} role="status" aria-live="polite">
+    <div
+      className={`${styles.toast} ${variant === 'error' ? styles.errorToast : ''}`}
+      role="status"
+      aria-live="polite"
+    >
       <strong>{title}</strong>
       <span>{message}</span>
       <button type="button" onClick={onClose} className={styles.closeButton}>

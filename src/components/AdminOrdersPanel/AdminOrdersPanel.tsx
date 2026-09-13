@@ -7,10 +7,9 @@ import { useCancelOrder } from '../../hooks/useCancelOrder';
 import styles from './AdminOrdersPanel.module.css';
 
 const PAYMENT_FILTERS = [
-  { value: '', label: 'Todos os Status' },
-  { value: 'PENDING', label: 'Pendente' },
-  { value: 'PAID', label: 'Pago' },
-  { value: 'CANCELLED', label: 'Cancelado' },
+  { value: 'PAID', label: 'Pagamentos Confirmados', icon: '✅' },
+  { value: 'PENDING', label: 'Pagamentos Pendentes', icon: '⏳' },
+  { value: 'CANCELLED', label: 'Cancelados', icon: '🚫' },
 ];
 
 interface AdminOrdersPanelProps {
@@ -20,7 +19,7 @@ interface AdminOrdersPanelProps {
 
 export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelProps) {
   const [filters, setFilters] = useState({
-    status: '',
+    status: 'PENDING',
     customer_nickname: '',
     date_from: '',
     date_to: '',
@@ -28,7 +27,6 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
     page_size: 20,
   });
 
-  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const [securityDialogOpen, setSecurityDialogOpen] = useState(false);
   const [securityAction, setSecurityAction] = useState<'pay' | 'cancel' | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
@@ -53,25 +51,15 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
 
     if (order.status === 'CONFIRMED' || order.status === 'DELIVERED') {
       return { value: 'PAID', label: 'Pago', color: 'var(--color-success-strong)' };
+      return { value: 'PAID', label: 'Pagamento Confirmado', color: 'var(--color-success-strong)' };
     }
 
-    return { value: 'PENDING', label: 'Pendente', color: 'var(--color-warning-strong)' };
-  };
-
-  const formatDateTime = (value?: string | null) => {
-    if (!value) {
-      return '—';
-    }
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('pt-BR');
-  };
-
-  const formatDate = (value?: string | null) => {
-    if (!value) {
-      return '—';
-    }
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('pt-BR');
+    return { value: 'PENDING', label: '⏳ Pendente', color: 'var(--color-warning-strong)' };
+    return {
+      value: 'PENDING',
+      label: '⏳ Pagamento Pendente',
+      color: 'var(--color-warning-strong)',
+    };
   };
 
   const openSecurityAction = (action: 'pay' | 'cancel', order: AdminOrder) => {
@@ -112,10 +100,6 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
     }
   };
 
-  const toggleExpanded = (orderId: number) => {
-    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
-  };
-
   if (loading && orders.length === 0) {
     return <div className={styles.loading}>Carregando pedidos...</div>;
   }
@@ -123,39 +107,46 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
   return (
     <div className={styles.container}>
       <div className={styles.filters}>
-        <input
-          type="text"
-          placeholder="Pesquisar por apelido do cliente..."
-          value={filters.customer_nickname}
-          onChange={(e) => setFilters({ ...filters, customer_nickname: e.target.value, page: 1 })}
-          className={styles.filterInput}
-        />
-
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-          className={styles.filterSelect}
-        >
-          {PAYMENT_FILTERS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
+        <div className={styles.statusTabs} role="group" aria-label="Filtrar por pagamento">
+          {PAYMENT_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`${styles.statusTab} ${filters.status === filter.value ? styles.active : ''}`}
+              aria-pressed={filters.status === filter.value}
+              aria-label={filter.label}
+              onClick={() => setFilters({ ...filters, status: filter.value, page: 1 })}
+            >
+              {filter.icon} {filter.label}
+            </button>
           ))}
-        </select>
+        </div>
 
-        <input
-          type="date"
-          value={filters.date_from}
-          onChange={(e) => setFilters({ ...filters, date_from: e.target.value, page: 1 })}
-          className={styles.filterInput}
-        />
+        <div className={styles.filterFields}>
+          <input
+            type="text"
+            placeholder="🔍 Pesquisar por apelido do cliente..."
+            value={filters.customer_nickname}
+            onChange={(e) => setFilters({ ...filters, customer_nickname: e.target.value, page: 1 })}
+            className={styles.filterInput}
+          />
 
-        <input
-          type="date"
-          value={filters.date_to}
-          onChange={(e) => setFilters({ ...filters, date_to: e.target.value, page: 1 })}
-          className={styles.filterInput}
-        />
+          <input
+            type="date"
+            value={filters.date_from}
+            onChange={(e) => setFilters({ ...filters, date_from: e.target.value, page: 1 })}
+            className={styles.filterInput}
+            aria-label="Data inicial"
+          />
+
+          <input
+            type="date"
+            value={filters.date_to}
+            onChange={(e) => setFilters({ ...filters, date_to: e.target.value, page: 1 })}
+            className={styles.filterInput}
+            aria-label="Data final"
+          />
+        </div>
       </div>
 
       {error && <div className={styles.error}>Erro: {error}</div>}
@@ -174,22 +165,16 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                     <th>Pedido</th>
                     <th>Cliente</th>
                     <th>Pagamento</th>
-                    <th>Data</th>
                     <th>Total</th>
-                    <th>Detalhes</th>
+                    <th className={styles.actionsHeader}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((order) => (
                     <React.Fragment key={order.id}>
-                      <tr
-                        className={`${styles.orderRow} ${
-                          expandedOrderId === order.id ? styles.orderRowExpanded : ''
-                        }`}
-                        onClick={() => toggleExpanded(order.id)}
-                      >
+                      <tr className={styles.orderRow}>
                         <td className={styles.orderNumber}>{order.order_number}</td>
-                        <td>{order.customer_nickname}</td>
+                        <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td>
                           <span
                             className={styles.statusBadge}
@@ -198,84 +183,40 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                             {getPaymentInfo(order).label}
                           </span>
                         </td>
-                        <td>{formatDate(order.created_at)}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
                           <button
-                            className={`${styles.expandBtn} ${
-                              expandedOrderId === order.id ? styles.expandBtnActive : ''
-                            }`}
-                            aria-expanded={expandedOrderId === order.id}
-                            aria-controls={`order-details-${order.id}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpanded(order.id);
-                            }}
+                            type="button"
+                            className={styles.actionButton}
+                            onClick={() =>
+                              window.open(`/admin/orders/${order.id}/print`, '_blank', 'noopener,noreferrer')
+                            }
                           >
-                            {expandedOrderId === order.id ? 'Ocultar' : 'Ver'}
+                            📋 Detalhes
                           </button>
+                          {order.status === 'PENDING' && (
+                            <>
+                              <button
+                                type="button"
+                                className={`${styles.actionButton} ${styles.payBtn}`}
+                                disabled={isActionLoading}
+                                onClick={() => openSecurityAction('pay', order)}
+                              >
+                                ✅ Marcar Pago
+                              </button>
+                              <button
+                                type="button"
+                                className={`${styles.actionButton} ${styles.cancelBtn}`}
+                                disabled={isActionLoading}
+                                onClick={() => openSecurityAction('cancel', order)}
+                              >
+                                🗑️ Cancelar
+                              </button>
+                            </>
+                          )}
                         </td>
                       </tr>
 
-                      {expandedOrderId === order.id && (
-                        <tr className={styles.expandedRow}>
-                          <td colSpan={6}>
-                            <div id={`order-details-${order.id}`} className={styles.details}>
-                              <div className={styles.detailsGrid}>
-                                <div>
-                                  <strong>Data de Entrega:</strong>
-                                  <p>{formatDate(order.delivery_date)}</p>
-                                </div>
-                                <div>
-                                  <strong>Método de Pagamento:</strong>
-                                  <p>{order.payment_method}</p>
-                                </div>
-                                <div>
-                                  <strong>Pagamento Confirmado em:</strong>
-                                  <p>{formatDateTime(order.paid_at)}</p>
-                                </div>
-                                <div>
-                                  <strong>Cancelado em:</strong>
-                                  <p>{formatDateTime(order.cancelled_at)}</p>
-                                </div>
-                                <div>
-                                  <strong>Itens:</strong>
-                                  <ul className={styles.itemsList}>
-                                    {order.items.map((item, idx) => (
-                                      <li key={idx}>
-                                        {item.product_name} × {item.quantity} ={' '}
-                                        {formatCurrency(item.subtotal)}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              </div>
-
-                              <div className={styles.actionButtons}>
-                                {getPaymentInfo(order).value === 'PENDING' && (
-                                  <button
-                                    className={styles.payBtn}
-                                    disabled={isActionLoading}
-                                    onClick={() => openSecurityAction('pay', order)}
-                                  >
-                                    ✅ Marcar como pago
-                                  </button>
-                                )}
-
-                                {order.status === 'PENDING' && (
-                                  <button
-                                    className={styles.cancelBtn}
-                                    disabled={isActionLoading}
-                                    onClick={() => openSecurityAction('cancel', order)}
-                                  >
-                                    ✖ Cancelar Pedido
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
                     </React.Fragment>
                   ))}
                 </tbody>

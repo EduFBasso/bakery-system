@@ -14,22 +14,10 @@ interface CartItem {
   quantity: number;
 }
 
-interface CreatedOrderSummary {
-  orderNumber: string;
-  total: number;
-  deliveryDate: string;
-}
-
 export function CreateOrderForm() {
   const navigate = useNavigate();
   const { customer, token } = useCustomerAuth();
-  const {
-    products,
-    loading: productsLoading,
-    refreshing: productsRefreshing,
-    error: productsError,
-    refetch: refetchProducts,
-  } = useProducts();
+  const { products, loading: productsLoading, error: productsError } = useProducts();
   const { createOrder, loading: orderLoading, error: orderError } = useCreateOrder();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -40,8 +28,10 @@ export function CreateOrderForm() {
   const [notes, setNotes] = useState<string>('');
   const [deliveryAddressText, setDeliveryAddressText] = useState<string>('');
   const [openSection, setOpenSection] = useState<string | null>('products');
-  const [cartFeedback, setCartFeedback] = useState<string | null>(null);
-  const [createdOrder, setCreatedOrder] = useState<CreatedOrderSummary | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
   const [financial, setFinancial] = useState<{
     limit: number;
     used: number;
@@ -158,28 +148,37 @@ export function CreateOrderForm() {
 
     const product = products.find((p) => p.id === parseInt(selectedProductId));
     if (!product) return;
-    setCreatedOrder(null);
 
-    // Verificar se já está no carrinho
     const existingItem = cartItems.find((item) => item.product.id === product.id);
+    const quantityAfterAddition = (existingItem?.quantity || 0) + selectedQuantity;
+    const totalAfterAddition = calculateTotal() + parseMoney(product.price) * selectedQuantity;
+
+    if (paymentMethod === 'CREDIT' && totalAfterAddition > availableCredit) {
+      setToastMessage({
+        title: 'Limite insuficiente',
+        message: `Disponível: ${formatCurrency(availableCredit)} | Total: ${formatCurrency(totalAfterAddition)}`,
+      });
+      return;
+    }
+
+    setToastMessage(null);
+
     if (existingItem) {
-      // Incrementar quantidade
       setCartItems(
         cartItems.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + selectedQuantity }
-            : item
+          item.product.id === product.id ? { ...item, quantity: quantityAfterAddition } : item
         )
       );
     } else {
-      // Adicionar novo item
       setCartItems([...cartItems, { product, quantity: selectedQuantity }]);
     }
 
-    // Resetar seleção
     setSelectedProductId('');
     setSelectedQuantityInput('');
-    setCartFeedback(`${product.name} adicionado ao carrinho.`);
+    setToastMessage({
+      title: 'Carrinho atualizado',
+      message: `${product.name} adicionado ao carrinho.`,
+    });
     setOpenSection('cart');
   };
 
@@ -188,7 +187,10 @@ export function CreateOrderForm() {
       return;
     }
     setCartItems((items) => items.filter((item) => item.product.id !== product.id));
-    setCartFeedback(`${product.name} removido do carrinho.`);
+    setToastMessage({
+      title: 'Carrinho atualizado',
+      message: `${product.name} removido do carrinho.`,
+    });
   };
 
   const calculateTotal = (): number => {
@@ -267,11 +269,29 @@ export function CreateOrderForm() {
 
   const orderTotal = calculateTotal();
   const exceedsAvailableCredit = paymentMethod === 'CREDIT' && orderTotal > availableCredit;
-  const projectedAvailable = Math.max(
-    0,
-    availableCredit - (paymentMethod === 'CREDIT' ? orderTotal : 0)
-  );
+  const selectedProduct = products.find((product) => product.id === Number(selectedProductId));
+  const selectedQuantity = parsePositiveInteger(selectedQuantityInput);
+  const selectedAdditionTotal =
+    selectedProduct && selectedQuantity
+      ? orderTotal + parseMoney(selectedProduct.price) * selectedQuantity
+      : orderTotal;
+  const exceedsSelectionCredit =
+    paymentMethod === 'CREDIT' &&
+    !!selectedProduct &&
+    !!selectedQuantity &&
+    selectedAdditionTotal > availableCredit;
+  const projectedAvailable = availableCredit - (paymentMethod === 'CREDIT' ? orderTotal : 0);
+  const selectionProjectedAvailable =
+    availableCredit -
+    (paymentMethod === 'CREDIT'
+      ? selectedProduct && selectedQuantity
+        ? selectedAdditionTotal
+        : orderTotal
+      : 0);
   const isSubmitDisabled = orderLoading || cartItems.length === 0 || exceedsAvailableCredit;
+  const isAddToCartDisabled = !selectedProduct || !selectedQuantity || exceedsSelectionCredit;
+  const formatCreditStatus = (value: number) =>
+    value < 0 ? 'Limite excedido' : formatCurrency(value);
 
   const formatDeliveryDateLabel = (value: string) => {
     if (!value) {
@@ -308,9 +328,10 @@ export function CreateOrderForm() {
     }
 
     if (exceedsAvailableCredit) {
-      alert(
-        `Pedido excede o limite disponível. Total: ${formatCurrency(orderTotal)} | Disponível: ${formatCurrency(availableCredit)}`
-      );
+      setToastMessage({
+        title: 'Limite insuficiente',
+        message: `Disponível: ${formatCurrency(availableCredit)} | Total: ${formatCurrency(orderTotal)}`,
+      });
       return;
     }
 
@@ -346,10 +367,9 @@ export function CreateOrderForm() {
     // Criar pedido
     const result = await createOrder(payload);
     if (result) {
-      setCreatedOrder({
-        orderNumber: result.order_number,
-        total: orderTotal,
-        deliveryDate,
+      setToastMessage({
+        title: `Pedido #${result.order_number} criado com sucesso.`,
+        message: `Total ${formatCurrency(orderTotal)} · Entrega ${formatDeliveryDateLabel(deliveryDate)}`,
       });
       setFinancial((current) =>
         current
@@ -361,7 +381,6 @@ export function CreateOrderForm() {
           : current
       );
       setCartItems([]);
-      setCartFeedback(null);
       setSelectedProductId('');
       setSelectedQuantityInput('');
       setNotes('');
@@ -385,14 +404,13 @@ export function CreateOrderForm() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        {createdOrder && (
+        {toastMessage && (
           <SystemMessageToast
             open={true}
-            title={`Pedido #${createdOrder.orderNumber} criado com sucesso.`}
-            message={`Total ${formatCurrency(createdOrder.total)} · Entrega ${formatDeliveryDateLabel(
-              createdOrder.deliveryDate
-            )}`}
-            onClose={() => setCreatedOrder(null)}
+            title={toastMessage.title}
+            message={toastMessage.message}
+            variant={toastMessage.title === 'Limite insuficiente' ? 'error' : 'success'}
+            onClose={() => setToastMessage(null)}
           />
         )}
         <SmartSection
@@ -417,7 +435,7 @@ export function CreateOrderForm() {
             </div>
             {paymentMethod === 'CREDIT' && cartItems.length > 0 && (
               <p className={styles.financialProjection}>
-                Após este pedido: <strong>{formatCurrency(projectedAvailable)}</strong>
+                Após este pedido: <strong>{formatCreditStatus(projectedAvailable)}</strong>
               </p>
             )}
           </div>
@@ -430,15 +448,11 @@ export function CreateOrderForm() {
         >
           <div className={styles.section}>
             <div className={styles.productSelector}>
-              <button
-                type="button"
-                className={styles.refreshButton}
-                onClick={() => void refetchProducts()}
-                disabled={productsRefreshing}
-              >
-                {productsRefreshing ? 'Atualizando...' : 'Atualizar catálogo'}
-              </button>
               {productsError && <div className={styles.catalogError}>{productsError}</div>}
+              <div className={styles.creditStatus}>
+                Limite de crédito:{' '}
+                <strong>{formatCreditStatus(selectionProjectedAvailable)}</strong>
+              </div>
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
@@ -467,7 +481,12 @@ export function CreateOrderForm() {
                 aria-label="Quantidade"
               />
 
-              <button onClick={handleAddToCart} className={styles.buttonAdd} type="button">
+              <button
+                onClick={handleAddToCart}
+                className={styles.buttonAdd}
+                type="button"
+                disabled={isAddToCartDisabled}
+              >
                 Adicionar ao Carrinho
               </button>
             </div>
@@ -480,11 +499,6 @@ export function CreateOrderForm() {
             isOpen={openSection === 'cart'}
             onToggle={() => toggleSection('cart')}
           >
-            {cartFeedback && (
-              <p className={styles.cartFeedback} role="status">
-                {cartFeedback}
-              </p>
-            )}
             <div className={styles.section}>
               {cartItems.length === 0 ? (
                 <p className={styles.emptyMessage}>Carrinho vazio. Adicione produtos acima.</p>
@@ -521,7 +535,9 @@ export function CreateOrderForm() {
 
                   <div className={styles.cartTotal}>
                     <strong>Total:</strong>
-                    <strong className={styles.totalAmount}>{formatCurrency(calculateTotal())}</strong>
+                    <strong className={styles.totalAmount}>
+                      {formatCurrency(calculateTotal())}
+                    </strong>
                   </div>
                 </div>
               )}
@@ -578,13 +594,6 @@ export function CreateOrderForm() {
 
           {/* Erro de criação */}
           {orderError && <div className={styles.error}>Erro: {orderError}</div>}
-
-          {exceedsAvailableCredit && (
-            <div className={styles.error}>
-              Limite insuficiente para este pedido. Disponível: {formatCurrency(availableCredit)} |
-              Total: {formatCurrency(orderTotal)}
-            </div>
-          )}
 
           {/* Botões de ação */}
           <div className={styles.actions}>

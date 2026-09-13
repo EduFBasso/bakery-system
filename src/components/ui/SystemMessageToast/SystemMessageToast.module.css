@@ -40,6 +40,21 @@
   background: var(--color-success-hover);
 }
 
+.errorToast {
+  background: #fdecec;
+  border-color: #f1b7b7;
+  border-left-color: var(--color-danger);
+  color: #a32626;
+}
+
+.errorToast .closeButton {
+  background: var(--color-danger);
+}
+
+.errorToast .closeButton:hover {
+  background: var(--color-danger-hover);
+}
+
 @media (max-width: 768px) {
   .toast {
     top: 0.75rem;

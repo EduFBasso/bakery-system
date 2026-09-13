@@ -4,16 +4,19 @@ import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage/AdminLoginPage
 import { CustomerLoginPage } from './pages/ClientPages/CustomerLoginPage';
 import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage/CustomerCreateOrderPage';
 import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummaryPage/AdminCustomerSummaryPage';
+import { AdminOrderPrintPage } from './pages/AdminPages/AdminOrderPrintPage/AdminOrderPrintPage';
 import './App.css';
 
-function AdminRoute({ summary = false }: { summary?: boolean } = {}) {
+function AdminRoute({ summary = false, orderPrint = false }: { summary?: boolean; orderPrint?: boolean } = {}) {
   const hasToken = !!localStorage.getItem('bread_admin_token');
 
   if (!hasToken) {
     return <AdminLoginPage />;
   }
 
-  return summary ? <AdminCustomerSummaryPage /> : <AdminPages />;
+  if (summary) return <AdminCustomerSummaryPage />;
+  if (orderPrint) return <AdminOrderPrintPage />;
+  return <AdminPages />;
 }
 
 function CustomerRoute({ page = 'dashboard' }: { page?: string } = {}) {
@@ -48,6 +51,7 @@ export default function App() {
         {/* Admin */}
         <Route path="/admin" element={<AdminRoute />} />
         <Route path="/admin/customers/:customerId/summary" element={<AdminRoute summary />} />
+        <Route path="/admin/orders/:orderId/print" element={<AdminRoute orderPrint />} />
 
         {/* Cliente */}
         <Route path="/customer/dashboard" element={<CustomerRoute />} />

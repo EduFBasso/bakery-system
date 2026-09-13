@@ -19,7 +19,7 @@ interface ActiveCustomerControlsProps {
   showBlockButton?: boolean;
 }
 
-type ProtectedAction = 'reveal' | 'share' | 'update-limit' | 'set-password' | null;
+type ProtectedAction = 'reveal' | 'copy' | 'share' | 'update-limit' | 'set-password' | null;
 
 export function ActiveCustomerControls({
   customer,
@@ -30,6 +30,7 @@ export function ActiveCustomerControls({
   const [creditLimit, setCreditLimit] = useState('');
   const [officialPassword, setOfficialPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [adminSessionPassword, setAdminSessionPassword] = useState('');
   const [protectedAction, setProtectedAction] = useState<ProtectedAction>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export function ActiveCustomerControls({
     setCreditLimit(customer.financial_limit || customer.credit_limit || '');
     setOfficialPassword('');
     setShowPassword(false);
+    setAdminSessionPassword('');
   }, [customer.credit_limit, customer.financial_limit, customer.id]);
 
   const readErrorMessage = async (response: Response, fallback: string) => {
@@ -88,20 +90,28 @@ export function ActiveCustomerControls({
     setActionSuccess('✅ Nova senha definida com sucesso. Use copiar ou compartilhar para enviar.');
   };
 
-  const handleConfirm = async (adminPassword: string) => {
+  const handleConfirm = async (
+    adminPassword: string,
+    actionOverride: Exclude<ProtectedAction, null> | null = null
+  ) => {
     setIsLoading(true);
     setActionError(null);
     try {
-      if (protectedAction === 'reveal') {
+      const action = actionOverride || protectedAction;
+      if (action === 'reveal') {
         await revealOfficialPassword(adminPassword);
-      } else if (protectedAction === 'share') {
+      } else if (action === 'copy') {
+        const password = await revealOfficialPassword(adminPassword);
+        await navigator.clipboard.writeText(password);
+        setActionSuccess(`✅ Senha de ${customer.nickname} copiada.`);
+      } else if (action === 'share') {
         const password = await revealOfficialPassword(adminPassword);
         openWhatsAppMessage(
           customer.phone,
           buildAccessWhatsAppMessage(customer.nickname, password)
         );
         setActionSuccess(`✅ Senha de ${customer.nickname} enviada para o WhatsApp.`);
-      } else if (protectedAction === 'update-limit') {
+      } else if (action === 'update-limit') {
         const response = await fetch(
           `/api/v1/bakery/customers/${customer.id}/update-credit-limit/`,
           {
@@ -118,9 +128,10 @@ export function ActiveCustomerControls({
         }
         setActionSuccess(`✅ Limite de ${customer.nickname} atualizado com sucesso.`);
         onCustomerUpdated();
-      } else if (protectedAction === 'set-password') {
+      } else if (action === 'set-password') {
         await updateOfficialPassword(adminPassword);
       }
+      setAdminSessionPassword(adminPassword.trim());
       setProtectedAction(null);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Não foi possível concluir a ação.');
@@ -131,12 +142,30 @@ export function ActiveCustomerControls({
 
   const openProtectedAction = (action: Exclude<ProtectedAction, null>) => {
     setActionError(null);
+    if (adminSessionPassword) {
+      void handleConfirm(adminSessionPassword, action);
+      return;
+    }
     setProtectedAction(action);
   };
 
   const handleCopyPassword = async () => {
     if (!officialPassword) {
-      openProtectedAction('reveal');
+      if (adminSessionPassword) {
+        setIsLoading(true);
+        setActionError(null);
+        try {
+          const password = await revealOfficialPassword(adminSessionPassword);
+          await navigator.clipboard.writeText(password);
+          setActionSuccess(`✅ Senha de ${customer.nickname} copiada.`);
+        } catch (err) {
+          setActionError(err instanceof Error ? err.message : 'Não foi possível copiar a senha.');
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+      openProtectedAction('copy');
       return;
     }
 
@@ -177,8 +206,14 @@ export function ActiveCustomerControls({
               aria-label={
                 showPassword ? 'Ocultar senha' : `Visualizar senha de ${customer.nickname}`
               }
+              data-tooltip={showPassword ? 'Ocultar senha' : 'Visualizar senha'}
+              title={showPassword ? 'Ocultar senha' : 'Visualizar senha'}
               onClick={() =>
-                showPassword ? setShowPassword(false) : openProtectedAction('reveal')
+                showPassword
+                  ? setShowPassword(false)
+                  : officialPassword
+                    ? setShowPassword(true)
+                    : openProtectedAction('reveal')
               }
             >
               {showPassword ? '🙈' : '👁️'}
@@ -187,6 +222,7 @@ export function ActiveCustomerControls({
               type="button"
               className={styles.iconButton}
               aria-label={`Copiar senha de ${customer.nickname}`}
+              data-tooltip="Copiar senha"
               title="Copiar senha"
               onClick={handleCopyPassword}
             >
@@ -196,6 +232,7 @@ export function ActiveCustomerControls({
               type="button"
               className={styles.iconButton}
               aria-label={`Atualizar senha de ${customer.nickname}`}
+              data-tooltip="Atualizar senha"
               title="Atualizar senha"
               onClick={() => openProtectedAction('set-password')}
             >
@@ -207,6 +244,8 @@ export function ActiveCustomerControls({
           type="button"
           className={styles.iconButton}
           aria-label={`Compartilhar senha de ${customer.nickname} no WhatsApp`}
+          data-tooltip="Enviar senha pelo WhatsApp"
+          title="Enviar senha pelo WhatsApp"
           onClick={() => openProtectedAction('share')}
         >
           📲
@@ -236,11 +275,13 @@ export function ActiveCustomerControls({
         title={
           protectedAction === 'reveal'
             ? 'Visualizar senha'
-            : protectedAction === 'share'
-              ? 'Compartilhar senha'
-              : protectedAction === 'set-password'
-                ? 'Confirmar Nova Senha'
-                : 'Alterar limite de crédito'
+            : protectedAction === 'copy'
+              ? 'Copiar senha'
+              : protectedAction === 'share'
+                ? 'Compartilhar senha'
+                : protectedAction === 'set-password'
+                  ? 'Confirmar Nova Senha'
+                  : 'Alterar limite de crédito'
         }
         description="Digite a senha do dono para confirmar esta ação."
         confirmLabel={

@@ -47,6 +47,7 @@ const makeOrder = (overrides: Record<string, any> = {}) => ({
 describe('AdminOrdersPanel security and cancelled behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(window, 'open').mockImplementation(() => null);
 
     mockedUseUpdateOrderStatus.mockReturnValue({
       updateStatus: updateStatusMock,
@@ -80,10 +81,27 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     const user = userEvent.setup();
     render(<AdminOrdersPanel />);
 
-    await user.click(screen.getByRole('button', { name: 'Ver' }));
+    await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
 
     expect(screen.queryByRole('button', { name: '✅ Marcar como pago' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '✖ Cancelar Pedido' })).not.toBeInTheDocument();
+  });
+
+  it('usa filtros de pagamento em linha e remove endereco e data da tabela', async () => {
+    render(<AdminOrdersPanel />);
+
+    expect(screen.getByRole('group', { name: 'Filtrar por pagamento' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pagamentos Pendentes' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(screen.getByRole('button', { name: 'Pagamentos Confirmados' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancelados' })).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Endereço' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Data' })).not.toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Pagamento' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Total' })).toBeInTheDocument();
   });
 
   it('mantem bloqueio de acoes para pedido cancelado em viewport mobile', async () => {
@@ -100,7 +118,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     const user = userEvent.setup();
     render(<AdminOrdersPanel />);
 
-    await user.click(screen.getByRole('button', { name: 'Ver' }));
+    await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
 
     expect(screen.queryByRole('button', { name: '✖ Cancelar Pedido' })).not.toBeInTheDocument();
   });
@@ -125,7 +143,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
       const user = userEvent.setup();
       render(<AdminOrdersPanel />);
 
-      await user.click(screen.getByRole('button', { name: 'Ver' }));
+      await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
 
       expect(screen.queryByRole('button', { name: '✖ Cancelar Pedido' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: '✅ Marcar como pago' })).not.toBeInTheDocument();
@@ -138,8 +156,8 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     const user = userEvent.setup();
     render(<AdminOrdersPanel />);
 
-    await user.click(screen.getByRole('button', { name: 'Ver' }));
-    await user.click(screen.getByRole('button', { name: '✖ Cancelar Pedido' }));
+    await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
+    await user.click(screen.getByRole('button', { name: '🗑️ Cancelar' }));
 
     const confirmButton = screen.getByRole('button', { name: 'Confirmar Cancelamento' });
     expect(confirmButton).toBeDisabled();
@@ -164,8 +182,8 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
 
     render(<AdminOrdersPanel onRefresh={onRefresh} />);
 
-    await user.click(screen.getByRole('button', { name: 'Ver' }));
-    await user.click(screen.getByRole('button', { name: '✅ Marcar como pago' }));
+    await user.click(screen.getByRole('button', { name: '📋 Detalhes' }));
+    await user.click(screen.getByRole('button', { name: '✅ Marcar Pago' }));
     await user.type(screen.getByPlaceholderText('Digite sua senha'), 'SenhaAdmin!123');
     await user.click(screen.getByRole('button', { name: 'Confirmar Pagamento' }));
 

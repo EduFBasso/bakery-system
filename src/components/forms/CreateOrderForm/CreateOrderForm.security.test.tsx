@@ -113,19 +113,17 @@ describe('CreateOrderForm security rules', () => {
       logout: vi.fn(),
     });
 
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     render(<CreateOrderForm />);
 
     await addItemToCart('3');
 
-    expect(screen.getByText(/Limite insuficiente para este pedido/)).toBeInTheDocument();
+    expect(screen.getByText('Limite de crédito:')).toHaveTextContent('Limite excedido');
+    expect(screen.getByRole('button', { name: 'Adicionar ao Carrinho' })).toBeDisabled();
+    expect(screen.getByRole('heading', { name: 'Carrinho (0 itens)' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Criar Pedido' })).toBeDisabled();
 
     submitForm();
 
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Pedido excede o limite disponível')
-    );
     expect(createOrderMock).not.toHaveBeenCalled();
   });
 

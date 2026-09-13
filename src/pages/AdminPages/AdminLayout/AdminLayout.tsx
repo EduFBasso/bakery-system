@@ -18,13 +18,7 @@ interface AdminLayoutProps {
   };
 }
 
-export function AdminLayout({
-  children,
-  activeTab,
-  onTabChange,
-  userName,
-  tenant,
-}: AdminLayoutProps) {
+export function AdminLayout({ children, activeTab, onTabChange, tenant }: AdminLayoutProps) {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('bread_admin_token');
     localStorage.removeItem('bread_admin_refresh');
@@ -39,10 +33,7 @@ export function AdminLayout({
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1>🛠️ {userName}</h1>
-          <p className={styles.tenantName}>
-            {tenant?.trade_name || 'Gerenciamento simples e eficiente para seu negócio'}
-          </p>
+          <h1 className={styles.tenantName}>🥖 {tenant?.trade_name || 'Panificadora'}</h1>
           {tenant?.address && (
             <p className={styles.tenantAddress}>
               {[

@@ -22,14 +22,19 @@
 /* Filtros */
 .filters {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
   margin-bottom: 0.5rem;
 }
 
-.filterInput,
-.filterSelect {
+.filterFields {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filterInput {
   flex: 1;
   min-width: 200px;
   padding: 0.75rem;
@@ -39,8 +44,7 @@
   font-family: inherit;
 }
 
-.filterInput:focus,
-.filterSelect:focus {
+.filterInput:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(212, 130, 92, 0.1);
@@ -70,8 +74,8 @@
 /* Tabela */
 .tableContainer {
   overflow-x: auto;
-  border: 1px solid #e0d5ca;
   border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .table {
@@ -95,6 +99,39 @@
   font-size: 0.75rem;
 }
 
+.statusTabs {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
+  width: 100%;
+}
+
+.statusTab {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.statusTab:hover,
+.statusTab.active {
+  border-color: var(--color-admin-accent);
+  color: var(--color-admin-accent);
+}
+
+.statusTab.active {
+  background-color: var(--color-admin-accent);
+  color: white;
+}
+
 .table tbody tr {
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
@@ -105,15 +142,7 @@
 }
 
 .orderRow {
-  cursor: pointer;
-}
-
-.orderRowExpanded {
-  background-color: #f7eee8;
-}
-
-.orderRowExpanded:hover {
-  background-color: #f4e8df;
+  vertical-align: middle;
 }
 
 .orderNumber {
@@ -124,6 +153,10 @@
 .table td {
   padding: 1rem;
   color: #333;
+}
+
+.customerCell {
+  font-weight: 600;
 }
 
 .statusBadge {
@@ -140,37 +173,65 @@
   color: #333;
 }
 
-.actions {
-  text-align: center;
+.actionsHeader {
+  min-width: 470px;
+  text-align: center !important;
 }
 
-.expandBtn {
-  background: #fff;
-  border: 1px solid #d9d9d9;
-  border-radius: 0.3rem;
-  font-size: 0.85rem;
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 470px;
+  flex-wrap: nowrap;
+  vertical-align: middle;
+}
+
+.actionButton {
+  width: 150px;
+  min-width: 150px;
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--color-admin-info);
+  color: #fff;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.35rem 0.7rem;
-  min-width: 70px;
-  color: var(--color-primary);
-  transition: all 0.2s;
+  white-space: nowrap;
+  transition: background-color 0.2s;
 }
 
-.expandBtn:hover {
-  background-color: #f9f2ee;
-  border-color: var(--color-primary);
+.actionButton:hover:not(:disabled) {
+  background-color: var(--color-admin-info-hover);
 }
 
 .expandBtnActive {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: var(--color-admin-info);
+}
+
+.actions .payBtn,
+.actions .cancelBtn {
+  border: none;
   color: #fff;
 }
 
-.expandBtnActive:hover {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+.actions .payBtn {
+  background-color: #4caf50;
+}
+
+.actions .payBtn:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.actions .cancelBtn {
+  background-color: #f44336;
+}
+
+.actions .cancelBtn:hover:not(:disabled) {
+  background-color: #d9362e;
 }
 
 /* Linhas Expandidas */
@@ -440,14 +501,84 @@
     flex-direction: column;
   }
 
-  .filterInput,
-  .filterSelect {
+  .filterFields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterInput {
     width: 100%;
     min-width: auto;
   }
 
   .table {
     font-size: 0.85rem;
+    display: block;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .table tbody tr.orderRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.45rem 0.75rem;
+    padding: 0.9rem;
+    border: 1px solid #e0d5ca;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .table tbody tr.orderRow td {
+    padding: 0;
+    border: 0;
+  }
+
+  .table tbody tr.orderRow td:nth-child(1) {
+    display: none;
+  }
+
+  .customerCell {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table tbody tr.orderRow td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .table tbody tr.orderRow td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  .table tbody tr.orderRow td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .actions {
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: flex-start;
+  }
+
+  .actionButton {
+    flex: 1 1 auto;
   }
 
   .tableSection {
@@ -474,7 +605,7 @@
 
   .payBtn,
   .cancelBtn {
-    width: 100%;
+    width: auto;
   }
 
   .statusSelect {

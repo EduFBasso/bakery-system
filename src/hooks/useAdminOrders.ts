@@ -9,6 +9,12 @@ export interface AdminOrder {
   status_display: string;
   created_at: string;
   delivery_date: string;
+  shipping_street: string;
+  shipping_number: string;
+  shipping_complement?: string;
+  shipping_neighborhood: string;
+  shipping_city: string;
+  shipping_state: string;
   total_value: string;
   payment_method: string;
   paid_at?: string | null;

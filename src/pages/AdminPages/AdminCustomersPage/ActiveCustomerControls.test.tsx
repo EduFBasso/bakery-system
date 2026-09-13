@@ -85,6 +85,45 @@ describe('ActiveCustomerControls', () => {
     expect(screen.getByPlaceholderText('Digite sua senha')).toBeInTheDocument();
   });
 
+  it('copia a senha apos a primeira autorizacao e reutiliza a sessao', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ password_plain_text: 'Senha@123' }),
+    } as Response);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const clipboardNavigator = { clipboard: { writeText } };
+    Object.defineProperty(window, 'navigator', {
+      configurable: true,
+      value: clipboardNavigator,
+    });
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: clipboardNavigator,
+    });
+    const user = userEvent.setup();
+
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Copiar senha de Cliente Teste' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('✅ Senha de Cliente Teste copiada.')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByPlaceholderText('Digite sua senha')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Copiar senha de Cliente Teste' }));
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('atualiza a senha sem compartilhar automaticamente', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
