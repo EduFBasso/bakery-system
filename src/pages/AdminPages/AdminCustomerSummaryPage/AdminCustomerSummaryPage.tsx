@@ -6,14 +6,11 @@ import { formatDocument } from '../../../utils/formatDocument';
 import { formatDate } from '../../../utils/formatDate';
 import { formatPhone } from '../../../utils/formatPhone';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
-import { useAdminOrders } from '../../../hooks/useAdminOrders';
 import {
   CustomerPrintView,
   type PrintableCustomer,
 } from '../AdminCustomerDetailModal/CustomerPrintView';
 import styles from './AdminCustomerSummaryPage.module.css';
-
-const DEFAULT_PRINT_ORDER_LIMIT = 5;
 
 const formatAddress = (customer: PrintableCustomer) =>
   [
@@ -28,18 +25,6 @@ export function AdminCustomerSummaryPage() {
   const { customerId } = useParams<{ customerId: string }>();
   const { fetchCustomerDetail, loading, error } = useAdminCustomers();
   const numericCustomerId = Number(customerId);
-  const [showAllOrders, setShowAllOrders] = useState(false);
-  const {
-    orders,
-    loading: ordersLoading,
-    error: ordersError,
-    pagination,
-  } = useAdminOrders({
-    customer_id:
-      Number.isInteger(numericCustomerId) && numericCustomerId > 0 ? numericCustomerId : undefined,
-    open_only: true,
-    page_size: showAllOrders ? 100 : DEFAULT_PRINT_ORDER_LIMIT,
-  });
   const [customer, setCustomer] = useState<PrintableCustomer | null>(null);
   const [tenant, setTenant] = useState<{
     trade_name?: string;
@@ -102,23 +87,9 @@ export function AdminCustomerSummaryPage() {
           formatAddress={formatAddress}
           companyName={tenant?.trade_name || 'Panificadora'}
           companyAddress={tenantAddress || tenantError}
-          orders={orders}
-          ordersTotal={pagination.count}
-          ordersLimit={showAllOrders ? pagination.count : DEFAULT_PRINT_ORDER_LIMIT}
-          ordersLoading={ordersLoading}
-          ordersError={ordersError}
           screenPreview
         />
       </section>
-      {!showAllOrders && pagination.count > DEFAULT_PRINT_ORDER_LIMIT && (
-        <button
-          type="button"
-          className={styles.showAllOrdersButton}
-          onClick={() => setShowAllOrders(true)}
-        >
-          Ver todos os pedidos ({pagination.count})
-        </button>
-      )}
     </main>
   );
 }
