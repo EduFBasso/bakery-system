@@ -36,6 +36,22 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
     return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
   };
 
+  const extractApiErrorMessage = (data: any): string => {
+    if (typeof data?.detail === 'string' && data.detail.trim()) {
+      return data.detail;
+    }
+    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
+      return String(data.non_field_errors[0]);
+    }
+    if (Array.isArray(data?.login) && data.login[0]) {
+      return String(data.login[0]);
+    }
+    if (Array.isArray(data?.password) && data.password[0]) {
+      return String(data.password[0]);
+    }
+    return 'Erro ao fazer login';
+  };
+
   const login = useCallback(
     async (nickname: string, password: string) => {
       setLoading(true);
@@ -62,18 +78,13 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
         const data = await response.json();
 
         if (!response.ok) {
-          const errorMessage =
-            data.detail || data.email?.[0] || data.password?.[0] || 'Erro ao fazer login';
+          const errorMessage = extractApiErrorMessage(data);
           setError(errorMessage);
           optionsRef.current?.onError?.(errorMessage);
           return false;
         }
 
         // Salvar tokens e info do cliente
-        localStorage.removeItem('bread_admin_token');
-        localStorage.removeItem('bread_admin_refresh');
-        localStorage.removeItem('bread_admin_role');
-        localStorage.removeItem('bread_admin_user');
         localStorage.setItem('bread_customer_token', data.access);
         localStorage.setItem('bread_customer_refresh', data.refresh);
         if (data.customer) {
