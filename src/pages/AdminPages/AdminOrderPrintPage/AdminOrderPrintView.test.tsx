@@ -14,6 +14,7 @@ const order = {
   shipping_city: 'Limeira',
   shipping_state: 'SP',
   total_value: '375.00',
+  notes: 'Entregar na portaria.\nNão substituir o produto.',
   payment_method: 'CREDIT',
   status: 'PENDING',
   order_items: [
@@ -39,6 +40,10 @@ describe('AdminOrderPrintView', () => {
 
     expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toBeInTheDocument();
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('1')).toHaveLength(2);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
     expect(screen.getByText(/Endereço:/)).toBeInTheDocument();
     expect(screen.getByText('Recebido por')).toBeInTheDocument();
@@ -76,5 +81,6 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('Produtos Solicitados (continuação)')).toBeInTheDocument();
     expect(screen.getByText('Total do pedido')).toBeInTheDocument();
     expect(screen.getAllByText('Página 2 de 2')).toHaveLength(1);
+    expect(screen.getByText('9')).toBeInTheDocument();
   });
 });

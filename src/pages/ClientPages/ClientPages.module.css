@@ -35,8 +35,23 @@
   gap: 0.75rem;
 }
 
-.headerStatusRow {
+.headerCustomerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-top: 0.4rem;
+}
+
+.customerNickname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.headerStatusRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -156,6 +171,10 @@
 @media (max-width: 768px) {
   .headerMainRow {
     align-items: center;
+  }
+
+  .headerCustomerRow {
+    align-items: flex-start;
   }
 
   .header h1 {

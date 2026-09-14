@@ -136,6 +136,7 @@ export function AdminOrderPrintView({
                 <table className={styles.itemsTable}>
                   <thead>
                     <tr>
+                      <th>Item</th>
                       <th>Produto</th>
                       <th>Quantidade</th>
                       <th>Valor unitário</th>
@@ -143,8 +144,9 @@ export function AdminOrderPrintView({
                     </tr>
                   </thead>
                   <tbody>
-                    {pageItems.map((item) => (
+                    {pageItems.map((item, itemIndex) => (
                       <tr key={item.id}>
+                        <td>{pageIndex * ITEMS_PER_PAGE + itemIndex + 1}</td>
                         <td>{item.product_name || 'Produto'}</td>
                         <td>{item.quantity}</td>
                         <td>{formatCurrency(item.unit_price)}</td>
@@ -155,7 +157,7 @@ export function AdminOrderPrintView({
                   {isLastPage && (
                     <tfoot>
                       <tr>
-                        <th colSpan={3}>Total do pedido</th>
+                        <th colSpan={4}>Total do pedido</th>
                         <th>{formatCurrency(order.total_value)}</th>
                       </tr>
                     </tfoot>
@@ -167,7 +169,20 @@ export function AdminOrderPrintView({
             {isLastPage && order.notes && (
               <section className={styles.section}>
                 <h2>Observações</h2>
-                <p className={styles.notes}>{order.notes}</p>
+                <table className={styles.notesTable}>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Observação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td className={styles.notes}>{order.notes}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </section>
             )}
 

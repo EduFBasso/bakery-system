@@ -60,10 +60,15 @@
 .deliveryAddress { margin: 10px 0 0; color: #262626; font-size: 17px; line-height: 1.6; }
 .itemsTable { width: 100%; border-collapse: collapse; font-size: 16px; }
 .itemsTable th, .itemsTable td { padding: 10px 5px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
-.itemsTable th:nth-child(n + 2), .itemsTable td:nth-child(n + 2) { text-align: right; white-space: nowrap; }
+.itemsTable th:first-child, .itemsTable td:first-child { width: 1%; text-align: center; white-space: nowrap; }
+.itemsTable th:nth-child(n + 3), .itemsTable td:nth-child(n + 3) { text-align: right; white-space: nowrap; }
 .itemsTable thead th { color: #111827; font-size: 14px; font-weight: 800; text-transform: uppercase; }
 .itemsTable tfoot th { border-top: 1px solid #9ca3af; border-bottom: 0; color: #111827; font-size: 19px; font-weight: 800; }
-.notes { white-space: pre-wrap; font-size: 16px; }
+.notesTable { width: 100%; border-collapse: collapse; font-size: 16px; }
+.notesTable th, .notesTable td { padding: 10px 5px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.notesTable th:first-child, .notesTable td:first-child { width: 1%; text-align: center; white-space: nowrap; }
+.notesTable thead th { color: #111827; font-size: 14px; font-weight: 800; text-transform: uppercase; }
+.notes { white-space: pre-wrap; font-size: 16px; line-height: 1.5; }
 .signatureSection { margin-top: auto; padding-top: 72px; break-inside: avoid; page-break-inside: avoid; }
 .signatureGrid { display: grid; grid-template-columns: 1.25fr 1fr 1.25fr; gap: 18px; }
 .signatureField { color: #4b5563; font-size: 14px; text-align: center; }

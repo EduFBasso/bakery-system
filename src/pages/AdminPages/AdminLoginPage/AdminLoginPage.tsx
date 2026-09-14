@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminLogin } from '../../../hooks/useAdminLogin';
 import { ApiService } from '../../../services/api';
 import { resolveTenantSlug } from '../../../config/tenant';
+import { consumeAuthExpiryMessage } from '../../../services/authExpiry';
 import styles from './AdminLoginPage.module.css';
 
 export function AdminLoginPage() {
@@ -11,10 +12,12 @@ export function AdminLoginPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [sessionMessage, setSessionMessage] = useState('');
   const [tenantName, setTenantName] = useState('Painel Admin');
   const [tenantLoading, setTenantLoading] = useState(true);
 
   useEffect(() => {
+    setSessionMessage(consumeAuthExpiryMessage() || '');
     ApiService.getTenantIdentity(resolveTenantSlug())
       .then((identity) => setTenantName(identity.trade_name || 'Painel Admin'))
       .catch(() => setTenantName('Painel Admin'))
@@ -65,6 +68,7 @@ export function AdminLoginPage() {
         </header>
 
         <form className={styles.form} onSubmit={handleSubmit}>
+          {sessionMessage && <div className={styles.errorAlert}>{sessionMessage}</div>}
           {error && <div className={styles.errorAlert}>{error}</div>}
 
           {successMessage && <div className={styles.successAlert}>{successMessage}</div>}

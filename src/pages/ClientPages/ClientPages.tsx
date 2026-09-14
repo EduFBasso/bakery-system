@@ -6,12 +6,26 @@ import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersLi
 import { TransactionHistory } from '../../components/CustomerTransactionHistory/CustomerTransactionHistory';
 import { SmartSection } from '../../components/SmartSection/SmartSection';
 import { CustomerProfileEditor } from '../../components/CustomerProfileEditor/CustomerProfileEditor';
+import { ApiService } from '../../services/api';
 import styles from './ClientPages.module.css';
 
 export function ClientPages() {
   const navigate = useNavigate();
   const { customer, token, isLoading, logout } = useCustomerAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [tenantName, setTenantName] = useState('Panificadora');
+
+  useEffect(() => {
+    ApiService.getTenantIdentity()
+      .then((identity) => {
+        if (identity.trade_name) {
+          setTenantName(identity.trade_name);
+        }
+      })
+      .catch(() => {
+        // Mantém o nome genérico quando a identidade pública não estiver disponível.
+      });
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !customer) {
@@ -52,14 +66,17 @@ export function ClientPages() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerMainRow}>
-            <h1>{customer.nickname}</h1>
+            <h1>🥖 {tenantName}</h1>
             <button onClick={handleLogout} className={styles.logoutButton}>
               Sair
             </button>
           </div>
-          <div className={styles.headerStatusRow}>
-            <span className={styles.headerStatusLabel}>Status:</span>
-            <strong className={styles.headerStatusValue}>{statusLabel}</strong>
+          <div className={styles.headerCustomerRow}>
+            <strong className={styles.customerNickname}>{customer.nickname}</strong>
+            <div className={styles.headerStatusRow}>
+              <span className={styles.headerStatusLabel}>Status:</span>
+              <strong className={styles.headerStatusValue}>{statusLabel}</strong>
+            </div>
           </div>
         </div>
       </header>
