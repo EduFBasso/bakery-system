@@ -218,6 +218,9 @@ describe('CreateOrderForm security rules', () => {
     });
 
     expect(screen.getByRole('status')).toHaveTextContent('Pedido #ORD-999 criado com sucesso.');
+    expect(screen.getByRole('status')).toHaveTextContent('Pedido confirmado.');
+    expect(screen.getByRole('status')).not.toHaveTextContent('Entrega');
+    expect(screen.getByRole('status')).not.toHaveTextContent('Total');
     expect(screen.getByRole('heading', { name: 'Carrinho (0 itens)' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Criar Pedido' })).toBeDisabled();
     expect(navigateMock).not.toHaveBeenCalled();

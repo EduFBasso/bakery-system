@@ -369,7 +369,7 @@ export function CreateOrderForm() {
     if (result) {
       setToastMessage({
         title: `Pedido #${result.order_number} criado com sucesso.`,
-        message: `Total ${formatCurrency(orderTotal)} · Entrega ${formatDeliveryDateLabel(deliveryDate)}`,
+        message: 'Pedido confirmado.',
       });
       setFinancial((current) =>
         current
