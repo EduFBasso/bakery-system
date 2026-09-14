@@ -4,6 +4,7 @@ import { formatPhone } from '../../../utils/formatPhone';
 export interface PrintableOrderItem {
   id: number;
   product_name?: string;
+  product_description?: string;
   quantity: number;
   unit_price: string | number;
   subtotal: string | number;
@@ -21,6 +22,7 @@ export interface PrintableOrder {
   shipping_city: string;
   shipping_state: string;
   total_value: string | number;
+  paid_at?: string | null;
   notes?: string;
   order_items?: PrintableOrderItem[];
   items?: PrintableOrderItem[];
@@ -43,7 +45,7 @@ interface AdminOrderPrintViewProps {
   screenPreview?: boolean;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 3;
 
 const formatCurrency = (value: string | number | null | undefined) =>
   Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -72,9 +74,20 @@ export function AdminOrderPrintView({
   companyName,
   companyAddress,
   companyPhone,
+
   screenPreview = false,
 }: AdminOrderPrintViewProps) {
   const items = order.order_items ?? order.items ?? [];
+  const itemObservations = items
+    .map((item, index) => ({
+      item: index + 1,
+      text: item.product_description?.trim() || '',
+    }))
+    .filter((observation) => observation.text);
+  const observations = [
+    ...itemObservations,
+    ...(order.notes?.trim() ? [{ item: 'Pedido', text: order.notes.trim() }] : []),
+  ];
   const pages = [];
   for (let index = 0; index < Math.max(items.length, 1); index += ITEMS_PER_PAGE) {
     pages.push(items.slice(index, index + ITEMS_PER_PAGE));
@@ -97,9 +110,10 @@ export function AdminOrderPrintView({
                 <p className={styles.companyName}>{companyName}</p>
                 <p className={styles.companyAddress}>
                   {companyAddress || 'Endereço não informado'}
+                  {companyPhone && ` | Telefone: ${formatPhone(companyPhone)}`}
                 </p>
               </div>
-              {companyPhone && <p className={styles.companyPhone}>{formatPhone(companyPhone)}</p>}
+              <p className={styles.paymentStatus}>{order.paid_at ? 'Pago' : 'Pendente'}</p>
             </header>
 
             {isFirstPage && (
@@ -157,8 +171,10 @@ export function AdminOrderPrintView({
                   {isLastPage && (
                     <tfoot>
                       <tr>
-                        <th colSpan={4}>Total do pedido</th>
-                        <th>{formatCurrency(order.total_value)}</th>
+                        <th colSpan={4} className={styles.totalLabel}>
+                          Total de pedidos
+                        </th>
+                        <th className={styles.totalValue}>{formatCurrency(order.total_value)}</th>
                       </tr>
                     </tfoot>
                   )}
@@ -166,9 +182,8 @@ export function AdminOrderPrintView({
               )}
             </section>
 
-            {isLastPage && order.notes && (
+            {isLastPage && observations.length > 0 && (
               <section className={styles.section}>
-                <h2>Observações</h2>
                 <table className={styles.notesTable}>
                   <thead>
                     <tr>
@@ -177,10 +192,12 @@ export function AdminOrderPrintView({
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td className={styles.notes}>{order.notes}</td>
-                    </tr>
+                    {observations.map((observation) => (
+                      <tr key={String(observation.item)}>
+                        <td>{observation.item}</td>
+                        <td className={styles.notes}>{observation.text}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </section>

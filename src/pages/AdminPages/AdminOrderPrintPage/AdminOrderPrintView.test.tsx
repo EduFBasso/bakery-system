@@ -14,11 +14,19 @@ const order = {
   shipping_city: 'Limeira',
   shipping_state: 'SP',
   total_value: '375.00',
+  paid_at: null,
   notes: 'Entregar na portaria.\nNão substituir o produto.',
   payment_method: 'CREDIT',
   status: 'PENDING',
   order_items: [
-    { id: 1, product_name: 'Pão francês', quantity: 10, unit_price: '2.50', subtotal: '25.00' },
+    {
+      id: 1,
+      product_name: 'Pão francês',
+      product_description: 'Embalagem com 6 unidades',
+      quantity: 10,
+      unit_price: '2.50',
+      subtotal: '25.00',
+    },
   ],
 };
 
@@ -40,6 +48,8 @@ describe('AdminOrderPrintView', () => {
 
     expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toBeInTheDocument();
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
+    expect(screen.getByText('Embalagem com 6 unidades')).toBeInTheDocument();
+    expect(screen.getByText('Pendente')).toBeInTheDocument();
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
@@ -59,7 +69,7 @@ describe('AdminOrderPrintView', () => {
   });
 
   it('cria uma segunda página quando os produtos ultrapassam a capacidade da primeira', () => {
-    const manyItems = Array.from({ length: 9 }, (_, index) => ({
+    const manyItems = Array.from({ length: 4 }, (_, index) => ({
       id: index + 1,
       product_name: `Produto ${index + 1}`,
       quantity: 1,
@@ -79,8 +89,8 @@ describe('AdminOrderPrintView', () => {
 
     expect(container.querySelectorAll('[data-page-number]')).toHaveLength(2);
     expect(screen.getByText('Produtos Solicitados (continuação)')).toBeInTheDocument();
-    expect(screen.getByText('Total do pedido')).toBeInTheDocument();
+    expect(screen.getByText('Total de pedidos')).toBeInTheDocument();
     expect(screen.getAllByText('Página 2 de 2')).toHaveLength(1);
-    expect(screen.getByText('9')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument();
   });
 });

@@ -28,7 +28,7 @@ export function AdminOrderPrintPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<PrintableOrder | null>(null);
   const [customer, setCustomer] = useState<PrintableOrderCustomer | null>(null);
-  const [company, setCompany] = useState({ name: 'Panificadora', address: '' });
+  const [company, setCompany] = useState({ name: 'Panificadora', address: '', phone: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +71,7 @@ export function AdminOrderPrintPage() {
         setCompany({
           name: tenantProfile.trade_name || 'Panificadora',
           address: formatAddress(tenantProfile),
+          phone: tenantProfile.phone || '',
         });
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : 'Erro ao carregar a impressão.');
@@ -103,6 +104,7 @@ export function AdminOrderPrintPage() {
           customer={customer}
           companyName={company.name}
           companyAddress={company.address}
+          companyPhone={company.phone}
           screenPreview
         />
       </section>
