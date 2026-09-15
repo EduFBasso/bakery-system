@@ -335,18 +335,12 @@ export function CreateOrderForm() {
       return;
     }
 
-    const parsedDeliveryAddress = parseDeliveryAddress(deliveryAddressText);
-    if (!parsedDeliveryAddress) {
-      alert(
-        'Revise o endereço de entrega. Use o formato: Rua, Número, Complemento opcional, Bairro, Cidade, UF, CEP.'
-      );
+    const trimmedDeliveryAddress = deliveryAddressText.trim();
+    if (!trimmedDeliveryAddress) {
+      alert('Informe o endereço de entrega.');
       return;
     }
-
-    if (parsedDeliveryAddress.shipping_zip_code.length !== 8) {
-      alert('O CEP do endereço de entrega deve conter 8 dígitos.');
-      return;
-    }
+    const parsedDeliveryAddress = parseDeliveryAddress(trimmedDeliveryAddress);
 
     // Preparar payload
     const [year, month, day] = deliveryDate.split('-').map(Number);
@@ -357,7 +351,8 @@ export function CreateOrderForm() {
       delivery_date: scheduledDelivery.toISOString(),
       payment_method: paymentMethod,
       notes,
-      ...parsedDeliveryAddress,
+      delivery_address_text: trimmedDeliveryAddress,
+      ...(parsedDeliveryAddress || {}),
       items: cartItems.map((item) => ({
         product_id: item.product.id,
         quantity: item.quantity,
@@ -466,6 +461,12 @@ export function CreateOrderForm() {
                 ))}
               </select>
 
+              {selectedProduct?.description?.trim() && (
+                <span className={styles.selectedProductDescription}>
+                  {selectedProduct.description.trim()}
+                </span>
+              )}
+
               <input
                 type="text"
                 inputMode="numeric"
@@ -508,6 +509,11 @@ export function CreateOrderForm() {
                     <div key={item.product.id} className={styles.cartItem}>
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{item.product.name}</span>
+                        {item.product.description?.trim() && (
+                          <span className={styles.itemDescription}>
+                            <strong>Observações:</strong> {item.product.description.trim()}
+                          </span>
+                        )}
                         <span className={styles.itemPrice}>
                           {formatCurrency(item.product.price)} cada
                         </span>

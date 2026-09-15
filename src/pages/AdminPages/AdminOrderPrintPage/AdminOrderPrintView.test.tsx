@@ -56,13 +56,15 @@ describe('AdminOrderPrintView', () => {
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
+    expect(screen.getByText(/Notas:/)).toBeInTheDocument();
+    expect(screen.queryByText('Pedido')).not.toBeInTheDocument();
     expect(screen.getAllByText('1')).toHaveLength(2);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
     expect(screen.getAllByText(/Endereço:/)).toHaveLength(1);
     const deliveryAddress = screen.getByText(
       /Endereço: Rua Beijamin Mesquita, 55 Jardim Boa Esperança - Limeira - SP CEP 13486-465/
     );
-    expect(deliveryAddress.tagName).toBe('STRONG');
+    expect(deliveryAddress.tagName).toBe('P');
     expect(screen.getByText('Recebido por')).toBeInTheDocument();
     expect(screen.getByText('Data')).toBeInTheDocument();
     expect(screen.getByText('Assinatura')).toBeInTheDocument();
@@ -75,6 +77,7 @@ describe('AdminOrderPrintView', () => {
     expect(screen.queryByText('Forma de pagamento')).not.toBeInTheDocument();
     expect(screen.queryByText('Status de pagamento')).not.toBeInTheDocument();
     expect(screen.getByText('Produto')).toHaveClass(styles.productHeader);
+    expect(screen.queryByText(/Endereço de entrega:/)).not.toBeInTheDocument();
   });
 
   it('cria uma segunda página quando os produtos ultrapassam a capacidade da primeira', () => {
@@ -117,6 +120,26 @@ describe('AdminOrderPrintView', () => {
     const status = screen.getByText('Cancelado');
     expect(status).toHaveClass(styles.cancelledStatus);
     expect(screen.queryByText('Pendente')).not.toBeInTheDocument();
+  });
+
+  it('exibe endereco de entrega sublinhado quando diverge do original', () => {
+    render(
+      <AdminOrderPrintView
+        order={{
+          ...order,
+          original_address_text: 'Rua A, 10 Centro - Limeira - SP CEP 13480-000',
+          delivery_address_text: 'Entregar na Rua B, fundos da loja',
+        }}
+        customer={{ nickname: 'Carlos' }}
+        companyName="Panificadora Boa Esperança"
+        companyAddress="Rua Armando Martins, 123"
+        screenPreview
+      />
+    );
+
+    expect(screen.getByText(/Endereço de entrega: Entregar na Rua B, fundos da loja/)).toHaveClass(
+      styles.deliveryAddressChanged
+    );
   });
 
   it('usa o mesmo verde do sistema no pagamento e no título quando pago', () => {

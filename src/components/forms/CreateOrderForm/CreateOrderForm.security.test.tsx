@@ -137,6 +137,7 @@ describe('CreateOrderForm security rules', () => {
     );
     expect(screen.getByText('Total:')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Carrinho (1 itens)' })).toBeInTheDocument();
+    expect(screen.getByText('Produto teste')).toBeInTheDocument();
     expect(screen.getByText('Quantidade')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '+' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '-' })).not.toBeInTheDocument();
@@ -155,36 +156,38 @@ describe('CreateOrderForm security rules', () => {
     expect(screen.getByText('Carrinho vazio. Adicione produtos acima.')).toBeInTheDocument();
   });
 
-  it('rejeita endereco em formato invalido antes de criar pedido', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('aceita endereco livre antes de criar pedido', async () => {
     render(<CreateOrderForm />);
 
     await addItemToCart('2');
 
     fireEvent.change(screen.getByPlaceholderText(/Rua, Número, Complemento opcional/i), {
-      target: { value: 'Rua Curta, 10' },
+      target: { value: 'Entregar na loja ao lado do mercado, fundos' },
     });
 
     submitForm();
 
-    expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Revise o endereço de entrega'));
-    expect(createOrderMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(createOrderMock).toHaveBeenCalledTimes(1));
+    expect(createOrderMock.mock.calls[0][0]).toMatchObject({
+      delivery_address_text: 'Entregar na loja ao lado do mercado, fundos',
+    });
   });
 
-  it('rejeita CEP com quantidade de digitos diferente de 8', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('aceita endereco sem CEP estruturado', async () => {
     render(<CreateOrderForm />);
 
     await addItemToCart('1');
 
     fireEvent.change(screen.getByPlaceholderText(/Rua, Número, Complemento opcional/i), {
-      target: { value: 'Rua A, 10, Centro, Limeira, SP, 12345' },
+      target: { value: 'Rua A, 10, Centro, Limeira' },
     });
 
     submitForm();
 
-    expect(alertSpy).toHaveBeenCalledWith('O CEP do endereço de entrega deve conter 8 dígitos.');
-    expect(createOrderMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(createOrderMock).toHaveBeenCalledTimes(1));
+    expect(createOrderMock.mock.calls[0][0]).toMatchObject({
+      delivery_address_text: 'Rua A, 10, Centro, Limeira',
+    });
   });
 
   it('envia payload seguro e prepara a tela para outro pedido após sucesso', async () => {

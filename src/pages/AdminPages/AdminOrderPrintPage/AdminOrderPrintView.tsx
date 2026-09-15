@@ -22,6 +22,8 @@ export interface PrintableOrder {
   shipping_neighborhood: string;
   shipping_city: string;
   shipping_state: string;
+  original_address_text?: string;
+  delivery_address_text?: string;
   total_value: string | number;
   status?: string;
   paid_at?: string | null;
@@ -70,6 +72,13 @@ const formatAddress = (order: PrintableOrder) =>
     .filter(Boolean)
     .join(' ') || 'Não informado';
 
+const normalizeAddressText = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
 export function AdminOrderPrintView({
   order,
   customer,
@@ -86,10 +95,7 @@ export function AdminOrderPrintView({
       text: item.product_description?.trim() || '',
     }))
     .filter((observation) => observation.text);
-  const observations = [
-    ...itemObservations,
-    ...(order.notes?.trim() ? [{ item: 'Pedido', text: order.notes.trim() }] : []),
-  ];
+  const orderNotes = order.notes?.trim() || '';
   const pages = [];
   for (let index = 0; index < Math.max(items.length, 1); index += ITEMS_PER_PAGE) {
     pages.push(items.slice(index, index + ITEMS_PER_PAGE));
@@ -102,6 +108,11 @@ export function AdminOrderPrintView({
     : isPaid
       ? styles.paidStatus
       : styles.pendingStatus;
+  const originalAddress = order.original_address_text?.trim() || '';
+  const deliveryAddress = order.delivery_address_text?.trim() || formatAddress(order);
+  const hasDifferentDeliveryAddress =
+    Boolean(originalAddress) &&
+    normalizeAddressText(originalAddress) !== normalizeAddressText(deliveryAddress);
 
   return (
     <div
@@ -152,8 +163,13 @@ export function AdminOrderPrintView({
                     </p>
                   </div>
                   <p className={styles.deliveryAddress}>
-                    <strong>Endereço: {formatAddress(order)}</strong>
+                    Endereço: {originalAddress || deliveryAddress}
                   </p>
+                  {hasDifferentDeliveryAddress && (
+                    <p className={`${styles.deliveryAddress} ${styles.deliveryAddressChanged}`}>
+                      Endereço de entrega: {deliveryAddress}
+                    </p>
+                  )}
                 </section>
               </>
             )}
@@ -198,7 +214,7 @@ export function AdminOrderPrintView({
               )}
             </section>
 
-            {isLastPage && observations.length > 0 && (
+            {isLastPage && itemObservations.length > 0 && (
               <section className={styles.section}>
                 <table className={styles.notesTable}>
                   <thead>
@@ -208,7 +224,7 @@ export function AdminOrderPrintView({
                     </tr>
                   </thead>
                   <tbody>
-                    {observations.map((observation) => (
+                    {itemObservations.map((observation) => (
                       <tr key={String(observation.item)}>
                         <td>{observation.item}</td>
                         <td className={styles.notes}>{observation.text}</td>
@@ -217,6 +233,12 @@ export function AdminOrderPrintView({
                   </tbody>
                 </table>
               </section>
+            )}
+
+            {isLastPage && orderNotes && (
+              <p className={styles.orderNotes}>
+                <strong>Notas:</strong> {orderNotes}
+              </p>
             )}
 
             {isLastPage && (
