@@ -47,18 +47,22 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
-    expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Pedido nº 7 - Criado em: 13/09/2026'
+    );
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
-    expect(screen.getByText('Embalagem com 6 unidades')).toBeInTheDocument();
+    expect(screen.getByText('"Item 1" - Embalagem com 6 unidades')).toBeInTheDocument();
+    expect(screen.queryByText('Observações')).not.toBeInTheDocument();
     expect(screen.getByText('Pendente')).toHaveClass(styles.pendingStatus);
-    expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toHaveClass(styles.pendingStatus);
     expect(screen.getAllByText('Telefone:')).toHaveLength(1);
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
-    expect(screen.getByText(/Notas:/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/"Notas" - Entregar na portaria\.\s*Não substituir o produto\./)
+    ).toBeInTheDocument();
     expect(screen.queryByText('Pedido')).not.toBeInTheDocument();
-    expect(screen.getAllByText('1')).toHaveLength(2);
+    expect(screen.getAllByText('1')).toHaveLength(1);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
     expect(screen.getAllByText(/Endereço:/)).toHaveLength(1);
     const deliveryAddress = screen.getByText(
@@ -106,10 +110,10 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('4')).toBeInTheDocument();
   });
 
-  it('exibe pedido cancelado em vermelho em vez de pendente', () => {
+  it('exibe a data de cancelamento e o status', () => {
     render(
       <AdminOrderPrintView
-        order={{ ...order, status: 'CANCELLED' }}
+        order={{ ...order, status: 'CANCELLED', cancelled_at: '2026-09-14T10:00:00Z' }}
         customer={{ nickname: 'Carlos' }}
         companyName="Panificadora Boa Esperança"
         companyAddress="Rua Armando Martins, 123"
@@ -117,9 +121,10 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
-    const status = screen.getByText('Cancelado');
-    expect(status).toHaveClass(styles.cancelledStatus);
-    expect(screen.queryByText('Pendente')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Pedido nº 7 - Criado em: 13/09/2026 - Cancelado em: 14/09/2026'
+    );
+    expect(screen.getByText('Cancelado')).toHaveClass(styles.cancelledStatus);
   });
 
   it('exibe endereco de entrega sublinhado quando diverge do original', () => {
@@ -142,7 +147,7 @@ describe('AdminOrderPrintView', () => {
     );
   });
 
-  it('usa o mesmo verde do sistema no pagamento e no título quando pago', () => {
+  it('exibe a data de pagamento e o status', () => {
     render(
       <AdminOrderPrintView
         order={{ ...order, paid_at: '2026-09-14T10:00:00Z' }}
@@ -153,7 +158,9 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Pedido nº 7 - Criado em: 13/09/2026 - Pago em: 14/09/2026'
+    );
     expect(screen.getByText('Pago')).toHaveClass(styles.paidStatus);
-    expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toHaveClass(styles.paidStatus);
   });
 });

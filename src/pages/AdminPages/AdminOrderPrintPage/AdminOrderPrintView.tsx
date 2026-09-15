@@ -27,6 +27,7 @@ export interface PrintableOrder {
   total_value: string | number;
   status?: string;
   paid_at?: string | null;
+  cancelled_at?: string | null;
   notes?: string;
   order_items?: PrintableOrderItem[];
   items?: PrintableOrderItem[];
@@ -139,14 +140,27 @@ export function AdminOrderPrintView({
                 </p>
               </div>
               <p className={`${styles.paymentStatus} ${statusClass}`}>
-                {isCancelled ? 'Cancelado' : order.paid_at ? 'Pago' : 'Pendente'}
+                {isCancelled ? 'Cancelado' : isPaid ? 'Pago' : 'Pendente'}
               </p>
             </header>
 
             {isFirstPage && (
               <>
-                <h1 className={`${styles.orderTitle} ${statusClass}`}>
-                  Pedido nº {order.order_number} - {formatDate(order.created_at)}
+                <h1 className={styles.orderTitle}>
+                  Pedido nº {order.order_number}
+                  <span className={styles.orderDates}>
+                    {' - '}Criado em: {formatDate(order.created_at)}
+                  </span>
+                  {isCancelled && order.cancelled_at && (
+                    <span className={styles.orderDates}>
+                      {' - '}Cancelado em: {formatDate(order.cancelled_at)}
+                    </span>
+                  )}
+                  {!isCancelled && isPaid && (
+                    <span className={styles.orderDates}>
+                      {' - '}Pago em: {formatDate(order.paid_at ?? undefined)}
+                    </span>
+                  )}
                 </h1>
 
                 <section className={styles.section}>
@@ -216,29 +230,18 @@ export function AdminOrderPrintView({
 
             {isLastPage && itemObservations.length > 0 && (
               <section className={styles.section}>
-                <table className={styles.notesTable}>
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Observação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {itemObservations.map((observation) => (
-                      <tr key={String(observation.item)}>
-                        <td>{observation.item}</td>
-                        <td className={styles.notes}>{observation.text}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className={styles.notesList}>
+                  {itemObservations.map((observation) => (
+                    <p className={styles.notes} key={String(observation.item)}>
+                      &quot;Item {observation.item}&quot; - {observation.text}
+                    </p>
+                  ))}
+                </div>
               </section>
             )}
 
             {isLastPage && orderNotes && (
-              <p className={styles.orderNotes}>
-                <strong>Notas:</strong> {orderNotes}
-              </p>
+              <p className={styles.orderNotes}>&quot;Notas&quot; - {orderNotes}</p>
             )}
 
             {isLastPage && (
