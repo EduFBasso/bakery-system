@@ -35,6 +35,7 @@ export function useAdminOrders(filters?: {
   status?: string;
   customer_nickname?: string;
   customer_id?: number;
+  ordering?: string;
   open_only?: boolean;
   date_from?: string;
   date_to?: string;
@@ -44,6 +45,7 @@ export function useAdminOrders(filters?: {
   const status = filters?.status;
   const customerNickname = filters?.customer_nickname;
   const customerId = filters?.customer_id;
+  const ordering = filters?.ordering;
   const openOnly = filters?.open_only;
   const dateFrom = filters?.date_from;
   const dateTo = filters?.date_to;
@@ -79,6 +81,7 @@ export function useAdminOrders(filters?: {
         }
         if (customerNickname) params.append('customer_nickname', customerNickname);
         if (customerId) params.append('customer_id', customerId.toString());
+        if (ordering) params.append('ordering', ordering);
         if (openOnly) params.append('open_only', 'true');
         if (dateFrom) params.append('date_from', dateFrom);
         if (dateTo) params.append('date_to', dateTo);

@@ -104,6 +104,48 @@
   border-bottom: 1px solid #f0f0f0;
   color: var(--color-text);
 }
+.openBalanceHeader {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #348a4c;
+  font: inherit;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.openBalanceHeader:hover,
+.openBalanceHeader:focus-visible {
+  text-decoration: underline;
+}
+.openBalanceHeaderActive {
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  background-color: #348a4c;
+  color: #fff;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.openBalanceHeaderActive:hover,
+.openBalanceHeaderActive:focus-visible {
+  background-color: #2d783f;
+  color: #fff;
+  text-decoration: none;
+}
+.balanceLink {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-admin-accent);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.balanceLink:hover {
+  color: var(--color-admin-accent-hover);
+}
 .table tbody tr:hover {
   background-color: var(--color-admin-row-hover);
 }
@@ -193,9 +235,9 @@
   white-space: nowrap;
 }
 .tableActionButton {
-  width: 150px;
-  min-width: 150px;
-  flex: 0 0 150px;
+  width: 190px;
+  min-width: 190px;
+  flex: 0 0 190px;
   text-align: center;
   min-height: 42px;
   padding: 0.5rem 1rem;
@@ -212,7 +254,6 @@
 }
 .detailsButton {
   background-color: var(--color-admin-info);
-  min-width: 145px;
 }
 .blockButton {
   background-color: #f44336;

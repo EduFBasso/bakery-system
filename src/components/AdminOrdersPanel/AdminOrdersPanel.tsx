@@ -27,14 +27,19 @@ const getOrderNumberClass = (status: string) => {
 };
 
 interface AdminOrdersPanelProps {
+  initialCustomerNickname?: string;
   onRefresh?: (successMessage?: string) => void;
   onActionError?: (errorMessage: string) => void;
 }
 
-export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelProps) {
+export function AdminOrdersPanel({
+  initialCustomerNickname,
+  onRefresh,
+  onActionError,
+}: AdminOrdersPanelProps) {
   const [filters, setFilters] = useState({
     status: 'PENDING',
-    customer_nickname: '',
+    customer_nickname: initialCustomerNickname || '',
     date_from: '',
     date_to: '',
     page: 1,
@@ -119,19 +124,33 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
         </div>
 
         <div className={styles.filterFields}>
-          <input
-            type="text"
-            placeholder="🔍 Pesquisar por apelido do cliente..."
-            value={filters.customer_nickname}
-            onChange={(e) => setFilters({ ...filters, customer_nickname: e.target.value, page: 1 })}
-            className={styles.filterInput}
-          />
+          <div className={styles.searchField}>
+            <input
+              type="text"
+              placeholder="🔍 Pesquisar por apelido do cliente..."
+              value={filters.customer_nickname}
+              onChange={(e) =>
+                setFilters({ ...filters, customer_nickname: e.target.value, page: 1 })
+              }
+              className={styles.filterInput}
+            />
+            {filters.customer_nickname && (
+              <button
+                type="button"
+                className={styles.clearSearchButton}
+                aria-label="Limpar pesquisa de cliente"
+                onClick={() => setFilters({ ...filters, customer_nickname: '', page: 1 })}
+              >
+                ×
+              </button>
+            )}
+          </div>
 
           <input
             type="date"
             value={filters.date_from}
             onChange={(e) => setFilters({ ...filters, date_from: e.target.value, page: 1 })}
-            className={styles.filterInput}
+            className={`${styles.filterInput} ${styles.dateFilter}`}
             aria-label="Data inicial"
           />
 
@@ -139,7 +158,7 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
             type="date"
             value={filters.date_to}
             onChange={(e) => setFilters({ ...filters, date_to: e.target.value, page: 1 })}
-            className={styles.filterInput}
+            className={`${styles.filterInput} ${styles.dateFilter}`}
             aria-label="Data final"
           />
         </div>
@@ -174,7 +193,7 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                         >
                           {order.order_number}
                         </td>
-                        <td>{formatOrderDate(order.created_at)}</td>
+                        <td className={styles.orderDate}>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>

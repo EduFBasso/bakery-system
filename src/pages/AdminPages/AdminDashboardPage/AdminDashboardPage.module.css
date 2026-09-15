@@ -43,6 +43,33 @@
 	position: relative;
 }
 
+.kpiPrimaryAction,
+.kpiBalanceAction {
+	display: block;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+}
+
+.kpiPrimaryAction {
+	padding: 0;
+}
+
+.kpiBalanceAction {
+	padding: 0.5rem 0 0;
+	color: #348a4c;
+	font-size: 0.95rem;
+	font-style: italic;
+	font-weight: 600;
+}
+
+.kpiBalanceAction:hover,
+.kpiBalanceAction:focus-visible {
+	text-decoration: underline;
+}
+
 .kpiCard:hover,
 .kpiButton:hover {
 	transform: translateY(-4px);

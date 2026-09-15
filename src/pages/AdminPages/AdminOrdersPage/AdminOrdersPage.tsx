@@ -3,7 +3,11 @@ import { AdminOrdersPanel } from '../../../components/AdminOrdersPanel/AdminOrde
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import styles from './AdminOrdersPage.module.css';
 
-export function AdminOrdersPage() {
+interface AdminOrdersPageProps {
+  customerNickname?: string;
+}
+
+export function AdminOrdersPage({ customerNickname }: AdminOrdersPageProps) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -17,7 +21,8 @@ export function AdminOrdersPage() {
   return (
     <div className={styles.container}>
       <AdminOrdersPanel
-        key={refreshTrigger}
+        key={`${refreshTrigger}-${customerNickname ?? 'all'}`}
+        initialCustomerNickname={customerNickname}
         onRefresh={handleRefresh}
         onActionError={setErrorMessage}
       />

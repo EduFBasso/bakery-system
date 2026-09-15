@@ -34,6 +34,12 @@
   align-items: center;
 }
 
+.searchField {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
 .filterInput {
   flex: 1;
   min-width: 200px;
@@ -42,6 +48,40 @@
   border-radius: 6px;
   font-size: 0.95rem;
   font-family: inherit;
+}
+
+.dateFilter {
+  font-weight: 400;
+}
+
+.searchField .filterInput {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.clearSearchButton {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-light);
+  font-size: 1.25rem;
+  line-height: 1;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.clearSearchButton:hover {
+  background: #eee;
+  color: var(--color-text);
 }
 
 .filterInput:focus {
@@ -151,6 +191,10 @@
 }
 
 .orderNumber {
+  font-weight: 600;
+}
+
+.orderDate {
   font-weight: 600;
 }
 

@@ -96,6 +96,24 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     expect(screen.getByText('ORD-CANCELLED')).toHaveClass(styles.orderNumberCancelled);
   });
 
+  it('abre com pendentes e permite limpar o apelido preenchido', async () => {
+    render(<AdminOrdersPanel initialCustomerNickname="Alfredo" />);
+
+    expect(mockedUseAdminOrders).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'PENDING',
+        customer_nickname: 'Alfredo',
+      })
+    );
+    expect(screen.getByDisplayValue('Alfredo')).toBeInTheDocument();
+    const clearButton = screen.getByRole('button', { name: 'Limpar pesquisa de cliente' });
+    expect(clearButton).toBeInTheDocument();
+
+    await userEvent.click(clearButton);
+
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+
   it('nao exibe acoes de pagamento/cancelamento para pedido ja cancelado', async () => {
     mockedUseAdminOrders.mockReturnValue({
       orders: [makeOrder({ id: 2, order_number: 'ORD-002', status: 'CANCELLED' })],

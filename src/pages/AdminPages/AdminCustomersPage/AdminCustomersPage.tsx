@@ -9,11 +9,17 @@ import styles from './AdminCustomersPage.module.css';
 
 interface AdminCustomersPageProps {
   initialFilter?: string;
+  onNavigateToOrders?: (customerNickname: string) => void;
   onError?: (error: string) => void;
   onSuccess?: (message: string) => void;
 }
 
-export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminCustomersPageProps) {
+export function AdminCustomersPage({
+  initialFilter,
+  onNavigateToOrders,
+  onError,
+  onSuccess,
+}: AdminCustomersPageProps) {
   const { allCustomers, loading, error, fetchAllCustomers } = useAdminCustomers({
     onError,
     onSuccess,
@@ -35,6 +41,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     action: 'approve' | 'discard';
   } | null>(null);
   const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
+  const [openBalanceOnly, setOpenBalanceOnly] = useState(initialFilter === 'EM_ABERTO');
 
   useEffect(() => {
     setExpandedCustomerId(null);
@@ -46,6 +53,10 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
           : 'APROVADO';
     fetchAllCustomers({ status, search: searchInput || undefined });
   }, [activeSubTab, searchInput, fetchAllCustomers]);
+
+  useEffect(() => {
+    setOpenBalanceOnly(activeSubTab === 'active' && initialFilter === 'EM_ABERTO');
+  }, [activeSubTab, initialFilter]);
 
   const handleBlock = (id: number, nickname: string) => {
     setBlockCustomerData({ id, nickname, action: 'block' });
@@ -104,7 +115,12 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
     fetchAllCustomers({ status, search: searchInput || undefined });
   };
 
-  const displayedCustomers = allCustomers;
+  const displayedCustomers =
+    activeSubTab === 'active' && openBalanceOnly
+      ? allCustomers.filter(
+          (customer) => Number(customer.financial_used || customer.current_balance || 0) > 0
+        )
+      : allCustomers;
 
   return (
     <div>
@@ -129,13 +145,13 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
           className={`${styles.subTab} ${activeSubTab === 'pending' ? styles.active : ''}`}
           onClick={() => setActiveSubTab('pending')}
         >
-          ⏳ Pendentes de Aprovação
+          ⏳ Clientes Pendentes
         </button>
         <button
           className={`${styles.subTab} ${activeSubTab === 'blocked' ? styles.active : ''}`}
           onClick={() => setActiveSubTab('blocked')}
         >
-          🚫 Bloqueados
+          🚫 Clientes Bloqueados
         </button>
       </div>
 
@@ -176,7 +192,22 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
               <thead>
                 <tr>
                   <th>Apelido</th>
-                  <th>EM ABERTO</th>
+                  <th>
+                    {activeSubTab === 'active' ? (
+                      <button
+                        type="button"
+                        className={`${styles.openBalanceHeader} ${
+                          openBalanceOnly ? styles.openBalanceHeaderActive : ''
+                        }`}
+                        aria-pressed={openBalanceOnly}
+                        onClick={() => setOpenBalanceOnly((currentValue) => !currentValue)}
+                      >
+                        EM ABERTO
+                      </button>
+                    ) : (
+                      'EM ABERTO'
+                    )}
+                  </th>
                   <th className={styles.optionsHeader}>{activeSubTab !== 'blocked' && 'Opções'}</th>
                   <th className={styles.actionHeader}>
                     <div className={styles.actionHeaderLabels}>
@@ -193,9 +224,22 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                       <strong>{customer.nickname}</strong>
                     </td>
                     <td>
-                      {activeSubTab === 'pending'
-                        ? '—'
-                        : formatCurrency(customer.financial_used || customer.current_balance)}
+                      {activeSubTab === 'pending' ? (
+                        '—'
+                      ) : Number(customer.financial_used || customer.current_balance || 0) > 0 ? (
+                        <button
+                          type="button"
+                          className={styles.balanceLink}
+                          onClick={() => onNavigateToOrders?.(customer.nickname)}
+                          aria-label={`Ver pedidos pendentes de ${customer.nickname}`}
+                        >
+                          {formatCurrency(customer.financial_used || customer.current_balance)}
+                        </button>
+                      ) : (
+                        <strong>
+                          {formatCurrency(customer.financial_used || customer.current_balance)}
+                        </strong>
+                      )}
                     </td>
                     <td className={styles.optionsCell}>
                       {customer.status === 'APROVADO' && (
@@ -207,7 +251,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                           title={
                             expandedCustomerId === customer.id
                               ? 'Ocultar operações'
-                              : 'Mostrar operações'
+                              : 'Editar Saldo Limite, Ver ou Copiar Senha, Enviar Senha WhatsApp'
                           }
                           onClick={() =>
                             setExpandedCustomerId((currentId) =>
@@ -235,7 +279,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                             className={`${styles.detailsButton} ${styles.tableActionButton}`}
                             onClick={() => handleOpenSummary(customer.id)}
                           >
-                            📋 Detalhes
+                            📋 Detalhes do Cliente
                           </button>
                           {customer.status === 'PENDENTE' && (
                             <>
@@ -260,7 +304,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                               className={`${styles.blockButton} ${styles.tableActionButton}`}
                               onClick={() => handleBlock(customer.id, customer.nickname)}
                             >
-                              🚫 Bloquear
+                              🚫 Bloquear Cliente
                             </button>
                           )}
                           {customer.status === 'BLOQUEADO' && (
@@ -268,7 +312,7 @@ export function AdminCustomersPage({ initialFilter, onError, onSuccess }: AdminC
                               className={`${styles.unblockButton} ${styles.tableActionButton}`}
                               onClick={() => handleUnblock(customer.id, customer.nickname)}
                             >
-                              🔓 Desbloquear
+                              🔓 Desbloquear Cliente
                             </button>
                           )}
                         </div>

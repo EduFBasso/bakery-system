@@ -63,6 +63,10 @@ export function AdminDashboardPage({
     onNavigateToCustomers?.('APROVADO');
   };
 
+  const handleOpenBalanceClick = () => {
+    onNavigateToCustomers?.('EM_ABERTO');
+  };
+
   const handleBlockedClick = () => {
     onNavigateToCustomers?.('BLOQUEADO');
   };
@@ -74,26 +78,32 @@ export function AdminDashboardPage({
 
       {/* KPIs Section */}
       <section className={styles.kpisSection}>
-        <button
-          className={`${styles.kpiCard} ${styles.kpiButton}`}
-          onClick={handleActiveClick}
-          title="Clique para ver clientes ativos"
-        >
-          <h3>👥 Clientes Ativos</h3>
-          <p className={styles.kpiValue}>
-            {showInitialLoading ? '...' : stats?.active_customers || 0}
-          </p>
-          <p className={styles.kpiHint}>
+        <article className={styles.kpiCard}>
+          <button
+            className={styles.kpiPrimaryAction}
+            onClick={handleActiveClick}
+            title="Clique para ver clientes ativos"
+          >
+            <h3>✅ Clientes Ativos</h3>
+            <p className={styles.kpiValue}>
+              {showInitialLoading ? '...' : stats?.active_customers || 0}
+            </p>
+          </button>
+          <button
+            className={styles.kpiBalanceAction}
+            onClick={handleOpenBalanceClick}
+            title="Clique para ver clientes com saldo em aberto"
+          >
             Saldo em aberto: {formatCurrency(stats?.active_open_balance)}
-          </p>
-        </button>
+          </button>
+        </article>
 
         <button
           className={`${styles.kpiCard} ${styles.kpiButton}`}
           onClick={handlePendingClick}
           title="Clique para ver pendentes"
         >
-          <h3>⏳ Pendentes</h3>
+          <h3>⏳ Clientes Pendentes</h3>
           <p className={styles.kpiValue}>
             {showInitialLoading ? '...' : stats?.pending_customers || 0}
           </p>
@@ -105,7 +115,7 @@ export function AdminDashboardPage({
           onClick={handleBlockedClick}
           title="Clique para ver clientes bloqueados"
         >
-          <h3>🚫 Bloqueados</h3>
+          <h3>🚫 Clientes Bloqueados</h3>
           <p className={styles.kpiValue}>
             {showInitialLoading ? '...' : stats?.blocked_customers || 0}
           </p>
