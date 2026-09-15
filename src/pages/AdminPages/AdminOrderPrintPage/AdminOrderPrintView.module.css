@@ -46,18 +46,18 @@
 .companyName { margin: 0; color: #8f3f22; font-size: 24px; font-weight: 800; line-height: 1.2; }
 .companyAddress { margin: 6px 0 0; color: #4b5563; font-size: 16px; line-height: 1.4; }
 .paymentStatus { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.4; text-align: right; }
+.statusDate { display: block; font-size: 14px; font-weight: 400; }
 .pendingStatus { color: #8f3f22; }
 .paidStatus { color: var(--color-success); }
 .cancelledStatus { color: var(--color-danger); }
 .orderTitle { margin: 43px 0 0; color: #111827; font-size: 22px; text-align: center; }
-.orderDates { color: #4b5563; font-size: 16px; font-weight: 400; }
 .section { margin-top: 29px; break-inside: avoid; page-break-inside: avoid; }
 .section h2 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #cfcfcf; color: #1f1f1f; font-size: 19px; }
 .itemsSection { margin-top: 43px; }
 .itemsSection h2 { text-align: center; }
-.customerLine { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 18px; }
+.orderInfoLine { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 36px; }
 .customerPhone { white-space: nowrap; }
-.customerLine p, .signatureSection p { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; }
+.orderInfoLine p, .signatureSection p { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; }
 .deliveryAddress { margin: 12px 0 0; color: #262626; font-size: 17px; line-height: 1.6; }
 .deliveryAddressChanged { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .itemsTable { width: 100%; border-collapse: collapse; font-size: 16px; }
@@ -72,6 +72,7 @@
 .notesList { display: grid; gap: 7px; }
 .notes { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; white-space: pre-wrap; }
 .orderNotes { margin: 22px 0 0; color: #262626; font-size: 16px; line-height: 1.5; white-space: pre-wrap; }
+.addressSection { margin-top: auto; }
 .signatureSection { margin-top: auto; padding-top: 72px; break-inside: avoid; page-break-inside: avoid; }
 .signatureGrid { display: grid; grid-template-columns: 1.25fr 1fr 1.25fr; gap: 18px; }
 .signatureField { color: #4b5563; font-size: 14px; text-align: center; }
@@ -83,7 +84,7 @@
   .printPage { min-height: auto; padding: 24px; }
   .printHeader { flex-direction: column; }
   .paymentStatus { text-align: left; }
-  .customerLine, .signatureGrid { grid-template-columns: 1fr; }
+  .orderInfoLine, .signatureGrid { grid-template-columns: 1fr; }
   .customerPhone { white-space: normal; }
   .itemsTable { font-size: 14px; }
 }

@@ -140,56 +140,44 @@ export function AdminOrderPrintView({
                 </p>
               </div>
               <p className={`${styles.paymentStatus} ${statusClass}`}>
-                {isCancelled ? 'Cancelado' : isPaid ? 'Pago' : 'Pendente'}
+                {isCancelled ? 'Cancelado em' : isPaid ? 'Pago em' : 'Pendente'}
+                <span className={styles.statusDate}>
+                  {formatDate(
+                    isCancelled
+                      ? (order.cancelled_at ?? undefined)
+                      : isPaid
+                        ? (order.paid_at ?? undefined)
+                        : order.created_at
+                  )}
+                </span>
               </p>
             </header>
 
             {isFirstPage && (
               <>
-                <h1 className={styles.orderTitle}>
-                  Pedido nº {order.order_number}
-                  <span className={styles.orderDates}>
-                    {' - '}Criado em: {formatDate(order.created_at)}
-                  </span>
-                  {isCancelled && order.cancelled_at && (
-                    <span className={styles.orderDates}>
-                      {' - '}Cancelado em: {formatDate(order.cancelled_at)}
-                    </span>
-                  )}
-                  {!isCancelled && isPaid && (
-                    <span className={styles.orderDates}>
-                      {' - '}Pago em: {formatDate(order.paid_at ?? undefined)}
-                    </span>
-                  )}
-                </h1>
+                <h1 className={styles.orderTitle}>Pedido</h1>
 
                 <section className={styles.section}>
-                  <div className={styles.customerLine}>
+                  <div className={styles.orderInfoLine}>
                     <p>
-                      <strong>Cliente:</strong> {customer.nickname || 'Não informado'}
+                      <strong>Número:</strong> {order.order_number}
                     </p>
                     <p>
-                      <strong>Nome:</strong> {customer.company_name || 'Não informado'}
+                      <strong>Data:</strong> {formatDate(order.created_at)}
+                    </p>
+                    <p>
+                      <strong>Cliente:</strong> {customer.nickname || 'Não informado'}
                     </p>
                     <p className={styles.customerPhone}>
                       <strong>Telefone:</strong>{' '}
                       {customer.phone ? formatPhone(customer.phone) : 'Não informado'}
                     </p>
                   </div>
-                  <p className={styles.deliveryAddress}>
-                    Endereço: {originalAddress || deliveryAddress}
-                  </p>
-                  {hasDifferentDeliveryAddress && (
-                    <p className={`${styles.deliveryAddress} ${styles.deliveryAddressChanged}`}>
-                      Endereço de entrega: {deliveryAddress}
-                    </p>
-                  )}
                 </section>
               </>
             )}
 
             <section className={`${styles.section} ${styles.itemsSection}`}>
-              <h2>{isFirstPage ? 'Produtos Solicitados' : 'Produtos Solicitados (continuação)'}</h2>
               {pageItems.length === 0 ? (
                 <p>Pedido sem itens registrados.</p>
               ) : (
@@ -242,6 +230,19 @@ export function AdminOrderPrintView({
 
             {isLastPage && orderNotes && (
               <p className={styles.orderNotes}>&quot;Notas&quot; - {orderNotes}</p>
+            )}
+
+            {isLastPage && (
+              <section className={`${styles.section} ${styles.addressSection}`}>
+                <p className={styles.deliveryAddress}>
+                  Endereço: {originalAddress || deliveryAddress}
+                </p>
+                {hasDifferentDeliveryAddress && (
+                  <p className={`${styles.deliveryAddress} ${styles.deliveryAddressChanged}`}>
+                    Endereço de entrega: {deliveryAddress}
+                  </p>
+                )}
+              </section>
             )}
 
             {isLastPage && (

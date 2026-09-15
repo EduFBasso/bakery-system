@@ -47,13 +47,18 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Pedido nº 7 - Criado em: 13/09/2026'
-    );
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pedido');
+    expect(screen.getByText('Número:')).toBeInTheDocument();
+    expect(screen.getByText('Data:')).toBeInTheDocument();
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
     expect(screen.getByText('"Item 1" - Embalagem com 6 unidades')).toBeInTheDocument();
     expect(screen.queryByText('Observações')).not.toBeInTheDocument();
     expect(screen.getByText('Pendente')).toHaveClass(styles.pendingStatus);
+    expect(
+      screen
+        .getAllByText('13/09/2026')
+        .some((element) => element.classList.contains(styles.statusDate))
+    ).toBe(true);
     expect(screen.getAllByText('Telefone:')).toHaveLength(1);
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
@@ -61,7 +66,6 @@ describe('AdminOrderPrintView', () => {
     expect(
       screen.getByText(/"Notas" - Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
-    expect(screen.queryByText('Pedido')).not.toBeInTheDocument();
     expect(screen.getAllByText('1')).toHaveLength(1);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
     expect(screen.getAllByText(/Endereço:/)).toHaveLength(1);
@@ -104,7 +108,7 @@ describe('AdminOrderPrintView', () => {
     );
 
     expect(container.querySelectorAll('[data-page-number]')).toHaveLength(2);
-    expect(screen.getByText('Produtos Solicitados (continuação)')).toBeInTheDocument();
+    expect(screen.queryByText('Produtos Solicitados')).not.toBeInTheDocument();
     expect(screen.getByText('Total de pedidos')).toBeInTheDocument();
     expect(screen.getAllByText('Página 2 de 2')).toHaveLength(1);
     expect(screen.getByText('4')).toBeInTheDocument();
@@ -121,10 +125,9 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Pedido nº 7 - Criado em: 13/09/2026 - Cancelado em: 14/09/2026'
-    );
-    expect(screen.getByText('Cancelado')).toHaveClass(styles.cancelledStatus);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pedido');
+    expect(screen.getByText('Cancelado em')).toHaveClass(styles.cancelledStatus);
+    expect(screen.getByText('14/09/2026')).toHaveClass(styles.statusDate);
   });
 
   it('exibe endereco de entrega sublinhado quando diverge do original', () => {
@@ -158,9 +161,8 @@ describe('AdminOrderPrintView', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Pedido nº 7 - Criado em: 13/09/2026 - Pago em: 14/09/2026'
-    );
-    expect(screen.getByText('Pago')).toHaveClass(styles.paidStatus);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pedido');
+    expect(screen.getByText('Pago em')).toHaveClass(styles.paidStatus);
+    expect(screen.getByText('14/09/2026')).toHaveClass(styles.statusDate);
   });
 });
