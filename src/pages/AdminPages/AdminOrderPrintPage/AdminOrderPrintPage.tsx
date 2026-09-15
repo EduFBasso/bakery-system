@@ -7,6 +7,7 @@ import {
   type PrintableOrderCustomer,
 } from './AdminOrderPrintView';
 import styles from './AdminOrderPrintPage.module.css';
+import { formatZipCode } from '../../../utils/formatZipCode';
 
 const formatAddress = (profile: {
   street?: string;
@@ -19,7 +20,7 @@ const formatAddress = (profile: {
   [
     [profile.street, profile.number].filter(Boolean).join(', '),
     [profile.neighborhood, profile.city, profile.state].filter(Boolean).join(' - '),
-    profile.zip_code ? `CEP ${profile.zip_code}` : undefined,
+    profile.zip_code ? `CEP ${formatZipCode(profile.zip_code)}` : undefined,
   ]
     .filter(Boolean)
     .join(' ');

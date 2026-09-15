@@ -45,18 +45,23 @@
 
 .companyName { margin: 0; color: #8f3f22; font-size: 24px; font-weight: 800; line-height: 1.2; }
 .companyAddress { margin: 6px 0 0; color: #4b5563; font-size: 16px; line-height: 1.4; }
-.paymentStatus { margin: 0; color: #262626; font-size: 16px; font-weight: 700; line-height: 1.4; text-align: right; }
-.printPage h1 { margin: 36px 0 0; color: #8f3f22; font-size: 22px; text-align: center; }
+.paymentStatus { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.4; text-align: right; }
+.pendingStatus { color: #8f3f22; }
+.paidStatus { color: var(--color-success); }
+.cancelledStatus { color: var(--color-danger); }
+.orderTitle { margin: 36px 0 0; font-size: 22px; text-align: center; }
 .section { margin-top: 24px; break-inside: avoid; page-break-inside: avoid; }
 .section h2 { margin: 0 0 10px; padding-bottom: 7px; border-bottom: 1px solid #cfcfcf; color: #1f1f1f; font-size: 19px; }
 .itemsSection { margin-top: 36px; }
 .itemsSection h2 { text-align: center; }
 .customerLine { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 18px; }
+.customerPhone { white-space: nowrap; }
 .customerLine p, .signatureSection p { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; }
 .deliveryAddress { margin: 10px 0 0; color: #262626; font-size: 17px; line-height: 1.6; }
 .itemsTable { width: 100%; border-collapse: collapse; font-size: 16px; }
 .itemsTable th, .itemsTable td { padding: 10px 5px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
 .itemsTable th:first-child, .itemsTable td:first-child { width: 1%; text-align: center; white-space: nowrap; }
+.itemsTable .productHeader { text-align: center; }
 .itemsTable th:nth-child(n + 3), .itemsTable td:nth-child(n + 3) { text-align: right; white-space: nowrap; }
 .itemsTable thead th { color: #111827; font-size: 14px; font-weight: 800; text-transform: uppercase; }
 .itemsTable tfoot th { border-top: 1px solid #9ca3af; border-bottom: 0; color: #111827; font-size: 19px; font-weight: 800; }
@@ -80,6 +85,7 @@
   .printHeader { flex-direction: column; }
   .paymentStatus { text-align: left; }
   .customerLine, .signatureGrid { grid-template-columns: 1fr; }
+  .customerPhone { white-space: normal; }
   .itemsTable { font-size: 14px; }
 }
 

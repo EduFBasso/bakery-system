@@ -1,5 +1,6 @@
 import styles from './AdminOrderPrintView.module.css';
 import { formatPhone } from '../../../utils/formatPhone';
+import { formatZipCode } from '../../../utils/formatZipCode';
 
 export interface PrintableOrderItem {
   id: number;
@@ -22,6 +23,7 @@ export interface PrintableOrder {
   shipping_city: string;
   shipping_state: string;
   total_value: string | number;
+  status?: string;
   paid_at?: string | null;
   notes?: string;
   order_items?: PrintableOrderItem[];
@@ -63,10 +65,10 @@ const formatAddress = (order: PrintableOrder) =>
     [order.shipping_neighborhood, order.shipping_city, order.shipping_state]
       .filter(Boolean)
       .join(' - '),
-    order.shipping_zip_code ? `CEP ${order.shipping_zip_code}` : undefined,
+    order.shipping_zip_code ? `CEP ${formatZipCode(order.shipping_zip_code)}` : undefined,
   ]
     .filter(Boolean)
-    .join(' | ') || 'Não informado';
+    .join(' ') || 'Não informado';
 
 export function AdminOrderPrintView({
   order,
@@ -93,6 +95,13 @@ export function AdminOrderPrintView({
     pages.push(items.slice(index, index + ITEMS_PER_PAGE));
   }
   const totalPages = pages.length;
+  const isCancelled = order.status === 'CANCELLED';
+  const isPaid = Boolean(order.paid_at);
+  const statusClass = isCancelled
+    ? styles.cancelledStatus
+    : isPaid
+      ? styles.paidStatus
+      : styles.pendingStatus;
 
   return (
     <div
@@ -118,12 +127,14 @@ export function AdminOrderPrintView({
                   )}
                 </p>
               </div>
-              <p className={styles.paymentStatus}>{order.paid_at ? 'Pago' : 'Pendente'}</p>
+              <p className={`${styles.paymentStatus} ${statusClass}`}>
+                {isCancelled ? 'Cancelado' : order.paid_at ? 'Pago' : 'Pendente'}
+              </p>
             </header>
 
             {isFirstPage && (
               <>
-                <h1>
+                <h1 className={`${styles.orderTitle} ${statusClass}`}>
                   Pedido nº {order.order_number} - {formatDate(order.created_at)}
                 </h1>
 
@@ -135,13 +146,13 @@ export function AdminOrderPrintView({
                     <p>
                       <strong>Nome:</strong> {customer.company_name || 'Não informado'}
                     </p>
-                    <p>
+                    <p className={styles.customerPhone}>
                       <strong>Telefone:</strong>{' '}
                       {customer.phone ? formatPhone(customer.phone) : 'Não informado'}
                     </p>
                   </div>
                   <p className={styles.deliveryAddress}>
-                    <strong>Endereço:</strong> {formatAddress(order)}
+                    <strong>Endereço: {formatAddress(order)}</strong>
                   </p>
                 </section>
               </>
@@ -156,7 +167,7 @@ export function AdminOrderPrintView({
                   <thead>
                     <tr>
                       <th>Item</th>
-                      <th>Produto</th>
+                      <th className={styles.productHeader}>Produto</th>
                       <th>Quantidade</th>
                       <th>Valor unitário</th>
                       <th>Subtotal</th>

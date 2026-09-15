@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AdminOrderPrintView } from './AdminOrderPrintView';
+import styles from './AdminOrderPrintView.module.css';
 
 const order = {
   order_number: '7',
@@ -49,8 +50,8 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toBeInTheDocument();
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
     expect(screen.getByText('Embalagem com 6 unidades')).toBeInTheDocument();
-    expect(screen.getByText('Pendente')).toBeInTheDocument();
-    expect(screen.getAllByText('Endereço:')).toHaveLength(1);
+    expect(screen.getByText('Pendente')).toHaveClass(styles.pendingStatus);
+    expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toHaveClass(styles.pendingStatus);
     expect(screen.getAllByText('Telefone:')).toHaveLength(1);
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
@@ -58,16 +59,22 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getAllByText('1')).toHaveLength(2);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
     expect(screen.getAllByText(/Endereço:/)).toHaveLength(1);
+    const deliveryAddress = screen.getByText(
+      /Endereço: Rua Beijamin Mesquita, 55 Jardim Boa Esperança - Limeira - SP CEP 13486-465/
+    );
+    expect(deliveryAddress.tagName).toBe('STRONG');
     expect(screen.getByText('Recebido por')).toBeInTheDocument();
     expect(screen.getByText('Data')).toBeInTheDocument();
     expect(screen.getByText('Assinatura')).toBeInTheDocument();
     expect(screen.getByText('(19) 98515-2541')).toBeInTheDocument();
+    expect(screen.getByText('(19) 98515-2541').closest('p')).toHaveClass(styles.customerPhone);
     expect(screen.queryByText('Cliente')).not.toBeInTheDocument();
     expect(screen.queryByText('Recebimento')).not.toBeInTheDocument();
     expect(screen.queryByText('Assinatura do cliente')).not.toBeInTheDocument();
     expect(screen.queryByText('Data prevista')).not.toBeInTheDocument();
     expect(screen.queryByText('Forma de pagamento')).not.toBeInTheDocument();
     expect(screen.queryByText('Status de pagamento')).not.toBeInTheDocument();
+    expect(screen.getByText('Produto')).toHaveClass(styles.productHeader);
   });
 
   it('cria uma segunda página quando os produtos ultrapassam a capacidade da primeira', () => {
@@ -94,5 +101,36 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('Total de pedidos')).toBeInTheDocument();
     expect(screen.getAllByText('Página 2 de 2')).toHaveLength(1);
     expect(screen.getByText('4')).toBeInTheDocument();
+  });
+
+  it('exibe pedido cancelado em vermelho em vez de pendente', () => {
+    render(
+      <AdminOrderPrintView
+        order={{ ...order, status: 'CANCELLED' }}
+        customer={{ nickname: 'Carlos' }}
+        companyName="Panificadora Boa Esperança"
+        companyAddress="Rua Armando Martins, 123"
+        screenPreview
+      />
+    );
+
+    const status = screen.getByText('Cancelado');
+    expect(status).toHaveClass(styles.cancelledStatus);
+    expect(screen.queryByText('Pendente')).not.toBeInTheDocument();
+  });
+
+  it('usa o mesmo verde do sistema no pagamento e no título quando pago', () => {
+    render(
+      <AdminOrderPrintView
+        order={{ ...order, paid_at: '2026-09-14T10:00:00Z' }}
+        customer={{ nickname: 'Carlos' }}
+        companyName="Panificadora Boa Esperança"
+        companyAddress="Rua Armando Martins, 123"
+        screenPreview
+      />
+    );
+
+    expect(screen.getByText('Pago')).toHaveClass(styles.paidStatus);
+    expect(screen.getByText('Pedido nº 7 - 13/09/2026')).toHaveClass(styles.paidStatus);
   });
 });
