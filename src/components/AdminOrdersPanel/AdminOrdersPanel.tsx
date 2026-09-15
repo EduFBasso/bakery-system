@@ -12,6 +12,8 @@ const PAYMENT_FILTERS = [
   { value: 'CANCELLED', label: 'Cancelados', icon: '🚫' },
 ];
 
+const formatOrderDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
+
 interface AdminOrdersPanelProps {
   onRefresh?: (successMessage?: string) => void;
   onActionError?: (errorMessage: string) => void;
@@ -43,24 +45,6 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
       onActionError?.(actionError);
     }
   }, [actionError, onActionError]);
-
-  const getPaymentInfo = (order: AdminOrder) => {
-    if (order.status === 'CANCELLED') {
-      return { value: 'CANCELLED', label: 'Cancelado', color: 'var(--color-danger-strong)' };
-    }
-
-    if (order.status === 'CONFIRMED' || order.status === 'DELIVERED') {
-      return { value: 'PAID', label: 'Pago', color: 'var(--color-success-strong)' };
-      return { value: 'PAID', label: 'Pagamento Confirmado', color: 'var(--color-success-strong)' };
-    }
-
-    return { value: 'PENDING', label: '⏳ Pendente', color: 'var(--color-warning-strong)' };
-    return {
-      value: 'PENDING',
-      label: '⏳ Pagamento Pendente',
-      color: 'var(--color-warning-strong)',
-    };
-  };
 
   const openSecurityAction = (action: 'pay' | 'cancel', order: AdminOrder) => {
     setSecurityAction(action);
@@ -163,8 +147,8 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                 <thead>
                   <tr>
                     <th>Pedido</th>
+                    <th>Data</th>
                     <th>Cliente</th>
-                    <th>Pagamento</th>
                     <th>Total</th>
                     <th className={styles.actionsHeader}>Ações</th>
                   </tr>
@@ -174,15 +158,8 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                     <React.Fragment key={order.id}>
                       <tr className={styles.orderRow}>
                         <td className={styles.orderNumber}>{order.order_number}</td>
+                        <td>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
-                        <td>
-                          <span
-                            className={styles.statusBadge}
-                            style={{ backgroundColor: getPaymentInfo(order).color }}
-                          >
-                            {getPaymentInfo(order).label}
-                          </span>
-                        </td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
                           <button

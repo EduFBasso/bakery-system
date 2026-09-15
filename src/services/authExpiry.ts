@@ -1,4 +1,4 @@
-const EXPIRY_MESSAGE = 'Sua sessão expirou após 10 horas. Faça login novamente para continuar.';
+const EXPIRY_MESSAGE = 'Sua sessão expirou. Faça login novamente para continuar.';
 const EXPIRY_MESSAGE_KEY = 'bread_auth_expiry_message';
 
 function clearAdminSession() {

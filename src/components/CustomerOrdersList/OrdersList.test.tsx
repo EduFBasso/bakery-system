@@ -97,14 +97,14 @@ describe('OrdersList', () => {
 
     render(<OrdersList />);
 
-    const titleNodes = screen.getAllByText(/Pedido .* as .*/i);
+    const titleNodes = screen.getAllByText(/Pedido nº .* - .*/i);
     expect(titleNodes).toHaveLength(2);
 
     const firstTitle = titleNodes[0].textContent || '';
     const secondTitle = titleNodes[1].textContent || '';
 
-    expect(firstTitle).toContain('10/07/2026');
-    expect(secondTitle).toContain('12/07/2026');
+    expect(firstTitle).toContain('Pedido nº ORD-001 - 10/07/2026');
+    expect(secondTitle).toContain('Pedido nº ORD-001 - 12/07/2026');
   });
 
   it('mostra erro quando o hook retorna falha', () => {

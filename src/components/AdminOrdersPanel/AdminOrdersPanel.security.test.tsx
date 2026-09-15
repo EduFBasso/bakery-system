@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminOrdersPanel } from './AdminOrdersPanel';
+import type { AdminOrder } from '../../hooks/useAdminOrders';
 
 const updateStatusMock = vi.fn();
 const cancelOrderMock = vi.fn();
@@ -26,7 +27,7 @@ const mockedUseAdminOrders = vi.mocked(useAdminOrders);
 const mockedUseUpdateOrderStatus = vi.mocked(useUpdateOrderStatus);
 const mockedUseCancelOrder = vi.mocked(useCancelOrder);
 
-const makeOrder = (overrides: Record<string, any> = {}) => ({
+const makeOrder = (overrides: Partial<AdminOrder> = {}): AdminOrder => ({
   id: 1,
   order_number: 'ORD-001',
   customer_id: 1,
@@ -35,6 +36,11 @@ const makeOrder = (overrides: Record<string, any> = {}) => ({
   status_display: 'Pendente',
   created_at: '2026-07-15T10:00:00Z',
   delivery_date: '2026-07-16T10:00:00Z',
+  shipping_street: 'Rua Teste',
+  shipping_number: '10',
+  shipping_neighborhood: 'Centro',
+  shipping_city: 'Limeira',
+  shipping_state: 'SP',
   total_value: '75.00',
   payment_method: 'CREDIT',
   paid_at: null,
@@ -99,8 +105,9 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     expect(screen.getByRole('button', { name: 'Cancelados' })).toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'Endereço' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('columnheader', { name: 'Data' })).not.toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Pagamento' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Data' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '15/07/2026' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Pagamento' })).not.toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Total' })).toBeInTheDocument();
   });
 

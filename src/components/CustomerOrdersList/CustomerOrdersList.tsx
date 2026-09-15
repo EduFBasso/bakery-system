@@ -67,15 +67,10 @@ export function OrdersList() {
     }
   };
 
-  const formatOrderTitle = (dateString: string) => {
+  const formatOrderTitle = (orderNumber: string, dateString: string) => {
     const date = new Date(dateString);
     const datePart = date.toLocaleDateString('pt-BR');
-    const timePart = date.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    return `Pedido ${datePart} as ${timePart}`;
+    return `Pedido nº ${orderNumber} - ${datePart}`;
   };
 
   const formatUnitPrice = (value: string) => {
@@ -128,7 +123,9 @@ export function OrdersList() {
         {sortedOrders.map((order) => (
           <div key={order.id} className={`${styles.orderCard} ${getStatusClass(order.status)}`}>
             <div className={styles.cardHeader}>
-              <div className={styles.orderNumber}>{formatOrderTitle(order.order_date)}</div>
+              <div className={styles.orderNumber}>
+                {formatOrderTitle(order.order_number, order.order_date)}
+              </div>
               <div className={`${styles.status} ${getStatusClass(order.status)}`}>
                 {getStatusLabel(order.status)}
               </div>
@@ -146,9 +143,7 @@ export function OrdersList() {
                 )}
               </div>
 
-              <div className={styles.amount}>
-                {formatCurrency(order.total_value)}
-              </div>
+              <div className={styles.amount}>{formatCurrency(order.total_value)}</div>
             </div>
             {order.status === 'PENDING' && (
               <div className={styles.cardFooter}>
