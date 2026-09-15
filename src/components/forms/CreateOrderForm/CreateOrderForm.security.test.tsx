@@ -173,6 +173,13 @@ describe('CreateOrderForm security rules', () => {
     });
   });
 
+  it('nao exibe campo de data de entrega ao cliente', () => {
+    render(<CreateOrderForm />);
+
+    expect(screen.queryByText('Data de Entrega *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Data de entrega automática')).not.toBeInTheDocument();
+  });
+
   it('aceita endereco sem CEP estruturado', async () => {
     render(<CreateOrderForm />);
 

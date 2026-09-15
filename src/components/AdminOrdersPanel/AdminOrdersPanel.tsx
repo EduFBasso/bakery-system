@@ -14,6 +14,18 @@ const PAYMENT_FILTERS = [
 
 const formatOrderDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
 
+const getOrderNumberClass = (status: string) => {
+  switch (status) {
+    case 'CONFIRMED':
+    case 'DELIVERED':
+      return styles.orderNumberPaid;
+    case 'CANCELLED':
+      return styles.orderNumberCancelled;
+    default:
+      return styles.orderNumberPending;
+  }
+};
+
 interface AdminOrdersPanelProps {
   onRefresh?: (successMessage?: string) => void;
   onActionError?: (errorMessage: string) => void;
@@ -157,7 +169,11 @@ export function AdminOrdersPanel({ onRefresh, onActionError }: AdminOrdersPanelP
                   {orders.map((order) => (
                     <React.Fragment key={order.id}>
                       <tr className={styles.orderRow}>
-                        <td className={styles.orderNumber}>{order.order_number}</td>
+                        <td
+                          className={`${styles.orderNumber} ${getOrderNumberClass(order.status)}`}
+                        >
+                          {order.order_number}
+                        </td>
                         <td>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>

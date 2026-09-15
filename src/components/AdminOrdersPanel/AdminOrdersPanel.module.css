@@ -152,7 +152,30 @@
 
 .orderNumber {
   font-weight: 600;
-  color: var(--color-primary);
+}
+
+.orderNumberPaid {
+  color: var(--color-success);
+}
+
+.orderNumberPending {
+  color: #8f3f22;
+}
+
+.orderNumberCancelled {
+  color: var(--color-danger);
+}
+
+.table td.orderNumberPaid {
+  color: var(--color-success);
+}
+
+.table td.orderNumberPending {
+  color: #8f3f22;
+}
+
+.table td.orderNumberCancelled {
+  color: var(--color-danger);
 }
 
 .table td {

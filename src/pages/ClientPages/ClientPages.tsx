@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../hooks';
 import { BalanceCard } from '../../components/BalanceCard/BalanceCard';
 import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersList';
-import { TransactionHistory } from '../../components/CustomerTransactionHistory/CustomerTransactionHistory';
 import { SmartSection } from '../../components/SmartSection/SmartSection';
 import { CustomerProfileEditor } from '../../components/CustomerProfileEditor/CustomerProfileEditor';
 import { ApiService } from '../../services/api';
@@ -100,6 +99,14 @@ export function ClientPages() {
           <BalanceCard showHeader={false} />
         </SmartSection>
 
+        <SmartSection
+          title="Histórico de Pedidos"
+          isOpen={openSection === 'orders'}
+          onToggle={() => toggleSection('orders')}
+        >
+          <OrdersList />
+        </SmartSection>
+
         <div className={styles.newOrderButton}>
           <button
             onClick={() => navigate('/customer/orders/create')}
@@ -108,22 +115,6 @@ export function ClientPages() {
             🛒 Fazer Novo Pedido
           </button>
         </div>
-
-        <SmartSection
-          title="Histórico de Pagamentos"
-          isOpen={openSection === 'transactions'}
-          onToggle={() => toggleSection('transactions')}
-        >
-          <TransactionHistory />
-        </SmartSection>
-
-        <SmartSection
-          title="Histórico de Pedidos"
-          isOpen={openSection === 'orders'}
-          onToggle={() => toggleSection('orders')}
-        >
-          <OrdersList />
-        </SmartSection>
       </main>
     </div>
   );

@@ -24,7 +24,6 @@ export function CreateOrderForm() {
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [selectedQuantityInput, setSelectedQuantityInput] = useState<string>('');
 
-  const [deliveryDate, setDeliveryDate] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [deliveryAddressText, setDeliveryAddressText] = useState<string>('');
   const [openSection, setOpenSection] = useState<string | null>('products');
@@ -92,16 +91,6 @@ export function CreateOrderForm() {
   const toggleSection = (sectionId: string) => {
     setOpenSection((prev) => (prev === sectionId ? null : sectionId));
   };
-
-  useEffect(() => {
-    // Regra operacional: pedido feito hoje entrega no dia seguinte (D+1).
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const yyyy = tomorrow.getFullYear();
-    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const dd = String(tomorrow.getDate()).padStart(2, '0');
-    setDeliveryDate(`${yyyy}-${mm}-${dd}`);
-  }, []);
 
   useEffect(() => {
     if (!customer) {
@@ -293,21 +282,6 @@ export function CreateOrderForm() {
   const formatCreditStatus = (value: number) =>
     value < 0 ? 'Limite excedido' : formatCurrency(value);
 
-  const formatDeliveryDateLabel = (value: string) => {
-    if (!value) {
-      return '';
-    }
-    const [year, month, day] = value.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-    const weekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
-      .format(date)
-      .replace('.', '');
-    const dd = String(day).padStart(2, '0');
-    const mm = String(month).padStart(2, '0');
-    const yy = String(year).slice(-2);
-    return `${weekday}, ${dd}/${mm}/${yy}`;
-  };
-
   const handleSubmitOrder = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -319,11 +293,6 @@ export function CreateOrderForm() {
     // Validações
     if (cartItems.length === 0) {
       alert('Adicione pelo menos um item ao carrinho');
-      return;
-    }
-
-    if (!deliveryDate) {
-      alert('Defina a data de entrega');
       return;
     }
 
@@ -342,13 +311,12 @@ export function CreateOrderForm() {
     }
     const parsedDeliveryAddress = parseDeliveryAddress(trimmedDeliveryAddress);
 
-    // Preparar payload
-    const [year, month, day] = deliveryDate.split('-').map(Number);
-    const scheduledDelivery = new Date(year, month - 1, day, 8, 0, 0);
+    // Mantem o contrato atual da API sem exibir uma data de entrega ao cliente.
+    const technicalDeliveryDate = new Date();
 
     const payload: CreateOrderPayload = {
       customer_id: customer.id,
-      delivery_date: scheduledDelivery.toISOString(),
+      delivery_date: technicalDeliveryDate.toISOString(),
       payment_method: paymentMethod,
       notes,
       delivery_address_text: trimmedDeliveryAddress,
@@ -559,17 +527,6 @@ export function CreateOrderForm() {
             onToggle={() => toggleSection('delivery')}
           >
             <div className={styles.section}>
-              <div className={styles.formGroup}>
-                <label>Data de Entrega *</label>
-                <input
-                  type="text"
-                  value={formatDeliveryDateLabel(deliveryDate)}
-                  className={styles.dateAutoInput}
-                  readOnly
-                  aria-label="Data de entrega automática"
-                />
-              </div>
-
               <div className={styles.formGroup}>
                 <label>Endereço de Entrega *</label>
                 <textarea

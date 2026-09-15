@@ -50,7 +50,7 @@
 .pendingStatus { color: #8f3f22; }
 .paidStatus { color: var(--color-success); }
 .cancelledStatus { color: var(--color-danger); }
-.orderTitle { margin: 43px 0 0; color: #111827; font-size: 22px; text-align: center; }
+.orderTitle { margin: 43px 0 0; color: #111827; font-size: 26px; text-align: center; }
 .section { margin-top: 29px; break-inside: avoid; page-break-inside: avoid; }
 .section h2 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #cfcfcf; color: #1f1f1f; font-size: 19px; }
 .itemsSection { margin-top: 43px; }

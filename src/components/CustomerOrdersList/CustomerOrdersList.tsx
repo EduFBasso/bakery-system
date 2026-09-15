@@ -133,14 +133,18 @@ export function OrdersList() {
 
             <div className={styles.cardContent}>
               <div className={styles.itemsList}>
-                {order.items.slice(0, 2).map((item) => (
+                {order.items.map((item) => (
                   <div key={item.id} className={styles.itemPreview}>
-                    {item.product_name} x {item.quantity} · {formatUnitPrice(item.unit_price)}/un.
+                    <span>
+                      {item.product_name} x {item.quantity} · {formatUnitPrice(item.unit_price)}/un.
+                    </span>
+                    {item.product_description?.trim() && (
+                      <span className={styles.itemDescription}>
+                        {item.product_description.trim()}
+                      </span>
+                    )}
                   </div>
                 ))}
-                {order.items.length > 2 && (
-                  <div className={styles.itemPreview}>+{order.items.length - 2} mais</div>
-                )}
               </div>
 
               <div className={styles.amount}>{formatCurrency(order.total_value)}</div>

@@ -95,6 +95,13 @@
   line-height: 1.4;
 }
 
+.itemDescription {
+  display: block;
+  color: #777;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 .amount {
   font-size: 1.15rem;
   font-weight: 700;

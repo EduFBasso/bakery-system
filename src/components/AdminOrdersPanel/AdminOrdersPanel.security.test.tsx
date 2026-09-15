@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminOrdersPanel } from './AdminOrdersPanel';
 import type { AdminOrder } from '../../hooks/useAdminOrders';
+import styles from './AdminOrdersPanel.module.css';
 
 const updateStatusMock = vi.fn();
 const cancelOrderMock = vi.fn();
@@ -74,6 +75,25 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
       error: null,
       pagination: { count: 1, next: null, previous: null },
     });
+  });
+
+  it('colore o numero do pedido conforme o status de pagamento', () => {
+    mockedUseAdminOrders.mockReturnValue({
+      orders: [
+        makeOrder({ id: 1, order_number: 'ORD-PAID', status: 'CONFIRMED' }),
+        makeOrder({ id: 2, order_number: 'ORD-PENDING', status: 'PENDING' }),
+        makeOrder({ id: 3, order_number: 'ORD-CANCELLED', status: 'CANCELLED' }),
+      ],
+      loading: false,
+      error: null,
+      pagination: { count: 3, next: null, previous: null },
+    });
+
+    render(<AdminOrdersPanel />);
+
+    expect(screen.getByText('ORD-PAID')).toHaveClass(styles.orderNumberPaid);
+    expect(screen.getByText('ORD-PENDING')).toHaveClass(styles.orderNumberPending);
+    expect(screen.getByText('ORD-CANCELLED')).toHaveClass(styles.orderNumberCancelled);
   });
 
   it('nao exibe acoes de pagamento/cancelamento para pedido ja cancelado', async () => {

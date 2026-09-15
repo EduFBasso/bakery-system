@@ -84,6 +84,48 @@ describe('OrdersList', () => {
     expect(screen.getByText('✕ Cancelado')).toBeInTheDocument();
   });
 
+  it('lista todos os itens e suas descricoes sem resumo adicional', () => {
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [
+        makeOrder({
+          items: [
+            makeOrder().items[0],
+            {
+              id: 2,
+              product_id: 2,
+              product_name: 'Pao de Batata',
+              product_description: 'Pacote com 10 unidades',
+              quantity: 2,
+              unit_price: '8.00',
+              subtotal: '16.00',
+            },
+            {
+              id: 3,
+              product_id: 3,
+              product_name: 'Pao para Hot Dog',
+              product_description: 'Com catupiry',
+              quantity: 1,
+              unit_price: '6.00',
+              subtotal: '6.00',
+            },
+          ],
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<OrdersList />);
+
+    expect(screen.getByText(/Pao para Hamburguer x 3/)).toBeInTheDocument();
+    expect(screen.getByText(/Pao de Batata x 2/)).toBeInTheDocument();
+    expect(screen.getByText('Pacote com 10 unidades')).toBeInTheDocument();
+    expect(screen.getByText(/Pao para Hot Dog x 1/)).toBeInTheDocument();
+    expect(screen.getByText('Com catupiry')).toBeInTheDocument();
+    expect(screen.queryByText(/mais$/)).not.toBeInTheDocument();
+  });
+
   it('ordena pedidos por data crescente no componente', () => {
     mockedUseCustomerOrders.mockReturnValue({
       orders: [
