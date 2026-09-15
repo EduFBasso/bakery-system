@@ -50,12 +50,14 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('Pão francês')).toBeInTheDocument();
     expect(screen.getByText('Embalagem com 6 unidades')).toBeInTheDocument();
     expect(screen.getByText('Pendente')).toBeInTheDocument();
+    expect(screen.getAllByText('Endereço:')).toHaveLength(1);
+    expect(screen.getAllByText('Telefone:')).toHaveLength(1);
     expect(
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
     expect(screen.getAllByText('1')).toHaveLength(2);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
-    expect(screen.getByText(/Endereço:/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Endereço:/)).toHaveLength(1);
     expect(screen.getByText('Recebido por')).toBeInTheDocument();
     expect(screen.getByText('Data')).toBeInTheDocument();
     expect(screen.getByText('Assinatura')).toBeInTheDocument();

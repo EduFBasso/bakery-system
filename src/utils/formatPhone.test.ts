@@ -7,6 +7,10 @@ describe('formatPhone', () => {
     expect(formatPhone('19999998888')).toBe('(19) 99999-8888');
   });
 
+  it('formats a Brazilian phone with country code', () => {
+    expect(formatPhone('+5519999998888')).toBe('(19) 99999-8888');
+  });
+
   it('preserves invalid values and handles empty values', () => {
     expect(formatPhone('123')).toBe('123');
     expect(formatPhone()).toBe('Não informado');

@@ -22,7 +22,18 @@ const formatAddress = (profile: {
     profile.zip_code ? `CEP ${profile.zip_code}` : undefined,
   ]
     .filter(Boolean)
-    .join(' | ');
+    .join(' ');
+
+const readAdminPhone = (): string => {
+  try {
+    const storedUser = localStorage.getItem('bread_admin_user');
+    if (!storedUser) return '';
+    const user = JSON.parse(storedUser) as { phone?: string };
+    return user.phone || '';
+  } catch {
+    return '';
+  }
+};
 
 export function AdminOrderPrintPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -60,9 +71,10 @@ export function AdminOrderPrintPage() {
           customer_id: number;
         };
 
-        const [customerResponse, tenantProfile] = await Promise.all([
+        const [customerResponse, tenantProfile, professionalProfile] = await Promise.all([
           fetch(`/api/v1/bakery/customers/${loadedOrder.customer_id}/`, { headers }),
           ApiService.getTenantProfile(),
+          ApiService.getCurrentProfessional(),
         ]);
         if (!customerResponse.ok) throw new Error('Não foi possível carregar os dados do cliente.');
 
@@ -71,7 +83,7 @@ export function AdminOrderPrintPage() {
         setCompany({
           name: tenantProfile.trade_name || 'Panificadora',
           address: formatAddress(tenantProfile),
-          phone: tenantProfile.phone || '',
+          phone: professionalProfile.phone || readAdminPhone(),
         });
       } catch (loadError) {
         setError(loadError instanceof Error ? loadError.message : 'Erro ao carregar a impressão.');

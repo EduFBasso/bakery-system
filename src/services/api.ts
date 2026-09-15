@@ -141,6 +141,22 @@ export class ApiService {
     return this.requestTenantProfile('GET');
   }
 
+  static async getCurrentProfessional(): Promise<{ phone?: string }> {
+    const token = localStorage.getItem('bread_admin_token');
+    const response = await fetch('/register/professionals/me/', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || 'Erro ao carregar os dados do administrador.');
+    }
+    return payload as { phone?: string };
+  }
+
   static async updateTenantProfile(
     data: Partial<Omit<BakeryTenantProfile, 'name' | 'slug' | 'ecosystem'>>
   ): Promise<BakeryTenantProfile> {

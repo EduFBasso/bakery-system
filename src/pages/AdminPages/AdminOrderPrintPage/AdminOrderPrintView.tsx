@@ -110,7 +110,12 @@ export function AdminOrderPrintView({
                 <p className={styles.companyName}>{companyName}</p>
                 <p className={styles.companyAddress}>
                   {companyAddress || 'Endereço não informado'}
-                  {companyPhone && ` | Telefone: ${formatPhone(companyPhone)}`}
+                  {companyPhone && (
+                    <>
+                      <br />
+                      <strong>Telefone:</strong> {formatPhone(companyPhone)}
+                    </>
+                  )}
                 </p>
               </div>
               <p className={styles.paymentStatus}>{order.paid_at ? 'Pago' : 'Pendente'}</p>
