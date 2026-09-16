@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { AdminPasswordDialog } from '../../pages/AdminPages/AdminPasswordDialog/AdminPasswordDialog';
 import { AdminOrder, useAdminOrders } from '../../hooks/useAdminOrders';
+import { formatPhone } from '../../utils/formatPhone';
 import { useUpdateOrderStatus } from '../../hooks/useUpdateOrderStatus';
 import { useCancelOrder } from '../../hooks/useCancelOrder';
 import styles from './AdminOrdersPanel.module.css';
@@ -123,7 +124,7 @@ export function AdminOrdersPanel({
           <div className={styles.searchField}>
             <input
               type="text"
-              placeholder="🔍 Pesquisar por apelido do cliente..."
+              placeholder="🔍 Pesquisar por cliente..."
               value={filters.customer_nickname}
               onChange={(e) =>
                 (() => {
@@ -183,6 +184,7 @@ export function AdminOrdersPanel({
                     <th>Pedido</th>
                     <th>Data</th>
                     <th>Cliente</th>
+                    <th>Telefone</th>
                     <th>Total</th>
                     <th className={styles.actionsHeader}>Ações</th>
                   </tr>
@@ -194,6 +196,7 @@ export function AdminOrdersPanel({
                         <td className={styles.orderNumber}>{order.order_number}</td>
                         <td className={styles.orderDate}>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
+                        <td>{formatPhone(order.customer_phone)}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
                           {order.paid_at && (

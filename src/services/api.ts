@@ -55,6 +55,7 @@ export class ApiService {
       const apiMessage =
         parsedBody?.detail ||
         (Array.isArray(parsedBody?.non_field_errors) ? parsedBody.non_field_errors[0] : null) ||
+        (Array.isArray(parsedBody?.nickname) ? parsedBody.nickname[0] : null) ||
         'Erro ao registrar cliente';
       throw new Error(String(apiMessage));
     }

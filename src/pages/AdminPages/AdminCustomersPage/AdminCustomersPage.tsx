@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAdminCustomers } from '../../../hooks/useAdminCustomers';
 import { formatCurrency } from '../../../utils/formatCurrency';
+import { formatPhone } from '../../../utils/formatPhone';
 import AdminBlockConfirmModal from '../AdminBlockConfirmModal/AdminBlockConfirmModal';
 import { ActiveCustomerControls } from './ActiveCustomerControls';
 import { PendingCustomerAction } from './PendingCustomerAction';
@@ -183,7 +184,7 @@ export function AdminCustomersPage({
       <div className={styles.searchActions}>
         <input
           type="text"
-          placeholder="🔍 Buscar por nome ou apelido..."
+          placeholder="🔍 Buscar por cliente..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className={styles.searchInput}
@@ -238,7 +239,8 @@ export function AdminCustomersPage({
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Apelido</th>
+                  <th>CLIENTE</th>
+                  <th>Telefone</th>
                   <th>
                     {activeSubTab === 'active' ? (
                       <button
@@ -271,6 +273,7 @@ export function AdminCustomersPage({
                     <td>
                       <strong>{customer.nickname}</strong>
                     </td>
+                    <td>{formatPhone(customer.phone)}</td>
                     <td>
                       {activeSubTab === 'pending' ? (
                         '—'

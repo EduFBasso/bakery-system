@@ -5,6 +5,7 @@ export interface AdminOrder {
   order_number: string;
   customer_id: number;
   customer_nickname: string;
+  customer_phone: string;
   status: string;
   status_display: string;
   created_at: string;

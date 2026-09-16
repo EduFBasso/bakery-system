@@ -33,6 +33,7 @@ const makeOrder = (overrides: Partial<AdminOrder> = {}): AdminOrder => ({
   order_number: 'ORD-001',
   customer_id: 1,
   customer_nickname: 'Cliente A',
+  customer_phone: '19999999999',
   status: 'PENDING',
   status_display: 'Pendente',
   created_at: '2026-07-15T10:00:00Z',
