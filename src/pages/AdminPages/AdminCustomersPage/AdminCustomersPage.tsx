@@ -42,6 +42,7 @@ export function AdminCustomersPage({
   } | null>(null);
   const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
   const [openBalanceOnly, setOpenBalanceOnly] = useState(initialFilter === 'EM_ABERTO');
+  const [includeOrderDetails, setIncludeOrderDetails] = useState(false);
 
   useEffect(() => {
     setExpandedCustomerId(null);
@@ -130,7 +131,18 @@ export function AdminCustomersPage({
   );
 
   const handleOpenBalanceReport = () => {
-    window.open('/admin/customers/open-balance/print', '_blank', 'noopener,noreferrer');
+    const params = new URLSearchParams({
+      customer_status: activeSubTab === 'blocked' ? 'BLOQUEADO' : 'APROVADO',
+      mode: includeOrderDetails ? 'complete' : 'summary',
+    });
+    if (activeSubTab === 'active') {
+      params.set('has_open_balance', 'true');
+    }
+    window.open(
+      `/admin/customers/open-balance/print?${params.toString()}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
   };
 
   return (
@@ -175,15 +187,28 @@ export function AdminCustomersPage({
           onChange={(e) => setSearchInput(e.target.value)}
           className={styles.searchInput}
         />
-        {activeSubTab === 'active' && openBalanceOnly && (
-          <button
-            type="button"
-            className={styles.reportButton}
-            disabled={!hasOpenBalance}
-            onClick={handleOpenBalanceReport}
-          >
-            🖨️ Imprimir relatório de saldo
-          </button>
+        {((activeSubTab === 'active' && openBalanceOnly) || activeSubTab === 'blocked') && (
+          <>
+            <label className={styles.reportModeLabel}>
+              <input
+                type="checkbox"
+                checked={includeOrderDetails}
+                onChange={(event) => setIncludeOrderDetails(event.target.checked)}
+              />
+              Incluir detalhes dos pedidos
+            </label>
+            <button
+              type="button"
+              className={styles.reportButton}
+              disabled={activeSubTab === 'active' && !hasOpenBalance}
+              onClick={handleOpenBalanceReport}
+            >
+              🖨️{' '}
+              {activeSubTab === 'blocked'
+                ? 'Abrir relatório de bloqueados'
+                : 'Abrir relatório de saldo'}
+            </button>
+          </>
         )}
       </div>
 

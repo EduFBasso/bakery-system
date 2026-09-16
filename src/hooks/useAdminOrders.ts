@@ -17,6 +17,7 @@ export interface AdminOrder {
   shipping_state: string;
   total_value: string;
   payment_method: string;
+  notes?: string;
   paid_at?: string | null;
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
@@ -32,6 +33,7 @@ export interface AdminOrdersResponse {
 }
 
 export function useAdminOrders(filters?: {
+  enabled?: boolean;
   status?: string;
   customer_nickname?: string;
   customer_id?: number;
@@ -42,6 +44,7 @@ export function useAdminOrders(filters?: {
   page?: number;
   page_size?: number;
 }) {
+  const enabled = filters?.enabled ?? true;
   const status = filters?.status;
   const customerNickname = filters?.customer_nickname;
   const customerId = filters?.customer_id;
@@ -61,6 +64,13 @@ export function useAdminOrders(filters?: {
   });
 
   useEffect(() => {
+    if (!enabled) {
+      setOrders([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const adminToken = localStorage.getItem('bread_admin_token');
 
     if (!adminToken) {
@@ -134,7 +144,7 @@ export function useAdminOrders(filters?: {
     };
 
     fetchOrders();
-  }, [status, customerNickname, customerId, openOnly, dateFrom, dateTo, page, pageSize]);
+  }, [enabled, status, customerNickname, customerId, openOnly, dateFrom, dateTo, page, pageSize]);
 
   return {
     orders,
