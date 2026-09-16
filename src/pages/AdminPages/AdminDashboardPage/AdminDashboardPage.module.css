@@ -70,6 +70,12 @@
 	text-decoration: underline;
 }
 
+.kpiBalanceAction:disabled {
+	color: var(--color-admin-text-muted);
+	cursor: not-allowed;
+	opacity: 0.65;
+}
+
 .kpiCard:hover,
 .kpiButton:hover {
 	transform: translateY(-4px);

@@ -67,6 +67,8 @@ export function AdminDashboardPage({
     onNavigateToCustomers?.('EM_ABERTO');
   };
 
+  const hasActiveOpenBalance = Number(stats?.active_open_balance || 0) > 0;
+
   const handleBlockedClick = () => {
     onNavigateToCustomers?.('BLOQUEADO');
   };
@@ -92,6 +94,7 @@ export function AdminDashboardPage({
           <button
             className={styles.kpiBalanceAction}
             onClick={handleOpenBalanceClick}
+            disabled={!hasActiveOpenBalance}
             title="Clique para ver clientes com saldo em aberto"
           >
             Saldo em aberto: {formatCurrency(stats?.active_open_balance)}

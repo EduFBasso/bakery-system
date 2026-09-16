@@ -5,12 +5,14 @@ import { CustomerLoginPage } from './pages/ClientPages/CustomerLoginPage';
 import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage/CustomerCreateOrderPage';
 import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummaryPage/AdminCustomerSummaryPage';
 import { AdminOrderPrintPage } from './pages/AdminPages/AdminOrderPrintPage/AdminOrderPrintPage';
+import { AdminOpenBalanceReportPage } from './pages/AdminPages/AdminOpenBalanceReportPage/AdminOpenBalanceReportPage';
 import './App.css';
 
 function AdminRoute({
   summary = false,
   orderPrint = false,
-}: { summary?: boolean; orderPrint?: boolean } = {}) {
+  openBalanceReport = false,
+}: { summary?: boolean; orderPrint?: boolean; openBalanceReport?: boolean } = {}) {
   const hasToken = !!localStorage.getItem('bread_admin_token');
 
   if (!hasToken) {
@@ -19,6 +21,7 @@ function AdminRoute({
 
   if (summary) return <AdminCustomerSummaryPage />;
   if (orderPrint) return <AdminOrderPrintPage />;
+  if (openBalanceReport) return <AdminOpenBalanceReportPage />;
   return <AdminPages />;
 }
 
@@ -55,6 +58,7 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute />} />
         <Route path="/admin/customers/:customerId/summary" element={<AdminRoute summary />} />
         <Route path="/admin/orders/:orderId/print" element={<AdminRoute orderPrint />} />
+        <Route path="/admin/customers/open-balance/print" element={<AdminRoute openBalanceReport />} />
 
         {/* Cliente */}
         <Route path="/customer/dashboard" element={<CustomerRoute />} />

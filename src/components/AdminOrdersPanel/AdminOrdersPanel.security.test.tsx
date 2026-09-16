@@ -149,6 +149,58 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     expect(screen.getByRole('columnheader', { name: 'Total' })).toBeInTheDocument();
   });
 
+  it('exibe a data de pagamento antes de detalhes no filtro confirmado', async () => {
+    mockedUseAdminOrders.mockReturnValue({
+      orders: [
+        makeOrder({
+          status: 'CONFIRMED',
+          paid_at: '2026-09-12T12:00:00Z',
+        }),
+      ],
+      loading: false,
+      error: null,
+      pagination: { count: 1, next: null, previous: null },
+    });
+
+    const user = userEvent.setup();
+    render(<AdminOrdersPanel />);
+    await user.click(screen.getByRole('button', { name: 'Pagamentos Confirmados' }));
+
+    expect(screen.getByText('PAGO EM')).toBeInTheDocument();
+    expect(screen.getByText('12/09/2026')).toBeInTheDocument();
+    expect(
+      screen
+        .getByText('PAGO EM')
+        .compareDocumentPosition(screen.getByRole('button', { name: '📋 Detalhes' }))
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('exibe a data de cancelamento antes de detalhes no filtro cancelado', async () => {
+    mockedUseAdminOrders.mockReturnValue({
+      orders: [
+        makeOrder({
+          status: 'CANCELLED',
+          cancelled_at: '2026-09-13T12:00:00Z',
+        }),
+      ],
+      loading: false,
+      error: null,
+      pagination: { count: 1, next: null, previous: null },
+    });
+
+    const user = userEvent.setup();
+    render(<AdminOrdersPanel />);
+    await user.click(screen.getByRole('button', { name: 'Cancelados' }));
+
+    expect(screen.getByText('CANCELADO EM')).toBeInTheDocument();
+    expect(screen.getByText('13/09/2026')).toBeInTheDocument();
+    expect(
+      screen
+        .getByText('CANCELADO EM')
+        .compareDocumentPosition(screen.getByRole('button', { name: '📋 Detalhes' }))
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it('mantem bloqueio de acoes para pedido cancelado em viewport mobile', async () => {
     Object.defineProperty(window, 'innerWidth', { value: 375, configurable: true });
     window.dispatchEvent(new Event('resize'));

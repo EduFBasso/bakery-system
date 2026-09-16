@@ -197,6 +197,18 @@ export function AdminOrdersPanel({
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
+                          {filters.status === 'PAID' && order.paid_at && (
+                            <span className={styles.paidAt}>
+                              <span className={styles.paidAtLabel}>PAGO EM</span>
+                              {formatOrderDate(order.paid_at)}
+                            </span>
+                          )}
+                          {filters.status === 'CANCELLED' && order.cancelled_at && (
+                            <span className={styles.cancelledAt}>
+                              <span className={styles.cancelledAtLabel}>CANCELADO EM</span>
+                              {formatOrderDate(order.cancelled_at)}
+                            </span>
+                          )}
                           <button
                             type="button"
                             className={styles.actionButton}

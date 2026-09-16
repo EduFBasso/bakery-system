@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-interface Customer {
+export interface AdminCustomer {
   id: number;
   nickname: string;
   customer_type: string;
@@ -60,9 +60,9 @@ const normalizeStatus = (value?: string) => {
 
 const isPending = (value?: string) => normalizeStatus(value) === STATUS_PENDING;
 export function useAdminCustomers(options?: UseAdminCustomersOptions) {
-  const [pendingCustomers, setPendingCustomers] = useState<Customer[]>([]);
-  const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
-  const [customerDetail, setCustomerDetail] = useState<Customer | null>(null);
+  const [pendingCustomers, setPendingCustomers] = useState<AdminCustomer[]>([]);
+  const [allCustomers, setAllCustomers] = useState<AdminCustomer[]>([]);
+  const [customerDetail, setCustomerDetail] = useState<AdminCustomer | null>(null);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,11 +82,11 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
     };
   };
 
-  const parseRows = (payload: unknown): Customer[] => {
+  const parseRows = (payload: unknown): AdminCustomer[] => {
     if (Array.isArray(payload)) {
       return payload.map((row) => ({
-        ...(row as Customer),
-        status: normalizeStatus((row as Customer).status),
+        ...(row as AdminCustomer),
+        status: normalizeStatus((row as AdminCustomer).status),
       }));
     }
     if (
@@ -94,7 +94,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
       typeof payload === 'object' &&
       Array.isArray((payload as { results?: unknown }).results)
     ) {
-      return (payload as { results: Customer[] }).results.map((row) => ({
+      return (payload as { results: AdminCustomer[] }).results.map((row) => ({
         ...row,
         status: normalizeStatus(row.status),
       }));
@@ -160,7 +160,12 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
   }, []);
 
   const fetchAllCustomers = useCallback(
-    async (filters?: { status?: string; search?: string; has_open_balance?: boolean }) => {
+    async (filters?: {
+      status?: string;
+      search?: string;
+      has_open_balance?: boolean;
+      page_size?: number;
+    }) => {
       setLoading(true);
       setError(null);
 
@@ -169,6 +174,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
         if (filters?.status) params.append('status', filters.status);
         if (filters?.search) params.append('search', filters.search);
         if (filters?.has_open_balance) params.append('has_open_balance', 'true');
+        if (filters?.page_size) params.append('page_size', filters.page_size.toString());
 
         const url = `${CUSTOMERS_ENDPOINT}${params.toString() ? `?${params.toString()}` : ''}`;
         const response = await fetch(url, {
@@ -211,7 +217,7 @@ export function useAdminCustomers(options?: UseAdminCustomersOptions) {
         throw new Error(`Erro ao carregar detalhe do cliente: ${response.status}`);
       }
 
-      const customer: Customer = await response.json();
+      const customer: AdminCustomer = await response.json();
       setCustomerDetail(customer);
       return customer;
     } catch (err) {

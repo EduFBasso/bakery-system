@@ -51,8 +51,12 @@ export function AdminCustomersPage({
         : activeSubTab === 'blocked'
           ? 'BLOQUEADO'
           : 'APROVADO';
-    fetchAllCustomers({ status, search: searchInput || undefined });
-  }, [activeSubTab, searchInput, fetchAllCustomers]);
+    fetchAllCustomers({
+      status,
+      search: searchInput || undefined,
+      has_open_balance: activeSubTab === 'active' && openBalanceOnly,
+    });
+  }, [activeSubTab, searchInput, openBalanceOnly, fetchAllCustomers]);
 
   useEffect(() => {
     setOpenBalanceOnly(activeSubTab === 'active' && initialFilter === 'EM_ABERTO');
@@ -121,6 +125,13 @@ export function AdminCustomersPage({
           (customer) => Number(customer.financial_used || customer.current_balance || 0) > 0
         )
       : allCustomers;
+  const hasOpenBalance = allCustomers.some(
+    (customer) => Number(customer.financial_used || customer.current_balance || 0) > 0
+  );
+
+  const handleOpenBalanceReport = () => {
+    window.open('/admin/customers/open-balance/print', '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div>
@@ -156,7 +167,7 @@ export function AdminCustomersPage({
       </div>
 
       {/* Search Input */}
-      <div className={styles.searchBox}>
+      <div className={styles.searchActions}>
         <input
           type="text"
           placeholder="🔍 Buscar por nome ou apelido..."
@@ -164,6 +175,16 @@ export function AdminCustomersPage({
           onChange={(e) => setSearchInput(e.target.value)}
           className={styles.searchInput}
         />
+        {activeSubTab === 'active' && openBalanceOnly && (
+          <button
+            type="button"
+            className={styles.reportButton}
+            disabled={!hasOpenBalance}
+            onClick={handleOpenBalanceReport}
+          >
+            🖨️ Imprimir relatório de saldo
+          </button>
+        )}
       </div>
 
       {/* Table Section */}
@@ -200,6 +221,7 @@ export function AdminCustomersPage({
                           openBalanceOnly ? styles.openBalanceHeaderActive : ''
                         }`}
                         aria-pressed={openBalanceOnly}
+                        disabled={!openBalanceOnly && !hasOpenBalance}
                         onClick={() => setOpenBalanceOnly((currentValue) => !currentValue)}
                       >
                         EM ABERTO

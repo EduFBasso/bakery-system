@@ -43,6 +43,33 @@
   background-color: var(--color-admin-accent);
   color: white;
 }
+.searchActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.searchActions .searchInput {
+  flex: 1;
+}
+.reportButton {
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--color-admin-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.reportButton:hover:not(:disabled) {
+  background: var(--color-admin-accent-hover);
+}
+.reportButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
 .searchBox {
   margin-bottom: 1.5rem;
 }
@@ -118,6 +145,12 @@
 .openBalanceHeader:hover,
 .openBalanceHeader:focus-visible {
   text-decoration: underline;
+}
+.openBalanceHeader:disabled {
+  color: var(--color-text-light);
+  cursor: not-allowed;
+  opacity: 0.6;
+  text-decoration: none;
 }
 .openBalanceHeaderActive {
   padding: 0.35rem 0.6rem;
