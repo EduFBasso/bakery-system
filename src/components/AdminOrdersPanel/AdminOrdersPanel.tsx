@@ -7,6 +7,7 @@ import { useCancelOrder } from '../../hooks/useCancelOrder';
 import styles from './AdminOrdersPanel.module.css';
 
 const PAYMENT_FILTERS = [
+  { value: 'ALL', label: 'Todos os Pedidos', icon: '📋' },
   { value: 'PAID', label: 'Pagamentos Confirmados', icon: '✅' },
   { value: 'PENDING', label: 'Pagamentos Pendentes', icon: '⏳' },
   { value: 'CANCELLED', label: 'Cancelados', icon: '🚫' },
@@ -28,18 +29,23 @@ const getOrderNumberClass = (status: string) => {
 
 interface AdminOrdersPanelProps {
   initialCustomerNickname?: string;
+  initialCustomerId?: number;
+  initialStatus?: string;
   onRefresh?: (successMessage?: string) => void;
   onActionError?: (errorMessage: string) => void;
 }
 
 export function AdminOrdersPanel({
   initialCustomerNickname,
+  initialCustomerId,
+  initialStatus = 'PENDING',
   onRefresh,
   onActionError,
 }: AdminOrdersPanelProps) {
   const [filters, setFilters] = useState({
-    status: 'PENDING',
+    status: initialStatus,
     customer_nickname: initialCustomerNickname || '',
+    customer_id: initialCustomerId,
     date_from: '',
     date_to: '',
     page: 1,

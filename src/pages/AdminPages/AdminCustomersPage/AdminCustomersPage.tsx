@@ -9,7 +9,7 @@ import styles from './AdminCustomersPage.module.css';
 
 interface AdminCustomersPageProps {
   initialFilter?: string;
-  onNavigateToOrders?: (customerNickname: string) => void;
+  onNavigateToOrders?: (customerNickname: string, customerId?: number) => void;
   onError?: (error: string) => void;
   onSuccess?: (message: string) => void;
 }
@@ -91,8 +91,9 @@ export function AdminCustomersPage({
     });
   };
 
-  const handleOpenSummary = (customerId: number) => {
-    window.open(`/admin/customers/${customerId}/summary`, '_blank', 'noopener,noreferrer');
+  const handleOpenCustomerOrders = (customerNickname: string) => {
+    const customer = allCustomers.find((item) => item.nickname === customerNickname);
+    onNavigateToOrders?.(customerNickname, customer?.id);
   };
 
   const handleOpenApproveFlow = (customer: { id: number; nickname: string; phone?: string }) => {
@@ -277,7 +278,7 @@ export function AdminCustomersPage({
                         <button
                           type="button"
                           className={styles.balanceLink}
-                          onClick={() => onNavigateToOrders?.(customer.nickname)}
+                          onClick={() => onNavigateToOrders?.(customer.nickname, customer.id)}
                           aria-label={`Ver pedidos pendentes de ${customer.nickname}`}
                         >
                           {formatCurrency(customer.financial_used || customer.current_balance)}
@@ -324,9 +325,9 @@ export function AdminCustomersPage({
                         <div className={styles.primaryActions}>
                           <button
                             className={`${styles.detailsButton} ${styles.tableActionButton}`}
-                            onClick={() => handleOpenSummary(customer.id)}
+                            onClick={() => handleOpenCustomerOrders(customer.nickname)}
                           >
-                            📋 Detalhes do Cliente
+                            📋 Pedidos do Cliente
                           </button>
                           {customer.status === 'PENDENTE' && (
                             <>

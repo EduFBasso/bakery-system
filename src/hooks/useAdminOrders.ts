@@ -85,7 +85,7 @@ export function useAdminOrders(filters?: {
       try {
         // Build query string
         const params = new URLSearchParams();
-        if (status) {
+        if (status && status !== 'ALL') {
           const statusValue = status === 'PAID' ? 'CONFIRMED,DELIVERED' : status;
           params.append('status', statusValue);
         }

@@ -49,6 +49,7 @@ export function AdminPages() {
   const [activeTab, setActiveTab] = useState<AdminTab>(readStoredAdminTab);
   const [customerFilter, setCustomerFilter] = useState<string | undefined>();
   const [orderCustomerNickname, setOrderCustomerNickname] = useState<string | undefined>();
+  const [orderCustomerId, setOrderCustomerId] = useState<number | undefined>();
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -64,8 +65,9 @@ export function AdminPages() {
     setActiveTab('customers');
   };
 
-  const handleNavigateToOrders = (customerNickname: string) => {
+  const handleNavigateToOrders = (customerNickname: string, customerId?: number) => {
     setOrderCustomerNickname(customerNickname);
+    setOrderCustomerId(customerId);
     setActiveTab('orders');
     sessionStorage.setItem('bread_admin_active_tab', 'orders');
   };
@@ -73,6 +75,7 @@ export function AdminPages() {
   const handleTabChange = (tab: AdminTab) => {
     if (tab !== 'orders') {
       setOrderCustomerNickname(undefined);
+      setOrderCustomerId(undefined);
     }
     setActiveTab(tab);
     sessionStorage.setItem('bread_admin_active_tab', tab);
@@ -134,7 +137,13 @@ export function AdminPages() {
 
       {activeTab === 'products' && <AdminProductsPage />}
 
-      {activeTab === 'orders' && <AdminOrdersPage customerNickname={orderCustomerNickname} />}
+      {activeTab === 'orders' && (
+        <AdminOrdersPage
+          customerNickname={orderCustomerNickname}
+          customerId={orderCustomerId}
+          initialStatus="ALL"
+        />
+      )}
 
       {activeTab === 'settings' && (
         <AdminSettingsPage
