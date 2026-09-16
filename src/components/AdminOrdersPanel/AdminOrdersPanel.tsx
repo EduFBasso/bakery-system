@@ -10,22 +10,10 @@ const PAYMENT_FILTERS = [
   { value: 'ALL', label: 'Todos os Pedidos', icon: '📋' },
   { value: 'PAID', label: 'Pagamentos Confirmados', icon: '✅' },
   { value: 'PENDING', label: 'Pagamentos Pendentes', icon: '⏳' },
-  { value: 'CANCELLED', label: 'Cancelados', icon: '🚫' },
+  { value: 'CANCELLED', label: 'Pagamentos Cancelados', icon: '🚫' },
 ];
 
 const formatOrderDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
-
-const getOrderNumberClass = (status: string) => {
-  switch (status) {
-    case 'CONFIRMED':
-    case 'DELIVERED':
-      return styles.orderNumberPaid;
-    case 'CANCELLED':
-      return styles.orderNumberCancelled;
-    default:
-      return styles.orderNumberPending;
-  }
-};
 
 interface AdminOrdersPanelProps {
   initialCustomerNickname?: string;
@@ -33,6 +21,7 @@ interface AdminOrdersPanelProps {
   initialStatus?: string;
   onRefresh?: (successMessage?: string) => void;
   onActionError?: (errorMessage: string) => void;
+  onCustomerFilterChange?: (customerNickname: string) => void;
 }
 
 export function AdminOrdersPanel({
@@ -41,6 +30,7 @@ export function AdminOrdersPanel({
   initialStatus = 'PENDING',
   onRefresh,
   onActionError,
+  onCustomerFilterChange,
 }: AdminOrdersPanelProps) {
   const [filters, setFilters] = useState({
     status: initialStatus,
@@ -136,7 +126,11 @@ export function AdminOrdersPanel({
               placeholder="🔍 Pesquisar por apelido do cliente..."
               value={filters.customer_nickname}
               onChange={(e) =>
-                setFilters({ ...filters, customer_nickname: e.target.value, page: 1 })
+                (() => {
+                  const customerNickname = e.target.value;
+                  setFilters({ ...filters, customer_nickname: customerNickname, page: 1 });
+                  onCustomerFilterChange?.(customerNickname);
+                })()
               }
               className={styles.filterInput}
             />
@@ -145,7 +139,10 @@ export function AdminOrdersPanel({
                 type="button"
                 className={styles.clearSearchButton}
                 aria-label="Limpar pesquisa de cliente"
-                onClick={() => setFilters({ ...filters, customer_nickname: '', page: 1 })}
+                onClick={() => {
+                  setFilters({ ...filters, customer_nickname: '', page: 1 });
+                  onCustomerFilterChange?.('');
+                }}
               >
                 ×
               </button>
@@ -194,22 +191,20 @@ export function AdminOrdersPanel({
                   {orders.map((order) => (
                     <React.Fragment key={order.id}>
                       <tr className={styles.orderRow}>
-                        <td
-                          className={`${styles.orderNumber} ${getOrderNumberClass(order.status)}`}
-                        >
+                        <td className={styles.orderNumber}>
                           {order.order_number}
                         </td>
                         <td className={styles.orderDate}>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
                         <td className={styles.actions}>
-                          {filters.status === 'PAID' && order.paid_at && (
+                          {order.paid_at && (
                             <span className={styles.paidAt}>
                               <span className={styles.paidAtLabel}>PAGO EM</span>
                               {formatOrderDate(order.paid_at)}
                             </span>
                           )}
-                          {filters.status === 'CANCELLED' && order.cancelled_at && (
+                          {order.cancelled_at && (
                             <span className={styles.cancelledAt}>
                               <span className={styles.cancelledAtLabel}>CANCELADO EM</span>
                               {formatOrderDate(order.cancelled_at)}

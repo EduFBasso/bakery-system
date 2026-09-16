@@ -3,31 +3,42 @@
 }
 
 .customerSummary {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+}
+.customerSummary h2 {
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+.customerSummaryGrid {
   display: grid;
   grid-template-columns: minmax(180px, 1.4fr) repeat(2, minmax(150px, 1fr));
   gap: 1px;
-  margin-bottom: 1rem;
-  border: 1px solid var(--color-admin-border);
-  border-radius: 6px;
   overflow: hidden;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 4px;
   background: var(--color-admin-border);
 }
-.customerSummary > div {
+.customerSummaryGrid > div {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.75rem 1rem;
   background: #fff;
 }
-.customerSummary span {
+.customerSummaryGrid span {
   color: var(--color-admin-text-muted);
   font-size: 0.75rem;
 }
-.customerSummary strong {
+.customerSummaryGrid strong {
   color: var(--color-text);
   font-size: 0.95rem;
 }
-.customerSummary > div:not(:first-child) strong {
+.customerSummaryGrid > div:not(:first-child) strong {
   color: var(--color-admin-accent);
 }
 
@@ -36,5 +47,5 @@
   .container {
     width: 100%;
   }
-  .customerSummary { grid-template-columns: 1fr; }
+  .customerSummaryGrid { grid-template-columns: 1fr; }
 }

@@ -77,7 +77,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     });
   });
 
-  it('colore o numero do pedido conforme o status de pagamento', () => {
+  it('mantem o numero do pedido neutro e exibe datas nos indicadores', () => {
     mockedUseAdminOrders.mockReturnValue({
       orders: [
         makeOrder({ id: 1, order_number: 'ORD-PAID', status: 'CONFIRMED' }),
@@ -91,9 +91,9 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
 
     render(<AdminOrdersPanel />);
 
-    expect(screen.getByText('ORD-PAID')).toHaveClass(styles.orderNumberPaid);
-    expect(screen.getByText('ORD-PENDING')).toHaveClass(styles.orderNumberPending);
-    expect(screen.getByText('ORD-CANCELLED')).toHaveClass(styles.orderNumberCancelled);
+    expect(screen.getByText('ORD-PAID')).toHaveClass(styles.orderNumber);
+    expect(screen.getByText('ORD-PENDING')).toHaveClass(styles.orderNumber);
+    expect(screen.getByText('ORD-CANCELLED')).toHaveClass(styles.orderNumber);
   });
 
   it('abre com pendentes e permite limpar o apelido preenchido', async () => {
@@ -140,7 +140,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
       'true'
     );
     expect(screen.getByRole('button', { name: 'Pagamentos Confirmados' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancelados' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pagamentos Cancelados' })).toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'Endereço' })).not.toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Data' })).toBeInTheDocument();
@@ -190,7 +190,7 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
 
     const user = userEvent.setup();
     render(<AdminOrdersPanel />);
-    await user.click(screen.getByRole('button', { name: 'Cancelados' }));
+    await user.click(screen.getByRole('button', { name: 'Pagamentos Cancelados' }));
 
     expect(screen.getByText('CANCELADO EM')).toBeInTheDocument();
     expect(screen.getByText('13/09/2026')).toBeInTheDocument();
