@@ -191,9 +191,7 @@ export function AdminOrdersPanel({
                   {orders.map((order) => (
                     <React.Fragment key={order.id}>
                       <tr className={styles.orderRow}>
-                        <td className={styles.orderNumber}>
-                          {order.order_number}
-                        </td>
+                        <td className={styles.orderNumber}>{order.order_number}</td>
                         <td className={styles.orderDate}>{formatOrderDate(order.created_at)}</td>
                         <td className={styles.customerCell}>{order.customer_nickname}</td>
                         <td className={styles.value}>{formatCurrency(order.total_value)}</td>
