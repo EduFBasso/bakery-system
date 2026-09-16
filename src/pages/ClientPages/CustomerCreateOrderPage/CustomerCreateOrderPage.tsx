@@ -26,7 +26,7 @@ export function CustomerCreateOrderPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerMainRow}>
-          <h1>{customer.nickname}</h1>
+          <h1>Cliente: {customer.nickname}</h1>
         </div>
         <p>Novo Pedido</p>
       </div>

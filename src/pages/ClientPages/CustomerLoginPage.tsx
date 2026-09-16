@@ -64,7 +64,7 @@ export function CustomerLoginPage() {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Apelido da Empresa</label>
+            <label className={styles.label}>Cliente</label>
             <input
               type="text"
               value={nickname}
@@ -74,9 +74,7 @@ export function CustomerLoginPage() {
               className={styles.input}
               autoFocus
             />
-            <small className={styles.hint}>
-              Digite o apelido da sua empresa cadastrado no sistema
-            </small>
+            <small className={styles.hint}>Digite o cliente cadastrado no sistema</small>
           </div>
 
           <div className={styles.formGroup}>

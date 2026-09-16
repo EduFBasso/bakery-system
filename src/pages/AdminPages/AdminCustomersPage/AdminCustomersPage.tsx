@@ -26,8 +26,14 @@ export function AdminCustomersPage({
     onSuccess,
   });
 
-  const [activeSubTab, setActiveSubTab] = useState<'active' | 'pending' | 'blocked'>(
-    initialFilter === 'PENDENTE' ? 'pending' : initialFilter === 'BLOQUEADO' ? 'blocked' : 'active'
+  const [activeSubTab, setActiveSubTab] = useState<'all' | 'active' | 'pending' | 'blocked'>(
+    initialFilter === 'PENDENTE'
+      ? 'pending'
+      : initialFilter === 'BLOQUEADO'
+        ? 'blocked'
+        : initialFilter === 'TODOS'
+          ? 'all'
+          : 'active'
   );
   const [searchInput, setSearchInput] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -52,7 +58,9 @@ export function AdminCustomersPage({
         ? 'PENDENTE'
         : activeSubTab === 'blocked'
           ? 'BLOQUEADO'
-          : 'APROVADO';
+          : activeSubTab === 'active'
+            ? 'APROVADO'
+            : undefined;
     fetchAllCustomers({
       status,
       search: searchInput || undefined,
@@ -87,7 +95,9 @@ export function AdminCustomersPage({
           ? 'PENDENTE'
           : activeSubTab === 'blocked'
             ? 'BLOQUEADO'
-            : 'APROVADO',
+            : activeSubTab === 'active'
+              ? 'APROVADO'
+              : undefined,
       search: searchInput || undefined,
     });
   };
@@ -95,6 +105,10 @@ export function AdminCustomersPage({
   const handleOpenCustomerOrders = (customerNickname: string) => {
     const customer = allCustomers.find((item) => item.nickname === customerNickname);
     onNavigateToOrders?.(customerNickname, customer?.id);
+  };
+
+  const handleOpenCustomerDetails = (customerId: number) => {
+    window.open(`/admin/customers/${customerId}/summary`, '_blank', 'noopener,noreferrer');
   };
 
   const handleOpenApproveFlow = (customer: { id: number; nickname: string; phone?: string }) => {
@@ -118,7 +132,9 @@ export function AdminCustomersPage({
         ? 'PENDENTE'
         : activeSubTab === 'blocked'
           ? 'BLOQUEADO'
-          : 'APROVADO';
+          : activeSubTab === 'active'
+            ? 'APROVADO'
+            : undefined;
     fetchAllCustomers({ status, search: searchInput || undefined });
   };
 
@@ -160,6 +176,12 @@ export function AdminCustomersPage({
 
       {/* Sub-tabs: estado do cliente */}
       <div className={styles.subTabs}>
+        <button
+          className={`${styles.subTab} ${activeSubTab === 'all' ? styles.active : ''}`}
+          onClick={() => setActiveSubTab('all')}
+        >
+          📋 Todos os Clientes
+        </button>
         <button
           className={`${styles.subTab} ${activeSubTab === 'active' ? styles.active : ''}`}
           onClick={() => setActiveSubTab('active')}
@@ -221,7 +243,9 @@ export function AdminCustomersPage({
             ? 'Clientes Pendentes de Aprovação'
             : activeSubTab === 'blocked'
               ? 'Clientes Bloqueados'
-              : 'Clientes Ativos'}
+              : activeSubTab === 'all'
+                ? 'Todos os Clientes'
+                : 'Clientes Ativos'}
         </h2>
 
         {loading && <p className={styles.emptyState}>Carregando clientes...</p>}
@@ -232,7 +256,9 @@ export function AdminCustomersPage({
               ? 'Nenhum cliente pendente!'
               : activeSubTab === 'blocked'
                 ? 'Nenhum cliente bloqueado!'
-                : 'Nenhum cliente ativo!'}
+                : activeSubTab === 'all'
+                  ? 'Nenhum cliente encontrado!'
+                  : 'Nenhum cliente ativo!'}
           </p>
         ) : (
           <div className={styles.tableWrapper}>
@@ -326,12 +352,31 @@ export function AdminCustomersPage({
                         </div>
                       ) : (
                         <div className={styles.primaryActions}>
-                          <button
-                            className={`${styles.detailsButton} ${styles.tableActionButton}`}
-                            onClick={() => handleOpenCustomerOrders(customer.nickname)}
+                          <span
+                            className={`${styles.customerStatusBadge} ${styles[`customerStatus-${customer.status.toLowerCase()}`]}`}
                           >
-                            📋 Pedidos do Cliente
-                          </button>
+                            {customer.status === 'APROVADO'
+                              ? 'ATIVO'
+                              : customer.status === 'PENDENTE'
+                                ? 'PENDENTE'
+                                : 'BLOQUEADO'}
+                          </span>
+                          {customer.status === 'PENDENTE' ? (
+                            <button
+                              className={`${styles.detailsButton} ${styles.tableActionButton}`}
+                              onClick={() => handleOpenCustomerDetails(customer.id)}
+                              title="Visualizar ficha cadastral"
+                            >
+                              📄 Detalhes
+                            </button>
+                          ) : (
+                            <button
+                              className={`${styles.detailsButton} ${styles.tableActionButton}`}
+                              onClick={() => handleOpenCustomerOrders(customer.nickname)}
+                            >
+                              📋 Pedidos do Cliente
+                            </button>
+                          )}
                           {customer.status === 'PENDENTE' && (
                             <>
                               <button

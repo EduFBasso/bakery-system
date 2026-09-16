@@ -252,6 +252,31 @@
   justify-content: center;
   flex-wrap: nowrap;
 }
+.customerStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-width: 72px;
+  padding: 0.25rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.customerStatus-aprovado {
+  background: #d4edda;
+  color: #155724;
+}
+.customerStatus-pendente {
+  background: #fff3cd;
+  color: #856404;
+}
+.customerStatus-bloqueado {
+  background: #f8d7da;
+  color: #721c24;
+}
 .operationActions {
   display: grid;
   grid-template-columns: 116px 220px 42px 190px;

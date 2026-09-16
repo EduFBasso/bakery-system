@@ -112,7 +112,7 @@ export function CustomerProfileEditor({ customer, token }: CustomerProfileEditor
       <div className={styles.profile}>
         <div className={styles.infoGrid}>
           <div className={styles.infoItem}>
-            <label>Apelido</label>
+            <label>Cliente</label>
             <p>{customer.nickname}</p>
           </div>
           {customer.company_name && (
@@ -153,7 +153,7 @@ export function CustomerProfileEditor({ customer, token }: CustomerProfileEditor
     <form className={styles.profile} onSubmit={handleSubmit}>
       <div className={styles.formGrid}>
         <label>
-          Apelido
+          Cliente
           <input
             value={formData.nickname}
             onChange={(event) => updateField('nickname', event.target.value)}

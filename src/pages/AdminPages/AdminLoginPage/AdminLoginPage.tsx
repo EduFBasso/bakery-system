@@ -74,7 +74,7 @@ export function AdminLoginPage() {
           {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
 
           <div className={styles.formGroup}>
-            <label htmlFor="login">E-mail ou apelido</label>
+            <label htmlFor="login">E-mail ou cliente</label>
             <input
               id="login"
               type="text"

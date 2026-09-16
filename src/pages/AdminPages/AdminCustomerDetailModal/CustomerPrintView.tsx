@@ -87,11 +87,11 @@ export function CustomerPrintView({
         </div>
         <dl className={styles.dataGrid}>
           <div>
-            <dt>Apelido:</dt>
+            <dt>Cliente:</dt>
             <dd>{customer.nickname || 'Não informado'}</dd>
           </div>
           <div>
-            <dt>Nome:</dt>
+            <dt>Nome completo:</dt>
             <dd>{customer.company_name || 'Não informado'}</dd>
           </div>
           <div>

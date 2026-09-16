@@ -72,7 +72,7 @@ export function RegisterPage() {
           <h2 className={styles.successTitle}>Cadastro Recebido!</h2>
           <p className={styles.successMessage}>Seu acesso está em análise pelo administrador.</p>
           <p className={styles.successDetail}>
-            Apelido cadastrado: <strong>{registeredNickname}</strong>
+            Cliente cadastrado: <strong>{registeredNickname}</strong>
           </p>
           <p className={styles.successSubtext}>Aguarde a aprovação para receber a senha oficial.</p>
           <div className={styles.successActions}>
