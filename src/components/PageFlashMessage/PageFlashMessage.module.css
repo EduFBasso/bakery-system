@@ -9,10 +9,6 @@
 }
 
 .message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
   width: 100%;
   pointer-events: auto;
   border: 1px solid;
@@ -23,31 +19,19 @@
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-}
-
-.closeButton {
-  flex: 0 0 auto;
-  padding: 5px 12px;
-  border: 1px solid currentColor;
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
   cursor: pointer;
 }
 
 .success {
-  background: color-mix(in oklab, var(--color-success, #28a745) 10%, white);
-  color: var(--color-success-dark, #155724);
-  border-color: color-mix(in oklab, var(--color-success, #28a745) 45%, white);
+  background: color-mix(in oklab, var(--color-success, #065f46) 10%, white);
+  color: var(--color-success-dark, #064e3b);
+  border-color: color-mix(in oklab, var(--color-success, #065f46) 45%, white);
 }
 
 .error {
-  background: var(--color-danger-bg, #fff1f2);
-  color: var(--color-danger, #b42318);
-  border-color: color-mix(in oklab, var(--color-danger, #b42318) 55%, white);
+  background: var(--color-danger-bg, #fef2f2);
+  color: var(--color-danger, #b91c1c);
+  border-color: color-mix(in oklab, var(--color-danger, #b91c1c) 55%, white);
 }
 
 .warning {
