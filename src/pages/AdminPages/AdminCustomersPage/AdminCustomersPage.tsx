@@ -123,10 +123,7 @@ export function AdminCustomersPage({
     setPendingCustomerAction(null);
   };
 
-  const handleCustomerUpdated = (message?: string) => {
-    if (message) {
-      setSuccessMessage(message);
-    }
+  const handleCustomerUpdated = () => {
     const status =
       activeSubTab === 'pending'
         ? 'PENDENTE'
