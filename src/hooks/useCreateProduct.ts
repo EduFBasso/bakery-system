@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface CreateProductInput {
   name: string;
@@ -36,7 +37,7 @@ export function useCreateProduct(): UseCreateProductReturn {
         throw new Error('Admin não autenticado');
       }
 
-      const response = await fetch('/api/v1/bakery/products/', {
+      const response = await fetch(apiUrl('/api/v1/bakery/products/'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${adminToken}`,

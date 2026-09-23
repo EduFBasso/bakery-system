@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiService } from '../../../services/api';
+import { apiUrl } from '../../../config/api';
 import {
   AdminOrderPrintView,
   type PrintableOrder,
@@ -66,14 +67,16 @@ export function AdminOrderPrintPage() {
 
     const loadData = async () => {
       try {
-        const orderResponse = await fetch(`/api/v1/bakery/orders/${numericOrderId}/`, { headers });
+        const orderResponse = await fetch(apiUrl(`/api/v1/bakery/orders/${numericOrderId}/`), {
+          headers,
+        });
         if (!orderResponse.ok) throw new Error('Não foi possível carregar o pedido.');
         const loadedOrder = (await orderResponse.json()) as PrintableOrder & {
           customer_id: number;
         };
 
         const [customerResponse, tenantProfile, professionalProfile] = await Promise.all([
-          fetch(`/api/v1/bakery/customers/${loadedOrder.customer_id}/`, { headers }),
+          fetch(apiUrl(`/api/v1/bakery/customers/${loadedOrder.customer_id}/`), { headers }),
           ApiService.getTenantProfile(),
           ApiService.getCurrentProfessional(),
         ]);

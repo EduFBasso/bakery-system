@@ -6,6 +6,7 @@ import {
   Address,
   PendingCustomer,
 } from '../types';
+import { apiUrl } from '../config/api';
 
 const API_BASE_URL = '/api/v1/bakery';
 const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/';
@@ -31,7 +32,7 @@ export class ApiService {
   }): Promise<{ id: number; access_token: string; refresh_token: string; customer: Customer }> {
     const adminToken = localStorage.getItem('bread_admin_token');
     const tenantSlug = data.tenant_slug || resolveTenantSlug();
-    const response = await fetch(`${API_BASE_URL}/customers/register/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/register/`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ export class ApiService {
 
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {
     const tenantSlug = resolveTenantSlug();
-    const response = await fetch(BAKERY_AUTH_LOGIN_URL, {
+    const response = await fetch(apiUrl(BAKERY_AUTH_LOGIN_URL), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login: nickname, password, tenant_slug: tenantSlug }),
@@ -85,7 +86,7 @@ export class ApiService {
 
   static async getTenantIdentity(tenantSlug = resolveTenantSlug()): Promise<BakeryTenantIdentity> {
     const response = await fetch(
-      `${API_BASE_URL}/tenant/identity/?tenant_slug=${encodeURIComponent(tenantSlug)}`,
+      apiUrl(`${API_BASE_URL}/tenant/identity/?tenant_slug=${encodeURIComponent(tenantSlug)}`),
       { headers: { 'Content-Type': 'application/json' } }
     );
 
@@ -97,7 +98,7 @@ export class ApiService {
   }
 
   static async getCurrentCustomer(token: string): Promise<Customer> {
-    const response = await fetch(`${API_BASE_URL}/customers/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +123,7 @@ export class ApiService {
   // ============ ENDEREÇO (VIACEP) ============
 
   static async lookupCEP(zipCode: string): Promise<Address> {
-    const response = await fetch(`${API_BASE_URL}/customers/lookup-cep/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/lookup-cep/`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ zip_code: zipCode }),
@@ -144,7 +145,7 @@ export class ApiService {
 
   static async getCurrentProfessional(): Promise<{ phone?: string }> {
     const token = localStorage.getItem('bread_admin_token');
-    const response = await fetch('/register/professionals/me/', {
+    const response = await fetch(apiUrl('/register/professionals/me/'), {
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -169,7 +170,7 @@ export class ApiService {
     data?: Partial<BakeryTenantProfile>
   ): Promise<BakeryTenantProfile> {
     const token = localStorage.getItem('bread_admin_token');
-    const response = await fetch(`${API_BASE_URL}/tenant/profile/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/tenant/profile/`), {
       method,
       headers: {
         'Content-Type': 'application/json',
@@ -186,7 +187,7 @@ export class ApiService {
   }
 
   static async getPendingCustomers(token: string): Promise<PendingCustomer[]> {
-    const response = await fetch(`${API_BASE_URL}/customers/?status=PENDING`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/?status=PENDING`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -203,7 +204,7 @@ export class ApiService {
   }
 
   static async approveCustomer(customerId: number, token: string): Promise<Customer> {
-    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/approve/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/${customerId}/approve/`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -220,7 +221,7 @@ export class ApiService {
   }
 
   static async blockCustomer(customerId: number, token: string): Promise<Customer> {
-    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/block/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/${customerId}/block/`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -239,7 +240,7 @@ export class ApiService {
   // ============ DADOS DO CLIENTE ============
 
   static async getCustomer(customerId: number, token: string): Promise<Customer> {
-    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/${customerId}/`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -255,7 +256,7 @@ export class ApiService {
   }
 
   static async getCustomerBalance(customerId: number, token: string) {
-    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/balance/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/${customerId}/balance/`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -271,7 +272,7 @@ export class ApiService {
   }
 
   static async getCustomerTransactions(customerId: number, token: string) {
-    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/transactions/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/customers/${customerId}/transactions/`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -289,7 +290,7 @@ export class ApiService {
   // ============ PRODUTOS ============
 
   static async getPublicProducts() {
-    const response = await fetch(`${API_BASE_URL}/products/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/products/`), {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -312,7 +313,7 @@ export class ApiService {
       items: Array<{ product: number; quantity: number; unit_price: number }>;
     }
   ) {
-    const response = await fetch(`${API_BASE_URL}/orders/`, {
+    const response = await fetch(apiUrl(`${API_BASE_URL}/orders/`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

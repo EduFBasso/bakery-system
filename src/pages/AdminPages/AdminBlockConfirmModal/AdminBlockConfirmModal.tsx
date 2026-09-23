@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../../../config/api';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 
@@ -65,7 +66,7 @@ export default function AdminBlockConfirmModal({
       const endpoint = action === 'block' ? '/block/' : '/unblock/';
       const actionName = action === 'block' ? 'bloquear' : 'desbloquear';
 
-      const response = await fetch(`/api/v1/bakery/customers/${customerId}${endpoint}`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/customers/${customerId}${endpoint}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

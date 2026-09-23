@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface CustomerData {
   id: number;
@@ -76,7 +77,7 @@ export function useCustomerAuth() {
           setCustomer(JSON.parse(storedCustomer));
 
           // Sincroniza com backend para evitar dados financeiros defasados.
-          const response = await fetch('/api/v1/bakery/customers/', {
+          const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ export function useCustomerAuth() {
       // Token sem customer no storage: tenta reconstruir sessão via /me
       if (storedToken && !storedCustomer) {
         try {
-          const response = await fetch('/api/v1/bakery/customers/', {
+          const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

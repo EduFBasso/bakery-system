@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCustomerAuth } from './useCustomerAuth';
+import { apiUrl } from '../config/api';
 
 export interface Transaction {
   id: number;
@@ -29,7 +30,7 @@ export function useCustomerTransactions() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/v1/bakery/ledger-entries/', {
+        const response = await fetch(apiUrl('/api/v1/bakery/ledger-entries/'), {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

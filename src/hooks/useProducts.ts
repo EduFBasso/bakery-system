@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface Product {
   id: number;
@@ -40,7 +41,7 @@ export function useProducts(context: 'customer' | 'admin' = 'customer') {
       }
       setError(null);
 
-      const response = await fetch('/api/v1/bakery/products/', {
+      const response = await fetch(apiUrl('/api/v1/bakery/products/'), {
         method: 'GET',
         headers: getAuthHeaders(),
       });

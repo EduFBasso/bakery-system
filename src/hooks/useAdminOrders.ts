@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface AdminOrder {
   id: number;
@@ -100,7 +101,7 @@ export function useAdminOrders(filters?: {
         if (pageSize) params.append('page_size', pageSize.toString());
 
         const queryString = params.toString();
-        const url = `/api/v1/bakery/orders/${queryString ? '?' + queryString : ''}`;
+        const url = apiUrl(`/api/v1/bakery/orders/${queryString ? '?' + queryString : ''}`);
 
         const response = await fetch(url, {
           headers: {

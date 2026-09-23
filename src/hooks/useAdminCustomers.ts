@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface AdminCustomer {
   id: number;
@@ -45,7 +46,7 @@ interface UseAdminCustomersOptions {
   onError?: (error: string) => void;
 }
 
-const CUSTOMERS_ENDPOINT = '/api/v1/bakery/customers/';
+const CUSTOMERS_ENDPOINT = apiUrl('/api/v1/bakery/customers/');
 const STATUS_PENDING = 'PENDENTE';
 const STATUS_APPROVED = 'APROVADO';
 const STATUS_BLOCKED = 'BLOQUEADO';

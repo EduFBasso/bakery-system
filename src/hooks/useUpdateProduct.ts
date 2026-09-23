@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface UpdateProductInput {
   name?: string;
@@ -42,7 +43,7 @@ export function useUpdateProduct(): UseUpdateProductReturn {
         throw new Error('Admin não autenticado');
       }
 
-      const response = await fetch(`/api/v1/bakery/products/${productId}/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/products/${productId}/`), {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${adminToken}`,

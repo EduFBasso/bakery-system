@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../../../config/api';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 import { buildAccessWhatsAppMessage, openWhatsAppMessage } from '../../../utils/whatsapp';
@@ -51,7 +52,7 @@ export function PendingCustomerAction({
         action === 'approve'
           ? { credit_limit: creditLimit, admin_password: normalizedPassword }
           : { admin_password: normalizedPassword };
-      const response = await fetch(`/api/v1/bakery/customers/${customer.id}/${endpoint}/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/customers/${customer.id}/${endpoint}/`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

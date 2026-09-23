@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface CancelOrderPayload {
   reason: string;
@@ -34,7 +35,7 @@ export function useCancelOrder() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/v1/bakery/orders/${orderId}/cancel/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/orders/${orderId}/cancel/`), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,7 +75,7 @@ export function useCancelOrder() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/v1/bakery/orders/${orderId}/cancel/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/orders/${orderId}/cancel/`), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

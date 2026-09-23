@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../../../config/api';
 import { useProducts, Product } from '../../../hooks/useProducts';
 import { useCreateOrder, CreateOrderPayload } from '../../../hooks/useCreateOrder';
 import { useCustomerAuth } from '../../../hooks/useCustomerAuth';
@@ -201,7 +202,7 @@ export function CreateOrderForm() {
       }
 
       try {
-        const response = await fetch('/api/v1/bakery/customers/', {
+        const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

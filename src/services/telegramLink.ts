@@ -1,5 +1,6 @@
 // Thin client for the global Telegram-link endpoints (apps.notifications, shared with clinic).
 // Uses the same admin bearer token as ApiService (bread_admin_token).
+import { apiUrl } from '../config/api';
 
 export type TelegramLinkStartResult = {
   botConfigured: boolean;
@@ -34,7 +35,7 @@ export async function startTelegramLink(): Promise<TelegramLinkStartResult> {
     throw new Error('Sessão expirada. Faça login novamente.');
   }
 
-  const response = await fetch('/register/professionals/telegram/link-start/', {
+  const response = await fetch(apiUrl('/register/professionals/telegram/link-start/'), {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -61,7 +62,7 @@ export async function verifyTelegramLink(startToken: string): Promise<TelegramLi
     throw new Error('Sessão expirada. Faça login novamente.');
   }
 
-  const response = await fetch('/register/professionals/telegram/link-verify/', {
+  const response = await fetch(apiUrl('/register/professionals/telegram/link-verify/'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +92,7 @@ export async function sendTelegramTest(): Promise<void> {
     throw new Error('Sessão expirada. Faça login novamente.');
   }
 
-  const response = await fetch('/register/professionals/telegram/test-send/', {
+  const response = await fetch(apiUrl('/register/professionals/telegram/test-send/'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ export async function fetchTelegramStatus(): Promise<TelegramLinkSnapshot> {
     throw new Error('Sessão expirada. Faça login novamente.');
   }
 
-  const response = await fetch('/register/professionals/settings/', {
+  const response = await fetch(apiUrl('/register/professionals/settings/'), {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   });

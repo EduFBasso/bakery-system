@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { resolveTenantSlug } from '../config/tenant';
+import { apiUrl } from '../config/api';
 
 interface AdminUser {
   id: number;
@@ -79,7 +80,7 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
       const tenantSlug = resolveTenantSlug();
 
       try {
-        const response = await fetch('/api/v1/auth/bakery/login/', {
+        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

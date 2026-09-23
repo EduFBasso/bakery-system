@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCustomerAuth } from './useCustomerAuth';
+import { apiUrl } from '../config/api';
 
 export interface OrderItem {
   product_id: number;
@@ -48,7 +49,7 @@ export function useCreateOrder() {
         throw new Error('Usuário não autenticado');
       }
 
-      const response = await fetch('/api/v1/bakery/orders/', {
+      const response = await fetch(apiUrl('/api/v1/bakery/orders/'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

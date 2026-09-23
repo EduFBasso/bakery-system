@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCustomerAuth } from './useCustomerAuth';
+import { apiUrl } from '../config/api';
 
 export interface OrderItem {
   id: number;
@@ -45,7 +46,7 @@ export function useCustomerOrders() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/v1/bakery/orders/', {
+        const response = await fetch(apiUrl('/api/v1/bakery/orders/'), {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

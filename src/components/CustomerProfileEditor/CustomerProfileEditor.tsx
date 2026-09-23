@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { CustomerData } from '../../hooks/useCustomerAuth';
+import { apiUrl } from '../../config/api';
 import styles from './CustomerProfileEditor.module.css';
 
 interface CustomerProfileEditorProps {
@@ -61,7 +62,7 @@ export function CustomerProfileEditor({ customer, token }: CustomerProfileEditor
     setError(null);
 
     try {
-      const response = await fetch(`/api/v1/bakery/customers/${customer.id}/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/customers/${customer.id}/`), {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
