@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import { FormGroup } from '../FormGroup';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
@@ -34,6 +35,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
     city: '',
     state: '',
   });
+  const [cepMessage, setCepMessage] = useState('');
 
   // Máscaras dos campos numéricos
   const cpfMask = useMaskInput('cpf');
@@ -44,17 +46,30 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
 
   // Ref para debounce do lookup
   const lookupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cepMessageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showCepMessage = (message: string) => {
+    if (cepMessageTimerRef.current) {
+      clearTimeout(cepMessageTimerRef.current);
+    }
+    setCepMessage(message);
+    cepMessageTimerRef.current = setTimeout(() => setCepMessage(''), 4000);
+  };
 
   // Hook para ViaCEP lookup (sem auto-focus para evitar re-renders em loop)
   const { lookup: lookupCEP } = useViaCEPLookup({
     onSuccess: (newAddress) => {
       setAddress(newAddress);
+      setCepMessage('');
+    },
+    onError: () => {
+      showCepMessage('CEP não localizado. Você pode preencher o endereço manualmente.');
     },
     // onAutoFocusField removido para evitar loop infinito de re-renders
   });
 
   // Monitorar mudanças no CEP e chamar lookup ao completar
-  const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     zipCodeMask.onChangeHandler(e);
   };
 
@@ -71,6 +86,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
         lookupCEP(zipCodeMask.value);
       }, 300);
     } else if (zipCodeMask.value.length < 8) {
+      setCepMessage('');
       // Limpar endereço quando CEP fica incompleto
       setAddress({
         street: '',
@@ -87,8 +103,16 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
     };
   }, [zipCodeMask.value]);
 
+  useEffect(() => {
+    return () => {
+      if (cepMessageTimerRef.current) {
+        clearTimeout(cepMessageTimerRef.current);
+      }
+    };
+  }, []);
+
   // Enviar formulário
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const submitData: RegistrationFormData = {
@@ -104,7 +128,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
       state: address.state,
       ...(formData.complement && { complement: formData.complement }),
       ...(customerType === 'PF'
-        ? { cpf: cpfMask.value }
+        ? { cpf: cpfMask.value, company_name: formData.name }
         : { cnpj: cnpjMask.value, company_name: formData.companyName }),
     };
 
@@ -120,7 +144,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
       {/* ===== SEÇÃO: IDENTIFICAÇÃO ===== */}
       <h3 className={styles.sectionTitle}>Informações Pessoais</h3>
 
-      <FormGroup label="Nome Completo" required error={errors.name}>
+      <FormGroup label="Nome completo" required error={errors.name}>
         <Input
           name="name"
           placeholder="João da Silva Santos"
@@ -130,7 +154,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
         />
       </FormGroup>
 
-      <FormGroup label="Apelido (Como será chamado)" required error={errors.nickname}>
+      <FormGroup label="Cliente" required error={errors.nickname}>
         <Input
           name="nickname"
           placeholder="João"
@@ -224,14 +248,20 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
           maxLength={9}
           required
         />
+        {cepMessage && (
+          <span className={styles.cepMessage} role="status">
+            {cepMessage}
+          </span>
+        )}
       </FormGroup>
 
       <FormGroup label="Rua/Avenida" required error={errors.street}>
         <Input
           name="street"
           placeholder="Avenida Paulista"
-          defaultValue={address.street}
+          value={address.street}
           disabled={Boolean(address.street)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, street: e.target.value }))}
           required
         />
       </FormGroup>
@@ -262,8 +292,9 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
         <Input
           name="neighborhood"
           placeholder="Centro"
-          defaultValue={address.neighborhood}
+          value={address.neighborhood}
           disabled={Boolean(address.neighborhood)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, neighborhood: e.target.value }))}
           required
         />
       </FormGroup>
@@ -272,8 +303,9 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
         <Input
           name="city"
           placeholder="São Paulo"
-          defaultValue={address.city}
+          value={address.city}
           disabled={Boolean(address.city)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
           required
         />
       </FormGroup>
@@ -282,8 +314,9 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
         <Input
           name="state"
           placeholder="SP"
-          defaultValue={address.state}
+          value={address.state}
           disabled={Boolean(address.state)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, state: e.target.value }))}
           maxLength={2}
           required
         />

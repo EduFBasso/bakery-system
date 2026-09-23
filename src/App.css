@@ -13,11 +13,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  background: linear-gradient(135deg, var(--color-secondary) 0%, #ffe4cc 100%);
+  background-color: var(--color-background); /* Fundo padrão neutro unificado */
   min-height: 100vh;
 
   background-attachment: fixed;
   color: var(--color-text);
+}
+
+html.clientPageBody,
+body.clientPageBody {
+  background: linear-gradient(
+    135deg,
+    var(--color-admin-bg-start) 0%,
+    var(--color-admin-bg-end) 100%
+  );
 }
 
 h1,

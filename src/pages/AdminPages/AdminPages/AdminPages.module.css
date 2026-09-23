@@ -1,0 +1,33 @@
+.errorAlert,
+.successAlert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideDown 0.3s ease-out;
+}
+
+.errorAlert {
+  background-color: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-soft-border);
+  color: var(--color-danger-text);
+}
+
+.successAlert {
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+  color: #155724;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

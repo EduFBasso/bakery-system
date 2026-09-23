@@ -1,0 +1,138 @@
+.controls {
+  display: grid;
+  grid-template-columns: 116px 220px 42px;
+  align-items: end;
+  gap: 0.65rem;
+  grid-column: 1 / span 3;
+  margin-right: 0;
+}
+
+.field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 116px;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  background: #fff;
+}
+
+.passwordField {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.passwordField input {
+  width: 132px;
+}
+
+.iconButton {
+  position: relative;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0.45rem;
+  border: 1px solid var(--color-admin-border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.iconButton:hover,
+.iconButton:focus-visible {
+  border-color: var(--color-admin-accent);
+}
+
+.iconButton::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: calc(100% + 0.5rem);
+  max-width: 220px;
+  padding: 0.4rem 0.55rem;
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: none;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 0.25rem);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.iconButton::before {
+  content: '';
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: calc(100% + 0.2rem);
+  border: 0.3rem solid transparent;
+  border-top-color: #333;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 0.25rem);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.iconButton:hover::before,
+.iconButton:hover::after,
+.iconButton:focus-visible::before,
+.iconButton:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.actionButtons {
+  display: inline-flex;
+  grid-column: 4;
+  vertical-align: bottom;
+}
+
+.actionButton {
+  width: 190px;
+  min-width: 190px;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0.5rem 0.85rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.blockButton {
+  background: #f44336;
+}
+
+.saveButton {
+  background: #198754;
+}
+
+@media (max-width: 900px) {
+  .controls {
+    margin: 0;
+  }
+}

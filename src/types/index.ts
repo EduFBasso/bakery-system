@@ -97,6 +97,22 @@ export interface LoginResponse {
   customer: Customer;
 }
 
+export interface BakeryTenantProfile {
+  name: string;
+  trade_name: string;
+  slug: string;
+  ecosystem: string;
+  zip_code: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  complement: string;
+}
+
+export type BakeryTenantIdentity = Omit<BakeryTenantProfile, 'name'>;
+
 export interface ViaCEPResponse {
   street: string;
   neighborhood: string;

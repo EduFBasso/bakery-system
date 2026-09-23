@@ -1,7 +1,7 @@
 :root {
   /* Core Colors (Panificadora) */
-  --color-primary: #D4825C;
-  --color-primary-hover: #C26E47;
+  --color-primary: #D9825D;
+  --color-primary-hover: #C97449;
   --color-secondary: #FFF4E6;
   --color-accent: #8B5A3C;
 
@@ -29,8 +29,8 @@
   /* Admin Theme */
   --color-admin-bg-start: #F5E6D3;
   --color-admin-bg-end: #E8D4C0;
-  --color-admin-accent: #D9825D;
-  --color-admin-accent-hover: #C97449;
+  --color-admin-accent: var(--color-primary);
+  --color-admin-accent-hover: var(--color-primary-hover);
   --color-admin-border: #E0D5CA;
   --color-admin-muted-surface: #F9F7F4;
   --color-admin-row-hover: #FAFAF8;

@@ -1,4 +1,4 @@
-import styles from './CustomersTable.module.css';
+import styles from '../Table.module.css';
 
 interface CustomersTableProps {
   data: any[];
@@ -10,7 +10,7 @@ export function CustomersTable({ data, onRowClick }: CustomersTableProps) {
     <table className={styles.table}>
       <thead className={styles.thead}>
         <tr>
-          <th>Apelido</th>
+          <th>CLIENTE</th>
           <th>Tipo</th>
           <th>Telefone</th>
           <th>Ações</th>

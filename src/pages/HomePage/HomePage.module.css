@@ -1,5 +1,6 @@
 .container {
   min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
   display: flex;
   flex-direction: column;
@@ -13,6 +14,17 @@
   margin-bottom: 3rem;
 }
 
+.sessionMessage {
+  max-width: 34rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2b866;
+  border-radius: 0.5rem;
+  background: #fff4cc;
+  color: #6f4f00;
+  font-weight: 600;
+}
+
 .hero h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
@@ -22,6 +34,12 @@
 .hero p {
   font-size: 1.125rem;
   color: #666;
+}
+
+.hero .tenantAddress {
+  margin-top: -0.5rem;
+  font-size: 0.95rem;
+  color: #805f4e;
 }
 
 .cards {

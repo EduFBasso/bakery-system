@@ -1,7 +1,15 @@
-import { Customer, LoginResponse, Address, PendingCustomer } from '../types';
+import {
+  BakeryTenantIdentity,
+  BakeryTenantProfile,
+  Customer,
+  LoginResponse,
+  Address,
+  PendingCustomer,
+} from '../types';
 
 const API_BASE_URL = '/api/v1/bakery';
 const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/';
+import { resolveTenantSlug } from '../config/tenant';
 
 export class ApiService {
   // ============ AUTENTICAÇÃO ============
@@ -22,8 +30,7 @@ export class ApiService {
     tenant_slug?: string;
   }): Promise<{ id: number; access_token: string; refresh_token: string; customer: Customer }> {
     const adminToken = localStorage.getItem('bread_admin_token');
-    const tenantSlug =
-      data.tenant_slug || import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
+    const tenantSlug = data.tenant_slug || resolveTenantSlug();
     const response = await fetch(`${API_BASE_URL}/customers/register/`, {
       method: 'POST',
       headers: {
@@ -48,6 +55,7 @@ export class ApiService {
       const apiMessage =
         parsedBody?.detail ||
         (Array.isArray(parsedBody?.non_field_errors) ? parsedBody.non_field_errors[0] : null) ||
+        (Array.isArray(parsedBody?.nickname) ? parsedBody.nickname[0] : null) ||
         'Erro ao registrar cliente';
       throw new Error(String(apiMessage));
     }
@@ -60,7 +68,7 @@ export class ApiService {
   }
 
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {
-    const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
+    const tenantSlug = resolveTenantSlug();
     const response = await fetch(BAKERY_AUTH_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -73,6 +81,19 @@ export class ApiService {
     }
 
     return response.json();
+  }
+
+  static async getTenantIdentity(tenantSlug = resolveTenantSlug()): Promise<BakeryTenantIdentity> {
+    const response = await fetch(
+      `${API_BASE_URL}/tenant/identity/?tenant_slug=${encodeURIComponent(tenantSlug)}`,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || 'Não foi possível carregar os dados da empresa.');
+    }
+    return payload as BakeryTenantIdentity;
   }
 
   static async getCurrentCustomer(token: string): Promise<Customer> {
@@ -116,6 +137,53 @@ export class ApiService {
   }
 
   // ============ ADMIN - APROVAÇÃO ============
+
+  static async getTenantProfile(): Promise<BakeryTenantProfile> {
+    return this.requestTenantProfile('GET');
+  }
+
+  static async getCurrentProfessional(): Promise<{ phone?: string }> {
+    const token = localStorage.getItem('bread_admin_token');
+    const response = await fetch('/register/professionals/me/', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || 'Erro ao carregar os dados do administrador.');
+    }
+    return payload as { phone?: string };
+  }
+
+  static async updateTenantProfile(
+    data: Partial<Omit<BakeryTenantProfile, 'name' | 'slug' | 'ecosystem'>>
+  ): Promise<BakeryTenantProfile> {
+    return this.requestTenantProfile('PATCH', data);
+  }
+
+  private static async requestTenantProfile(
+    method: 'GET' | 'PATCH',
+    data?: Partial<BakeryTenantProfile>
+  ): Promise<BakeryTenantProfile> {
+    const token = localStorage.getItem('bread_admin_token');
+    const response = await fetch(`${API_BASE_URL}/tenant/profile/`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      ...(data ? { body: JSON.stringify(data) } : {}),
+    });
+
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || 'Erro ao salvar os dados da empresa.');
+    }
+    return payload as BakeryTenantProfile;
+  }
 
   static async getPendingCustomers(token: string): Promise<PendingCustomer[]> {
     const response = await fetch(`${API_BASE_URL}/customers/?status=PENDING`, {

@@ -9,27 +9,35 @@ export interface Product {
   created_at: string;
 }
 
-export function useProducts() {
+export function useProducts(context: 'customer' | 'admin' = 'customer') {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const getAuthHeaders = () => {
-    const adminToken = localStorage.getItem('bread_admin_token');
-    if (!adminToken) {
-      throw new Error('Token de admin não disponível');
+    const token =
+      context === 'admin'
+        ? localStorage.getItem('bread_admin_token')
+        : localStorage.getItem('bread_customer_token');
+    if (!token) {
+      throw new Error('Sessão não autenticada');
     }
 
     return {
-      Authorization: `Bearer ${adminToken}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };
   };
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (initialLoad = false) => {
     try {
-      setLoading(true);
+      if (initialLoad) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
       setError(null);
 
       const response = await fetch('/api/v1/bakery/products/', {
@@ -48,18 +56,23 @@ export function useProducts() {
       setError(message);
       console.error('Products fetch error:', err);
     } finally {
-      setLoading(false);
+      if (initialLoad) {
+        setLoading(false);
+      } else {
+        setRefreshing(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    void fetchProducts(true);
   }, []);
 
   return {
     products,
     loading,
+    refreshing,
     error,
-    refetch: fetchProducts,
+    refetch: () => fetchProducts(false),
   };
 }

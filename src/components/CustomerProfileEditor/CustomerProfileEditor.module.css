@@ -1,0 +1,127 @@
+.profile {
+  padding: 16px;
+  background: #f3eee8;
+  border: 1px solid #dfd4ca;
+  border-left: 4px solid var(--color-primary);
+  border-radius: 8px;
+}
+
+.infoGrid,
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.infoItem {
+  min-width: 0;
+  padding: 12px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.infoItem label,
+.formGrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #6c625b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.infoItem p {
+  margin: 6px 0 0;
+  color: #2c2c2c;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.addressItem,
+.wideField {
+  grid-column: 1 / -1;
+}
+
+.formGrid input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #cfc5bc;
+  border-radius: 6px;
+  background: #fff;
+  color: #2c2c2c;
+  font: inherit;
+  font-size: 14px;
+  text-transform: none;
+}
+
+.formGrid input:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid rgba(201, 103, 59, 0.18);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.editButton,
+.saveButton,
+.cancelButton {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editButton,
+.saveButton {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.cancelButton {
+  border: 1px solid #b7ada5;
+  background: #fff;
+  color: #5f554f;
+}
+
+.saveButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--color-danger-strong);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+  border-radius: 6px;
+}
+
+@media (max-width: 640px) {
+  .infoGrid,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .addressItem,
+  .wideField {
+    grid-column: auto;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .editButton,
+  .saveButton,
+  .cancelButton {
+    width: 100%;
+  }
+}

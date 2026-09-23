@@ -1,0 +1,94 @@
+.printSheet {
+  display: none;
+  width: 100%;
+  color: #111827;
+  font-family: 'Poppins', sans-serif;
+}
+
+.screenPreview {
+  display: block;
+  width: min(100%, 210mm);
+  margin: 0 auto;
+}
+
+.printPage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 277mm;
+  box-sizing: border-box;
+  padding-bottom: 14mm;
+  break-after: page;
+  page-break-after: always;
+}
+
+.printPage:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.screenPreview .printPage {
+  min-height: 277mm;
+  margin-bottom: 0;
+  padding: 0;
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.printHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 14px;
+}
+
+.companyName { margin: 0; color: #8f3f22; font-size: 24px; font-weight: 800; line-height: 1.2; }
+.companyAddress { margin: 6px 0 0; color: #4b5563; font-size: 16px; line-height: 1.4; }
+.paymentStatus { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.4; text-align: right; }
+.statusDate { display: block; font-size: 14px; font-weight: 400; }
+.pendingStatus { color: #8f3f22; }
+.paidStatus { color: var(--color-success); }
+.cancelledStatus { color: var(--color-danger); }
+.orderTitle { margin: 43px 0 0; color: #111827; font-size: 26px; text-align: center; }
+.section { margin-top: 29px; break-inside: avoid; page-break-inside: avoid; }
+.section h2 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #cfcfcf; color: #1f1f1f; font-size: 19px; }
+.itemsSection { margin-top: 43px; }
+.itemsSection h2 { text-align: center; }
+.orderInfoLine { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 36px; }
+.customerPhone { white-space: nowrap; }
+.orderInfoLine p, .signatureSection p { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; }
+.deliveryAddress { margin: 12px 0 0; color: #262626; font-size: 17px; line-height: 1.6; }
+.deliveryAddressChanged { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.itemsTable { width: 100%; border-collapse: collapse; font-size: 16px; }
+.itemsTable th, .itemsTable td { padding: 10px 5px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+.itemsTable th:first-child, .itemsTable td:first-child { width: 1%; text-align: center; white-space: nowrap; }
+.itemsTable .productHeader { text-align: center; }
+.itemsTable th:nth-child(n + 3), .itemsTable td:nth-child(n + 3) { text-align: right; white-space: nowrap; }
+.itemsTable thead th { color: #111827; font-size: 14px; font-weight: 800; text-transform: uppercase; }
+.itemsTable tfoot th { border-top: 1px solid #9ca3af; border-bottom: 0; color: #111827; font-size: 19px; font-weight: 800; }
+.itemsTable tfoot .totalLabel { text-align: left; }
+.itemsTable tfoot .totalValue { text-align: right; }
+.notesList { display: grid; gap: 7px; }
+.notes { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; white-space: pre-wrap; }
+.orderNotes { margin: 22px 0 0; color: #262626; font-size: 16px; line-height: 1.5; white-space: pre-wrap; }
+.addressSection { margin-top: auto; }
+.signatureSection { margin-top: auto; padding-top: 72px; break-inside: avoid; page-break-inside: avoid; }
+.signatureGrid { display: grid; grid-template-columns: 1.25fr 1fr 1.25fr; gap: 18px; }
+.signatureField { color: #4b5563; font-size: 14px; text-align: center; }
+.signatureField div { min-height: 32px; margin-bottom: 6px; border-bottom: 1px solid #555; }
+.signatureField span { white-space: nowrap; }
+.pageFooter { margin-top: 18px; color: #6b7280; font-size: 12px; text-align: right; }
+
+@media (max-width: 700px) {
+  .printPage { min-height: auto; padding: 24px; }
+  .printHeader { flex-direction: column; }
+  .paymentStatus { text-align: left; }
+  .orderInfoLine, .signatureGrid { grid-template-columns: 1fr; }
+  .customerPhone { white-space: normal; }
+  .itemsTable { font-size: 14px; }
+}
+
+@media print {
+  .printPage { min-height: 277mm; padding: 0; }
+}

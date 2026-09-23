@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { resolveTenantSlug } from '../config/tenant';
 
 interface CustomerUser {
   id: number;
@@ -35,6 +36,22 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
     return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
   };
 
+  const extractApiErrorMessage = (data: any): string => {
+    if (typeof data?.detail === 'string' && data.detail.trim()) {
+      return data.detail;
+    }
+    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
+      return String(data.non_field_errors[0]);
+    }
+    if (Array.isArray(data?.login) && data.login[0]) {
+      return String(data.login[0]);
+    }
+    if (Array.isArray(data?.password) && data.password[0]) {
+      return String(data.password[0]);
+    }
+    return 'Erro ao fazer login';
+  };
+
   const login = useCallback(
     async (nickname: string, password: string) => {
       setLoading(true);
@@ -42,7 +59,8 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
 
       const sanitizedEmail = removeInvisibleCharacters(nickname).trim();
       const sanitizedPassword = removeInvisibleCharacters(password).trim();
-      const tenantSlug = import.meta.env.VITE_BAKERY_TENANT_SLUG || 'admin-panificadora';
+
+      const tenantSlug = resolveTenantSlug();
 
       try {
         const response = await fetch('/api/v1/auth/bakery/login/', {
@@ -60,8 +78,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
         const data = await response.json();
 
         if (!response.ok) {
-          const errorMessage =
-            data.detail || data.email?.[0] || data.password?.[0] || 'Erro ao fazer login';
+          const errorMessage = extractApiErrorMessage(data);
           setError(errorMessage);
           optionsRef.current?.onError?.(errorMessage);
           return false;

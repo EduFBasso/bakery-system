@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerLogin } from '../../hooks';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +11,12 @@ export function CustomerLoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (localStorage.getItem('bread_customer_token')) {
+      navigate('/customer/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
   const { login, loading, error, clearError } = useCustomerLogin({
     onSuccess: () => {
       navigate('/customer/dashboard');
@@ -19,7 +26,7 @@ export function CustomerLoginPage() {
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
 
@@ -57,7 +64,7 @@ export function CustomerLoginPage() {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Apelido da Empresa</label>
+            <label className={styles.label}>Cliente</label>
             <input
               type="text"
               value={nickname}
@@ -67,9 +74,7 @@ export function CustomerLoginPage() {
               className={styles.input}
               autoFocus
             />
-            <small className={styles.hint}>
-              Digite o apelido da sua empresa cadastrado no sistema
-            </small>
+            <small className={styles.hint}>Digite o cliente cadastrado no sistema</small>
           </div>
 
           <div className={styles.formGroup}>

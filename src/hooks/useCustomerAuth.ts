@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface CustomerData {
+export interface CustomerData {
   id: number;
   customer_id?: number;
+  user?: number;
   nickname: string;
   customer_type: string;
   company_name?: string;
@@ -29,6 +30,7 @@ export function useCustomerAuth() {
   const [customer, setCustomer] = useState<CustomerData | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const parseCurrentCustomer = (payload: unknown): CustomerData | null => {
     if (!payload || typeof payload !== 'object') {
@@ -45,6 +47,20 @@ export function useCustomerAuth() {
     }
 
     return payload as CustomerData;
+  };
+
+  const getTokenUserId = (token: string): number | null => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return Number(payload.user_id ?? payload.sub) || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const matchesTokenCustomer = (token: string, customerData: CustomerData | null) => {
+    const tokenUserId = getTokenUserId(token);
+    return Boolean(customerData && tokenUserId && customerData.user === tokenUserId);
   };
 
   useEffect(() => {
@@ -71,9 +87,11 @@ export function useCustomerAuth() {
           if (response.ok) {
             const payload = await response.json();
             const freshCustomerData = parseCurrentCustomer(payload);
-            if (freshCustomerData) {
+            if (matchesTokenCustomer(storedToken, freshCustomerData)) {
               localStorage.setItem('bread_customer_user', JSON.stringify(freshCustomerData));
               setCustomer(freshCustomerData);
+            } else {
+              logout();
             }
           }
 
@@ -106,7 +124,7 @@ export function useCustomerAuth() {
 
           const payload = await response.json();
           const customerData = parseCurrentCustomer(payload);
-          if (!customerData) {
+          if (!matchesTokenCustomer(storedToken, customerData)) {
             logout();
             setIsLoading(false);
             return;
@@ -134,6 +152,23 @@ export function useCustomerAuth() {
     };
 
     void bootstrapCustomerSession();
+  }, [refreshKey]);
+
+  useEffect(() => {
+    const refreshCustomer = () => setRefreshKey((value) => value + 1);
+    const refreshVisibleCustomer = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCustomer();
+      }
+    };
+    window.addEventListener('bakery:customer-data-changed', refreshCustomer);
+    window.addEventListener('focus', refreshCustomer);
+    document.addEventListener('visibilitychange', refreshVisibleCustomer);
+    return () => {
+      window.removeEventListener('bakery:customer-data-changed', refreshCustomer);
+      window.removeEventListener('focus', refreshCustomer);
+      document.removeEventListener('visibilitychange', refreshVisibleCustomer);
+    };
   }, []);
 
   const logout = useCallback(() => {

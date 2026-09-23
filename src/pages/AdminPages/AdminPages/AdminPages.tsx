@@ -1,0 +1,157 @@
+import { useState } from 'react';
+import { AdminLayout } from '../AdminLayout/AdminLayout';
+import { AdminDashboardPage } from '../AdminDashboardPage/AdminDashboardPage';
+import { AdminCustomersPage } from '../AdminCustomersPage/AdminCustomersPage';
+import { AdminProductsPage } from '../AdminProductsPage/AdminProductsPage';
+import { AdminOrdersPage } from '../AdminOrdersPage/AdminOrdersPage';
+import { AdminSettingsPage } from '../AdminSettingsPage/AdminSettingsPage';
+import { BakeryTenantProfile } from '../../../types';
+import styles from './AdminPages.module.css';
+
+interface AdminTenantSnapshot {
+  trade_name?: string;
+  address?: {
+    street?: string;
+    number?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+  };
+}
+
+interface StoredAdminUser {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  tenant?: AdminTenantSnapshot;
+}
+
+type AdminTab = 'dashboard' | 'customers' | 'products' | 'orders' | 'settings';
+
+const ADMIN_TABS: AdminTab[] = ['dashboard', 'customers', 'products', 'orders', 'settings'];
+
+function readStoredAdminTab(): AdminTab {
+  const storedTab = sessionStorage.getItem('bread_admin_active_tab');
+  return ADMIN_TABS.includes(storedTab as AdminTab) ? (storedTab as AdminTab) : 'dashboard';
+}
+
+function readStoredAdminUser(): StoredAdminUser {
+  const storedUser = localStorage.getItem('bread_admin_user');
+  if (!storedUser) return {};
+  try {
+    return JSON.parse(storedUser) as StoredAdminUser;
+  } catch {
+    return {};
+  }
+}
+
+export function AdminPages() {
+  const [activeTab, setActiveTab] = useState<AdminTab>(readStoredAdminTab);
+  const [customerFilter, setCustomerFilter] = useState<string | undefined>();
+  const [orderCustomerNickname, setOrderCustomerNickname] = useState<string | undefined>();
+  const [orderCustomerId, setOrderCustomerId] = useState<number | undefined>();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const [storedAdminUser, setStoredAdminUser] = useState(readStoredAdminUser);
+  const [tenant, setTenant] = useState<AdminTenantSnapshot | undefined>(storedAdminUser.tenant);
+  const userName =
+    [storedAdminUser.first_name, storedAdminUser.last_name].filter(Boolean).join(' ').trim() ||
+    storedAdminUser.email ||
+    'Admin';
+
+  const handleNavigateToCustomers = (filter?: string) => {
+    setCustomerFilter(filter);
+    setActiveTab('customers');
+  };
+
+  const handleNavigateToOrders = (customerNickname: string, customerId?: number) => {
+    setOrderCustomerNickname(customerNickname);
+    setOrderCustomerId(customerId);
+    setActiveTab('orders');
+    sessionStorage.setItem('bread_admin_active_tab', 'orders');
+  };
+
+  const handleTabChange = (tab: AdminTab) => {
+    if (tab !== 'orders') {
+      setOrderCustomerNickname(undefined);
+      setOrderCustomerId(undefined);
+    }
+    setActiveTab(tab);
+    sessionStorage.setItem('bread_admin_active_tab', tab);
+  };
+
+  const handleError = (error: string) => {
+    setErrorMessage(error);
+    setTimeout(() => setErrorMessage(''), 3000);
+  };
+
+  const handleSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const handleTenantUpdated = (profile: BakeryTenantProfile) => {
+    const nextTenant: AdminTenantSnapshot = {
+      trade_name: profile.trade_name,
+      address: {
+        street: profile.street,
+        number: profile.number,
+        neighborhood: profile.neighborhood,
+        city: profile.city,
+        state: profile.state,
+      },
+    };
+    const nextAdminUser = { ...storedAdminUser, tenant: nextTenant };
+    setTenant(nextTenant);
+    setStoredAdminUser(nextAdminUser);
+    localStorage.setItem('bread_admin_user', JSON.stringify(nextAdminUser));
+  };
+
+  return (
+    <AdminLayout
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+      userName={userName}
+      tenant={tenant}
+    >
+      {errorMessage && <div className={styles.errorAlert}>{errorMessage}</div>}
+      {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
+
+      {activeTab === 'dashboard' && (
+        <AdminDashboardPage
+          onNavigateToCustomers={handleNavigateToCustomers}
+          onError={handleError}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+      {activeTab === 'customers' && (
+        <AdminCustomersPage
+          initialFilter={customerFilter}
+          onNavigateToOrders={handleNavigateToOrders}
+          onError={handleError}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+      {activeTab === 'products' && <AdminProductsPage />}
+
+      {activeTab === 'orders' && (
+        <AdminOrdersPage
+          customerNickname={orderCustomerNickname}
+          customerId={orderCustomerId}
+          initialStatus="ALL"
+        />
+      )}
+
+      {activeTab === 'settings' && (
+        <AdminSettingsPage
+          onError={handleError}
+          onSuccess={handleSuccess}
+          onTenantUpdated={handleTenantUpdated}
+        />
+      )}
+    </AdminLayout>
+  );
+}

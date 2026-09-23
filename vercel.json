@@ -1,0 +1,38 @@
+{
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://eb-system-api.onrender.com/api/:path*"
+    },
+    {
+      "source": "/register/professionals/:path*",
+      "destination": "https://eb-system-api.onrender.com/register/professionals/:path*"
+    },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/pending", "destination": "/index.html" },
+    { "source": "/admin/:path*", "destination": "/index.html" },
+    { "source": "/customer/:path*", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

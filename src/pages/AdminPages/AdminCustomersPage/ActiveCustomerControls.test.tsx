@@ -1,0 +1,154 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ActiveCustomerControls } from './ActiveCustomerControls';
+
+const onBlock = vi.fn();
+const onCustomerUpdated = vi.fn();
+
+const customer = {
+  id: 12,
+  nickname: 'Cliente Teste',
+  phone: '19999999999',
+  credit_limit: '1000.00',
+  financial_limit: '1000.00',
+};
+
+describe('ActiveCustomerControls', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.setItem('bread_admin_token', 'token-admin');
+  });
+
+  it('mostra Bloquear quando o limite nao foi alterado', () => {
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: '🚫 Bloquear' })).toBeInTheDocument();
+  });
+
+  it('troca Bloquear por Salvar alteracao ao mudar o limite', async () => {
+    const user = userEvent.setup();
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    const limitInput = screen.getByRole('spinbutton', { name: 'Limite de Cliente Teste' });
+    await user.clear(limitInput);
+    await user.type(limitInput, '1500');
+
+    expect(screen.getByRole('button', { name: '💾 Salvar alteração' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '🚫 Bloquear' })).not.toBeInTheDocument();
+  });
+
+  it('mostra Salvar alteracao no painel expandido quando o limite muda', async () => {
+    const user = userEvent.setup();
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+        showBlockButton={false}
+      />
+    );
+
+    const limitInput = screen.getByRole('spinbutton', { name: 'Limite de Cliente Teste' });
+    await user.clear(limitInput);
+    await user.type(limitInput, '1500');
+
+    expect(screen.getByRole('button', { name: '💾 Salvar alteração' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '🚫 Bloquear' })).not.toBeInTheDocument();
+  });
+
+  it('abre confirmacao protegida para visualizar a senha', async () => {
+    const user = userEvent.setup();
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Visualizar senha de Cliente Teste' }));
+
+    expect(screen.getByRole('heading', { name: 'Visualizar senha' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Digite sua senha')).toBeInTheDocument();
+  });
+
+  it('copia a senha apos a primeira autorizacao e reutiliza a sessao', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ password_plain_text: 'Senha@123' }),
+    } as Response);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const clipboardNavigator = { clipboard: { writeText } };
+    Object.defineProperty(window, 'navigator', {
+      configurable: true,
+      value: clipboardNavigator,
+    });
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: clipboardNavigator,
+    });
+    const user = userEvent.setup();
+
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Copiar senha de Cliente Teste' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('✅ Senha de Cliente Teste copiada.')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByPlaceholderText('Digite sua senha')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Copiar senha de Cliente Teste' }));
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('atualiza a senha sem compartilhar automaticamente', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ password_plain_text: 'NovaSenha@456' }),
+    } as Response);
+    const user = userEvent.setup();
+
+    render(
+      <ActiveCustomerControls
+        customer={customer}
+        onBlock={onBlock}
+        onCustomerUpdated={onCustomerUpdated}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Atualizar senha de Cliente Teste' }));
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'senha-correta');
+    await user.click(screen.getByRole('button', { name: 'Atualizar Senha' }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/v1/bakery/customers/12/set-password/',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+    expect(screen.getByDisplayValue('NovaSenha@456')).toBeInTheDocument();
+  });
+});

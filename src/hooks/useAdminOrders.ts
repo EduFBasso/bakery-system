@@ -5,16 +5,25 @@ export interface AdminOrder {
   order_number: string;
   customer_id: number;
   customer_nickname: string;
+  customer_phone: string;
   status: string;
   status_display: string;
-  order_date: string;
+  created_at: string;
   delivery_date: string;
+  shipping_street: string;
+  shipping_number: string;
+  shipping_complement?: string;
+  shipping_neighborhood: string;
+  shipping_city: string;
+  shipping_state: string;
   total_value: string;
   payment_method: string;
+  notes?: string;
   paid_at?: string | null;
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
   items: any[];
+  order_items?: any[];
 }
 
 export interface AdminOrdersResponse {
@@ -25,13 +34,27 @@ export interface AdminOrdersResponse {
 }
 
 export function useAdminOrders(filters?: {
+  enabled?: boolean;
   status?: string;
   customer_nickname?: string;
+  customer_id?: number;
+  ordering?: string;
+  open_only?: boolean;
   date_from?: string;
   date_to?: string;
   page?: number;
   page_size?: number;
 }) {
+  const enabled = filters?.enabled ?? true;
+  const status = filters?.status;
+  const customerNickname = filters?.customer_nickname;
+  const customerId = filters?.customer_id;
+  const ordering = filters?.ordering;
+  const openOnly = filters?.open_only;
+  const dateFrom = filters?.date_from;
+  const dateTo = filters?.date_to;
+  const page = filters?.page;
+  const pageSize = filters?.page_size;
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +65,13 @@ export function useAdminOrders(filters?: {
   });
 
   useEffect(() => {
+    if (!enabled) {
+      setOrders([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const adminToken = localStorage.getItem('bread_admin_token');
 
     if (!adminToken) {
@@ -56,16 +86,18 @@ export function useAdminOrders(filters?: {
       try {
         // Build query string
         const params = new URLSearchParams();
-        if (filters?.status) {
-          const statusValue = filters.status === 'PAID' ? 'CONFIRMED,DELIVERED' : filters.status;
+        if (status && status !== 'ALL') {
+          const statusValue = status === 'PAID' ? 'CONFIRMED,DELIVERED' : status;
           params.append('status', statusValue);
         }
-        if (filters?.customer_nickname)
-          params.append('customer_nickname', filters.customer_nickname);
-        if (filters?.date_from) params.append('date_from', filters.date_from);
-        if (filters?.date_to) params.append('date_to', filters.date_to);
-        if (filters?.page) params.append('page', filters.page.toString());
-        if (filters?.page_size) params.append('page_size', filters.page_size.toString());
+        if (customerNickname) params.append('customer_nickname', customerNickname);
+        if (customerId) params.append('customer_id', customerId.toString());
+        if (ordering) params.append('ordering', ordering);
+        if (openOnly) params.append('open_only', 'true');
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+        if (page) params.append('page', page.toString());
+        if (pageSize) params.append('page_size', pageSize.toString());
 
         const queryString = params.toString();
         const url = `/api/v1/bakery/orders/${queryString ? '?' + queryString : ''}`;
@@ -91,7 +123,13 @@ export function useAdminOrders(filters?: {
         }
 
         const data: AdminOrdersResponse = await response.json();
-        setOrders(data.results);
+        setOrders(
+          data.results.map((order) => ({
+            ...order,
+            created_at: order.created_at ?? (order as { order_date?: string }).order_date ?? '',
+            items: order.order_items ?? order.items ?? [],
+          }))
+        );
         setPagination({
           count: data.count,
           next: data.next,
@@ -107,7 +145,18 @@ export function useAdminOrders(filters?: {
     };
 
     fetchOrders();
-  }, [filters]);
+  }, [
+    enabled,
+    status,
+    customerNickname,
+    customerId,
+    ordering,
+    openOnly,
+    dateFrom,
+    dateTo,
+    page,
+    pageSize,
+  ]);
 
   return {
     orders,

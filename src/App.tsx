@@ -1,17 +1,27 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage, RegisterPage, PendingPage, AdminPages, ClientPages } from './pages';
-import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage';
+import { AdminLoginPage } from './pages/AdminPages/AdminLoginPage/AdminLoginPage';
 import { CustomerLoginPage } from './pages/ClientPages/CustomerLoginPage';
-import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage';
+import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrderPage/CustomerCreateOrderPage';
+import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummaryPage/AdminCustomerSummaryPage';
+import { AdminOrderPrintPage } from './pages/AdminPages/AdminOrderPrintPage/AdminOrderPrintPage';
+import { AdminOpenBalanceReportPage } from './pages/AdminPages/AdminOpenBalanceReportPage/AdminOpenBalanceReportPage';
 import './App.css';
 
-function AdminRoute() {
+function AdminRoute({
+  summary = false,
+  orderPrint = false,
+  openBalanceReport = false,
+}: { summary?: boolean; orderPrint?: boolean; openBalanceReport?: boolean } = {}) {
   const hasToken = !!localStorage.getItem('bread_admin_token');
 
   if (!hasToken) {
     return <AdminLoginPage />;
   }
 
+  if (summary) return <AdminCustomerSummaryPage />;
+  if (orderPrint) return <AdminOrderPrintPage />;
+  if (openBalanceReport) return <AdminOpenBalanceReportPage />;
   return <AdminPages />;
 }
 
@@ -46,9 +56,11 @@ export default function App() {
 
         {/* Admin */}
         <Route path="/admin" element={<AdminRoute />} />
+        <Route path="/admin/customers/:customerId/summary" element={<AdminRoute summary />} />
+        <Route path="/admin/orders/:orderId/print" element={<AdminRoute orderPrint />} />
+        <Route path="/admin/customers/open-balance/print" element={<AdminRoute openBalanceReport />} />
 
         {/* Cliente */}
-        <Route path="/dashboard" element={<ClientPages />} />
         <Route path="/customer/dashboard" element={<CustomerRoute />} />
         <Route path="/customer/orders/create" element={<CustomerRoute page="create-order" />} />
 
