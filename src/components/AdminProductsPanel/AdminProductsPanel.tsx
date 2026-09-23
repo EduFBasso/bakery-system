@@ -21,7 +21,7 @@ export function AdminProductsPanel({ onRefresh }: ProductsPanelProps) {
     is_active: true,
   });
 
-  const { products, loading, error, refetch } = useProducts();
+  const { products, loading, error, refetch } = useProducts('admin');
   const { createProduct, loading: createLoading } = useCreateProduct();
   const { updateProduct, loading: updateLoading } = useUpdateProduct();
   const { deleteProduct } = useDeleteProduct();

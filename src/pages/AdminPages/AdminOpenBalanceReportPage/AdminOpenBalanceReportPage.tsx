@@ -113,7 +113,7 @@ export function AdminOpenBalanceReportPage() {
         </button>
       </div>
 
-      <div className={styles.reportPages}>
+      <div className={styles.reportPages} data-print-card="open-balance-report">
         {(customerPages.length ? customerPages : [[]]).map((pageCustomers, pageIndex) => (
           <section className={styles.paper} key={pageIndex} data-page-number={pageIndex + 1}>
             <header className={styles.companyHeader}>

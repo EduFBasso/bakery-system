@@ -145,7 +145,18 @@ export function useAdminOrders(filters?: {
     };
 
     fetchOrders();
-  }, [enabled, status, customerNickname, customerId, openOnly, dateFrom, dateTo, page, pageSize]);
+  }, [
+    enabled,
+    status,
+    customerNickname,
+    customerId,
+    ordering,
+    openOnly,
+    dateFrom,
+    dateTo,
+    page,
+    pageSize,
+  ]);
 
   return {
     orders,

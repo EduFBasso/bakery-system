@@ -1,3 +1,4 @@
+import { normalizeCustomerStatus } from '../../../utils/normalizeCustomerStatus';
 import styles from './CustomerPrintView.module.css';
 
 export interface PrintableCustomer {
@@ -51,8 +52,8 @@ export function CustomerPrintView({
     customer.customer_type === 'PF'
       ? customer.cpf || customer.cnpj_cpf
       : customer.cnpj || customer.cnpj_cpf;
-  const normalizedStatus = (customer.status || '').trim().toUpperCase();
-  const isPending = normalizedStatus === 'PENDENTE' || normalizedStatus === 'PENDING';
+  const statusLabel = normalizeCustomerStatus(customer.status);
+  const isPending = statusLabel === 'PENDENTE';
   const issuedAt = new Date().toLocaleString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -80,9 +81,9 @@ export function CustomerPrintView({
         <div className={styles.sectionHeading}>
           <h2>Dados do Cliente</h2>
           <span
-            className={`${styles.sectionStatus} ${customer.status === 'APROVADO' ? styles.statusApproved : ''} ${customer.status === 'BLOQUEADO' ? styles.statusBlocked : ''} ${isPending ? styles.statusPending : ''}`}
+            className={`${styles.sectionStatus} ${statusLabel === 'APROVADO' ? styles.statusApproved : ''} ${statusLabel === 'BLOQUEADO' ? styles.statusBlocked : ''} ${isPending ? styles.statusPending : ''}`}
           >
-            Status: {customer.status || 'Não informado'}
+            Status: {statusLabel}
           </span>
         </div>
         <dl className={styles.dataGrid}>

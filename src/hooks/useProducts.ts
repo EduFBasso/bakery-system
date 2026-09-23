@@ -9,7 +9,7 @@ export interface Product {
   created_at: string;
 }
 
-export function useProducts() {
+export function useProducts(context: 'customer' | 'admin' = 'customer') {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -17,7 +17,9 @@ export function useProducts() {
 
   const getAuthHeaders = () => {
     const token =
-      localStorage.getItem('bread_customer_token') || localStorage.getItem('bread_admin_token');
+      context === 'admin'
+        ? localStorage.getItem('bread_admin_token')
+        : localStorage.getItem('bread_customer_token');
     if (!token) {
       throw new Error('Sessão não autenticada');
     }

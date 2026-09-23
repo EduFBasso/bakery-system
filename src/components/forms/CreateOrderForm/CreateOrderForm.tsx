@@ -17,7 +17,7 @@ interface CartItem {
 export function CreateOrderForm() {
   const navigate = useNavigate();
   const { customer, token } = useCustomerAuth();
-  const { products, loading: productsLoading, error: productsError } = useProducts();
+  const { products, loading: productsLoading, error: productsError } = useProducts('customer');
   const { createOrder, loading: orderLoading, error: orderError } = useCreateOrder();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);

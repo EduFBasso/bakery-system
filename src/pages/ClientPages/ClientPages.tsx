@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../hooks';
 import { BalanceCard } from '../../components/BalanceCard/BalanceCard';
 import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersList';
+import { TransactionHistory } from '../../components/CustomerTransactionHistory/CustomerTransactionHistory';
 import { SmartSection } from '../../components/SmartSection/SmartSection';
 import { CustomerProfileEditor } from '../../components/CustomerProfileEditor/CustomerProfileEditor';
 import { ApiService } from '../../services/api';
@@ -106,6 +107,14 @@ export function ClientPages() {
           onToggle={() => toggleSection('orders')}
         >
           <OrdersList />
+        </SmartSection>
+
+        <SmartSection
+          title="Histórico de Pagamentos"
+          isOpen={openSection === 'payments'}
+          onToggle={() => toggleSection('payments')}
+        >
+          <TransactionHistory />
         </SmartSection>
 
         <div className={styles.newOrderButton}>

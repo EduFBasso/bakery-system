@@ -261,6 +261,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
           placeholder="Avenida Paulista"
           value={address.street}
           disabled={Boolean(address.street)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, street: e.target.value }))}
           required
         />
       </FormGroup>
@@ -293,6 +294,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
           placeholder="Centro"
           value={address.neighborhood}
           disabled={Boolean(address.neighborhood)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, neighborhood: e.target.value }))}
           required
         />
       </FormGroup>
@@ -303,6 +305,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
           placeholder="São Paulo"
           value={address.city}
           disabled={Boolean(address.city)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
           required
         />
       </FormGroup>
@@ -313,6 +316,7 @@ export function CustomerForm({ onSubmit, isLoading = false, errors = {} }: Custo
           placeholder="SP"
           value={address.state}
           disabled={Boolean(address.state)}
+          onChange={(e) => setAddress((prev) => ({ ...prev, state: e.target.value }))}
           maxLength={2}
           required
         />
