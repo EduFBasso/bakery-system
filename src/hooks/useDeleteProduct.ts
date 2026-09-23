@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
 
 interface UseDeleteProductReturn {
   deleteProduct: (productId: number) => Promise<boolean>;
@@ -20,7 +21,7 @@ export function useDeleteProduct(): UseDeleteProductReturn {
         throw new Error('Admin não autenticado');
       }
 
-      const response = await fetch(`/api/v1/bakery/products/${productId}/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/products/${productId}/`), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${adminToken}`,

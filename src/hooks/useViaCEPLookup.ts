@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { apiUrl } from '../config/api';
 
 interface ViaCEPResponse {
   street: string; // Rua
@@ -61,7 +62,7 @@ export function useViaCEPLookup(options: UseViaCEPLookupOptions = {}) {
       // Debounce 300ms antes de fazer a requisição
       debounceTimerRef.current = setTimeout(async () => {
         try {
-          const response = await fetch('/api/v1/bakery/customers/lookup-cep/', {
+          const response = await fetch(apiUrl('/api/v1/bakery/customers/lookup-cep/'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

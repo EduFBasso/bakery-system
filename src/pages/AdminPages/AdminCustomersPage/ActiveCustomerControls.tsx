@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../../../config/api';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
 import { buildAccessWhatsAppMessage, openWhatsAppMessage } from '../../../utils/whatsapp';
@@ -55,11 +56,14 @@ export function ActiveCustomerControls({
   };
 
   const revealOfficialPassword = async (adminPassword: string) => {
-    const response = await fetch(`/api/v1/bakery/customers/${customer.id}/reveal-password/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ admin_password: adminPassword.trim() }),
-    });
+    const response = await fetch(
+      apiUrl(`/api/v1/bakery/customers/${customer.id}/reveal-password/`),
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ admin_password: adminPassword.trim() }),
+      }
+    );
     if (!response.ok) {
       throw new Error(await readErrorMessage(response, 'Erro ao recuperar senha oficial'));
     }
@@ -73,7 +77,7 @@ export function ActiveCustomerControls({
   };
 
   const updateOfficialPassword = async (adminPassword: string) => {
-    const response = await fetch(`/api/v1/bakery/customers/${customer.id}/set-password/`, {
+    const response = await fetch(apiUrl(`/api/v1/bakery/customers/${customer.id}/set-password/`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify({ admin_password: adminPassword.trim() }),
@@ -113,7 +117,7 @@ export function ActiveCustomerControls({
         setActionSuccess(`✅ Senha de ${customer.nickname} enviada para o WhatsApp.`);
       } else if (action === 'update-limit') {
         const response = await fetch(
-          `/api/v1/bakery/customers/${customer.id}/update-credit-limit/`,
+          apiUrl(`/api/v1/bakery/customers/${customer.id}/update-credit-limit/`),
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },

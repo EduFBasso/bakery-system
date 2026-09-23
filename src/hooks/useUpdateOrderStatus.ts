@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
 
 export interface UpdateOrderStatusPayload {
   status: string;
@@ -31,7 +32,7 @@ export function useUpdateOrderStatus() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/v1/bakery/orders/${orderId}/status/`, {
+      const response = await fetch(apiUrl(`/api/v1/bakery/orders/${orderId}/status/`), {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
