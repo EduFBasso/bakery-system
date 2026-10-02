@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+import { getAdminSessionToken, getCustomerSessionToken } from '../services/session';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,24 +8,8 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole = 'admin' }: ProtectedRouteProps) {
   if (requiredRole === 'admin') {
-    const adminToken = localStorage.getItem('bread_admin_token');
-
-    if (!adminToken) {
-      return <Navigate to="/admin" replace />;
-    }
-
-    return <>{children}</>;
+    return getAdminSessionToken() ? <>{children}</> : <Navigate to="/admin" replace />;
   }
 
-  if (requiredRole === 'customer') {
-    const customerToken = localStorage.getItem('bread_customer_token');
-
-    if (!customerToken) {
-      return <Navigate to="/customer/login" replace />;
-    }
-
-    return <>{children}</>;
-  }
-
-  return <>{children}</>;
+  return getCustomerSessionToken() ? <>{children}</> : <Navigate to="/login" replace />;
 }

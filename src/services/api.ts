@@ -9,7 +9,7 @@ import {
 import { apiUrl } from '../config/api';
 
 const API_BASE_URL = '/api/v1/bakery';
-const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/';
+const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/customer/';
 import { resolveTenantSlug } from '../config/tenant';
 
 export class ApiService {

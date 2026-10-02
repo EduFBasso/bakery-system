@@ -3,6 +3,8 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerLogin } from '../../hooks';
 import { Button } from '../../components/ui/Button';
+import { ApiService } from '../../services/api';
+import { getCustomerSessionToken } from '../../services/session';
 import styles from '../LoginPage.module.css';
 
 export function CustomerLoginPage() {
@@ -10,12 +12,19 @@ export function CustomerLoginPage() {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [tenantName, setTenantName] = useState('');
 
   useEffect(() => {
-    if (localStorage.getItem('bread_customer_token')) {
+    if (getCustomerSessionToken()) {
       navigate('/customer/dashboard', { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    ApiService.getTenantIdentity()
+      .then((identity) => setTenantName(identity.trade_name || ''))
+      .catch(() => setTenantName(''));
+  }, []);
 
   const { login, loading, error, clearError } = useCustomerLogin({
     onSuccess: () => {
@@ -51,7 +60,9 @@ export function CustomerLoginPage() {
     <div className={styles.page}>
       <div className={styles.container}>
         <h1 className={styles.title}>🥖 Login Cliente</h1>
-        <p className={styles.subtitle}>Acesse sua conta para fazer pedidos</p>
+        <p className={styles.subtitle}>
+          {tenantName ? `${tenantName} · ` : ''}Acesse sua conta de cliente para fazer pedidos
+        </p>
 
         {error && (
           <div className={styles.errorAlert}>

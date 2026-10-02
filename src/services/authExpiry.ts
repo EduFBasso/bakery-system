@@ -1,18 +1,7 @@
+import { clearAdminSession, clearCustomerSession } from './session';
+
 const EXPIRY_MESSAGE = 'Sua sessão expirou. Faça login novamente para continuar.';
 const EXPIRY_MESSAGE_KEY = 'bread_auth_expiry_message';
-
-function clearAdminSession() {
-  localStorage.removeItem('bread_admin_token');
-  localStorage.removeItem('bread_admin_refresh');
-  localStorage.removeItem('bread_admin_role');
-  localStorage.removeItem('bread_admin_user');
-}
-
-function clearCustomerSession() {
-  localStorage.removeItem('bread_customer_token');
-  localStorage.removeItem('bread_customer_refresh');
-  localStorage.removeItem('bread_customer_user');
-}
 
 function clearSessionForToken(token: string) {
   if (token && token === localStorage.getItem('bread_admin_token')) {

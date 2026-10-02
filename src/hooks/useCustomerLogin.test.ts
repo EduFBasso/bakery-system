@@ -2,6 +2,21 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCustomerLogin } from './useCustomerLogin';
 
+const approvedCustomer = {
+  id: 1,
+  customer_id: 1,
+  nickname: 'cliente',
+  customer_type: 'PJ',
+  status: 'APROVADO',
+};
+
+function mockLoginResponse(body: Record<string, unknown>) {
+  return vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+    ok: true,
+    json: async () => body,
+  } as Response);
+}
+
 describe('useCustomerLogin', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -25,27 +40,77 @@ describe('useCustomerLogin', () => {
     expect(fetchSpy).toHaveBeenCalledOnce();
   });
 
-  it('preserva a sessão admin ao autenticar o cliente', async () => {
-    localStorage.setItem('bread_admin_token', 'token-admin');
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        access: 'token-cliente',
-        refresh: 'refresh-cliente',
-        customer: {
-          id: 1,
-          customer_id: 1,
-          nickname: 'cliente',
-          customer_type: 'PJ',
-          status: 'ACTIVE',
-        },
-      }),
-    } as Response);
+  it('chama o endpoint de login de cliente', async () => {
+    const fetchSpy = mockLoginResponse({
+      access: 'token-cliente',
+      refresh: 'refresh-cliente',
+      role: 'member',
+      customer: approvedCustomer,
+    });
     const { result } = renderHook(() => useCustomerLogin());
 
     await result.current.login('cliente', 'senha-correta');
 
-    expect(localStorage.getItem('bread_admin_token')).toBe('token-admin');
+    expect(String(fetchSpy.mock.calls[0][0])).toContain('/api/v1/auth/bakery/login/customer/');
+  });
+
+  it('persiste somente a sessão de cliente e descarta a sessão admin', async () => {
+    localStorage.setItem('bread_admin_token', 'token-admin');
+    localStorage.setItem('bread_admin_user', '{}');
+    mockLoginResponse({
+      access: 'token-cliente',
+      refresh: 'refresh-cliente',
+      role: 'member',
+      customer: approvedCustomer,
+    });
+    const { result } = renderHook(() => useCustomerLogin());
+
+    await expect(result.current.login('cliente', 'senha-correta')).resolves.toBe(true);
+
+    expect(localStorage.getItem('bread_admin_token')).toBeNull();
+    expect(localStorage.getItem('bread_admin_user')).toBeNull();
     expect(localStorage.getItem('bread_customer_token')).toBe('token-cliente');
+    expect(localStorage.getItem('bread_customer_refresh')).toBe('refresh-cliente');
+    expect(JSON.parse(localStorage.getItem('bread_customer_user') || '{}').nickname).toBe(
+      'cliente'
+    );
+  });
+
+  it('rejeita resposta sem customer e não salva sessão', async () => {
+    mockLoginResponse({ access: 'a', refresh: 'r', role: 'member' });
+    const { result } = renderHook(() => useCustomerLogin());
+
+    await expect(result.current.login('cliente', 'senha')).resolves.toBe(false);
+
+    expect(localStorage.getItem('bread_customer_token')).toBeNull();
+  });
+
+  it('rejeita cliente não aprovado e não salva sessão', async () => {
+    mockLoginResponse({
+      access: 'a',
+      refresh: 'r',
+      role: 'member',
+      customer: { ...approvedCustomer, status: 'PENDENTE' },
+    });
+    const { result } = renderHook(() => useCustomerLogin());
+
+    await expect(result.current.login('cliente', 'senha')).resolves.toBe(false);
+
+    expect(localStorage.getItem('bread_customer_token')).toBeNull();
+  });
+
+  it('rejeita perfil administrativo orientando o login administrativo', async () => {
+    mockLoginResponse({
+      access: 'a',
+      refresh: 'r',
+      role: 'owner',
+      customer: approvedCustomer,
+    });
+    const { result } = renderHook(() => useCustomerLogin());
+
+    await expect(result.current.login('dono', 'senha')).resolves.toBe(false);
+
+    await waitFor(() => expect(result.current.error).toContain('login administrativo'));
+    expect(localStorage.getItem('bread_customer_token')).toBeNull();
   });
 });

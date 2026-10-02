@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { resolveTenantSlug } from '../config/tenant';
 import { apiUrl } from '../config/api';
+import { clearCustomerSession, persistCustomerSession } from '../services/session';
 
 interface CustomerUser {
   id: number;
@@ -14,6 +15,7 @@ interface CustomerUser {
 interface CustomerLoginResponse {
   access: string;
   refresh: string;
+  role: string;
   customer?: CustomerUser;
 }
 
@@ -64,7 +66,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
       const tenantSlug = resolveTenantSlug();
 
       try {
-        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/'), {
+        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/customer/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,13 +87,12 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
           return false;
         }
 
-        // Salvar tokens e info do cliente
-        localStorage.setItem('bread_customer_token', data.access);
-        localStorage.setItem('bread_customer_refresh', data.refresh);
-        if (data.customer) {
-          localStorage.setItem('bread_customer_user', JSON.stringify(data.customer));
-        } else {
-          localStorage.removeItem('bread_customer_user');
+        // Só persiste a sessão se for member com cliente aprovado
+        const sessionError = persistCustomerSession(data);
+        if (sessionError) {
+          setError(sessionError);
+          optionsRef.current?.onError?.(sessionError);
+          return false;
         }
 
         optionsRef.current?.onSuccess?.(data);
@@ -113,9 +114,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('bread_customer_token');
-    localStorage.removeItem('bread_customer_refresh');
-    localStorage.removeItem('bread_customer_user');
+    clearCustomerSession();
   }, []);
 
   return {
