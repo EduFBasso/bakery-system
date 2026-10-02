@@ -12,7 +12,9 @@
     { "source": "/login", "destination": "/index.html" },
     { "source": "/register", "destination": "/index.html" },
     { "source": "/pending", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
     { "source": "/admin/:path*", "destination": "/index.html" },
+    { "source": "/customer", "destination": "/index.html" },
     { "source": "/customer/:path*", "destination": "/index.html" }
   ],
   "headers": [

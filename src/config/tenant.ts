@@ -3,6 +3,12 @@ const LOCAL_TENANT_ALIASES: Record<string, string> = {
   'admin1-panificadora1': 'admin-panificadora',
 };
 
+type TenantConfig = {
+  tenantSlug?: string;
+  publicHost?: string;
+  rootDomain?: string;
+};
+
 export function resolveLocalTenantSlug(hostname: string): string | null {
   if (!hostname.endsWith('.localhost')) {
     return null;
@@ -12,9 +18,11 @@ export function resolveLocalTenantSlug(hostname: string): string | null {
   return LOCAL_TENANT_ALIASES[localSlug] || localSlug;
 }
 
-export function resolveTenantSlug(): string {
-  const hostname = window.location.hostname;
-  const configuredFallback = import.meta.env.VITE_BAKERY_TENANT_SLUG || DEFAULT_TENANT_SLUG;
+export function resolveTenantSlugForHostname(
+  hostname: string,
+  config: TenantConfig = {},
+): string {
+  const configuredFallback = config.tenantSlug || DEFAULT_TENANT_SLUG;
 
   // Desenvolvimento local:
   // admin-panificadora.localhost
@@ -23,12 +31,14 @@ export function resolveTenantSlug(): string {
     return localTenantSlug;
   }
 
-  const rootDomain = import.meta.env.VITE_BAKERY_ROOT_DOMAIN;
+  if (config.publicHost && hostname === config.publicHost) {
+    return configuredFallback;
+  }
 
   // Produção:
   // admin2-panificadora2.seudominio.com
-  if (rootDomain && hostname.endsWith(`.${rootDomain}`)) {
-    const subdomain = hostname.slice(0, -(rootDomain.length + 1));
+  if (config.rootDomain && hostname.endsWith(`.${config.rootDomain}`)) {
+    const subdomain = hostname.slice(0, -(config.rootDomain.length + 1));
 
     if (subdomain && !subdomain.includes('.')) {
       return subdomain;
@@ -37,4 +47,12 @@ export function resolveTenantSlug(): string {
 
   // Preview da Vercel ou acesso direto sem subdomínio.
   return configuredFallback;
+}
+
+export function resolveTenantSlug(): string {
+  return resolveTenantSlugForHostname(window.location.hostname, {
+    tenantSlug: import.meta.env.VITE_BAKERY_TENANT_SLUG,
+    publicHost: import.meta.env.VITE_BAKERY_PUBLIC_HOST,
+    rootDomain: import.meta.env.VITE_BAKERY_ROOT_DOMAIN,
+  });
 }
