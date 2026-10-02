@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiUrl } from '../config/api';
+import { getAdminSessionToken, getCustomerSessionToken } from '../services/session';
 
 export interface Product {
   id: number;
@@ -16,13 +17,14 @@ export function useProducts(context: 'customer' | 'admin' = 'customer') {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getAuthHeaders = () => {
-    const token =
-      context === 'admin'
-        ? localStorage.getItem('bread_admin_token')
-        : localStorage.getItem('bread_customer_token');
+  const getAuthHeaders = useCallback(() => {
+    const token = context === 'admin' ? getAdminSessionToken() : getCustomerSessionToken();
     if (!token) {
-      throw new Error('Sessão não autenticada');
+      throw new Error(
+        context === 'admin'
+          ? 'Sessão administrativa não autenticada'
+          : 'Sessão de cliente não autenticada'
+      );
     }
 
     return {
@@ -30,44 +32,47 @@ export function useProducts(context: 'customer' | 'admin' = 'customer') {
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };
-  };
+  }, [context]);
 
-  const fetchProducts = async (initialLoad = false) => {
-    try {
-      if (initialLoad) {
-        setLoading(true);
-      } else {
-        setRefreshing(true);
+  const fetchProducts = useCallback(
+    async (initialLoad = false) => {
+      try {
+        if (initialLoad) {
+          setLoading(true);
+        } else {
+          setRefreshing(true);
+        }
+        setError(null);
+
+        const response = await fetch(apiUrl('/api/v1/bakery/products/'), {
+          method: 'GET',
+          headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro ao carregar produtos: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setProducts(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erro ao carregar produtos';
+        setError(message);
+        console.error('Products fetch error:', err);
+      } finally {
+        if (initialLoad) {
+          setLoading(false);
+        } else {
+          setRefreshing(false);
+        }
       }
-      setError(null);
-
-      const response = await fetch(apiUrl('/api/v1/bakery/products/'), {
-        method: 'GET',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao carregar produtos: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setProducts(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao carregar produtos';
-      setError(message);
-      console.error('Products fetch error:', err);
-    } finally {
-      if (initialLoad) {
-        setLoading(false);
-      } else {
-        setRefreshing(false);
-      }
-    }
-  };
+    },
+    [getAuthHeaders]
+  );
 
   useEffect(() => {
     void fetchProducts(true);
-  }, []);
+  }, [fetchProducts]);
 
   return {
     products,

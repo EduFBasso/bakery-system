@@ -52,12 +52,6 @@ export function HomePage() {
           <p>Acesse sua conta para fazer pedidos</p>
           <Button onClick={() => navigate('/login')}>Entrar</Button>
         </Card>
-
-        <Card>
-          <h2>Sou o Dono</h2>
-          <p>Gerencie clientes e pedidos</p>
-          <Button onClick={() => navigate('/admin')}>Admin</Button>
-        </Card>
       </div>
     </div>
   );

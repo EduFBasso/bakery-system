@@ -21,15 +21,17 @@ function renderHome() {
 }
 
 describe('HomePage', () => {
-  it('encaminha o dono para /admin', async () => {
-    renderHome();
-    await userEvent.click(screen.getByRole('button', { name: 'Admin' }));
-    expect(screen.getByText('tela admin')).toBeInTheDocument();
-  });
-
   it('encaminha o cliente para /login', async () => {
     renderHome();
     await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
     expect(screen.getByText('tela cliente')).toBeInTheDocument();
+  });
+
+  it('mantém apenas as escolhas de cliente na entrada', () => {
+    renderHome();
+    expect(screen.getByRole('heading', { name: 'Novo Cliente' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Já é Cliente' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Sou o Dono' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Admin' })).not.toBeInTheDocument();
   });
 });
