@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiUrl } from '../config/api';
+import { getAdminSessionToken } from '../services/session';
 
 export interface AdminOrder {
   id: number;
@@ -73,7 +74,7 @@ export function useAdminOrders(filters?: {
       return;
     }
 
-    const adminToken = localStorage.getItem('bread_admin_token');
+    const adminToken = getAdminSessionToken();
 
     if (!adminToken) {
       setError('Token de admin não disponível');

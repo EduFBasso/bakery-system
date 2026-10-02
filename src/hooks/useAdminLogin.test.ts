@@ -34,7 +34,7 @@ describe('useAdminLogin', () => {
   });
 
   it.each(['owner', 'admin'])(
-    'persiste a sessão admin para %s e descarta a sessão de cliente',
+    'persiste a sessão admin para %s sem descartar a sessão de cliente de outra rota',
     async (role) => {
       localStorage.setItem('bread_customer_token', 'token-cliente');
       localStorage.setItem('bread_customer_user', '{}');
@@ -47,8 +47,8 @@ describe('useAdminLogin', () => {
       expect(localStorage.getItem('bread_admin_refresh')).toBe('r');
       expect(localStorage.getItem('bread_admin_role')).toBe(role);
       expect(JSON.parse(localStorage.getItem('bread_admin_user') || '{}').tenant).toEqual(tenant);
-      expect(localStorage.getItem('bread_customer_token')).toBeNull();
-      expect(localStorage.getItem('bread_customer_user')).toBeNull();
+      expect(localStorage.getItem('bread_customer_token')).toBe('token-cliente');
+      expect(localStorage.getItem('bread_customer_user')).toBe('{}');
     }
   );
 

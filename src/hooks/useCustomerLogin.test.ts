@@ -54,7 +54,7 @@ describe('useCustomerLogin', () => {
     expect(String(fetchSpy.mock.calls[0][0])).toContain('/api/v1/auth/bakery/login/customer/');
   });
 
-  it('persiste somente a sessão de cliente e descarta a sessão admin', async () => {
+  it('persiste a sessão de cliente sem descartar a sessão admin de outra rota', async () => {
     localStorage.setItem('bread_admin_token', 'token-admin');
     localStorage.setItem('bread_admin_user', '{}');
     mockLoginResponse({
@@ -67,8 +67,8 @@ describe('useCustomerLogin', () => {
 
     await expect(result.current.login('cliente', 'senha-correta')).resolves.toBe(true);
 
-    expect(localStorage.getItem('bread_admin_token')).toBeNull();
-    expect(localStorage.getItem('bread_admin_user')).toBeNull();
+    expect(localStorage.getItem('bread_admin_token')).toBe('token-admin');
+    expect(localStorage.getItem('bread_admin_user')).toBe('{}');
     expect(localStorage.getItem('bread_customer_token')).toBe('token-cliente');
     expect(localStorage.getItem('bread_customer_refresh')).toBe('refresh-cliente');
     expect(JSON.parse(localStorage.getItem('bread_customer_user') || '{}').nickname).toBe(

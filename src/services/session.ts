@@ -79,13 +79,12 @@ export function getCustomerSessionToken(): string | null {
   return null;
 }
 
-/** Persiste a sessão admin e descarta a de cliente. Retorna a mensagem de erro, se houver. */
+/** Persiste a sessão admin sem invalidar uma sessão de cliente em outra rota. */
 export function persistAdminSession(data: LoginTokens): string | null {
   if (!data.access || !data.refresh || !isAdminRole(data.role)) {
     return ADMIN_ROLE_MISMATCH_MESSAGE;
   }
 
-  clearCustomerSession();
   localStorage.setItem('bread_admin_token', data.access);
   localStorage.setItem('bread_admin_refresh', data.refresh);
   localStorage.setItem('bread_admin_role', String(data.role));
@@ -96,7 +95,7 @@ export function persistAdminSession(data: LoginTokens): string | null {
   return null;
 }
 
-/** Persiste a sessão de cliente e descarta a administrativa. Retorna a mensagem de erro, se houver. */
+/** Persiste a sessão de cliente sem invalidar uma sessão administrativa em outra rota. */
 export function persistCustomerSession(data: LoginTokens): string | null {
   if (data.role !== CUSTOMER_ROLE) {
     return CUSTOMER_ROLE_MISMATCH_MESSAGE;
@@ -108,7 +107,6 @@ export function persistCustomerSession(data: LoginTokens): string | null {
     return 'Cadastro ainda não aprovado.';
   }
 
-  clearAdminSession();
   localStorage.setItem('bread_customer_token', data.access);
   localStorage.setItem('bread_customer_refresh', data.refresh);
   localStorage.setItem('bread_customer_user', JSON.stringify(data.customer));
