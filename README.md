@@ -41,14 +41,14 @@ preservar o slug `admin-panificadora`:
 
 ## URLs remotas
 
-O host público do tenant atual é `https://panificadora-admin.ebsis.com.br`.
+O host público do tenant atual é `https://panificadora.ebsis.com.br`.
 Cliente e administrador usam o mesmo host, com fluxos separados por caminho:
 
-- Entrada do cliente: `https://panificadora-admin.ebsis.com.br/`
-- Cliente existente: `https://panificadora-admin.ebsis.com.br/login`
-- Novo cliente: `https://panificadora-admin.ebsis.com.br/register`
-- Login administrativo: `https://panificadora-admin.ebsis.com.br/admin`
-- Dashboard do cliente: `https://panificadora-admin.ebsis.com.br/customer/dashboard`
+- Entrada do cliente: `https://panificadora.ebsis.com.br/`
+- Cliente existente: `https://panificadora.ebsis.com.br/login`
+- Novo cliente: `https://panificadora.ebsis.com.br/register`
+- Login administrativo: `https://panificadora.ebsis.com.br/admin`
+- Dashboard do cliente: `https://panificadora.ebsis.com.br/customer/dashboard`
 
 O domínio deve ser associado ao projeto Vercel e o registro DNS deve apontar
 para a Vercel. O deploy não deve ser realizado antes da validação com o cliente.

@@ -18,9 +18,9 @@ describe('resolveLocalTenantSlug', () => {
 describe('resolveTenantSlugForHostname', () => {
   it('uses the configured tenant for the fixed public host', () => {
     expect(
-      resolveTenantSlugForHostname('panificadora-admin.ebsis.com.br', {
+      resolveTenantSlugForHostname('panificadora.ebsis.com.br', {
         tenantSlug: 'admin-panificadora',
-        publicHost: 'panificadora-admin.ebsis.com.br',
+        publicHost: 'panificadora.ebsis.com.br',
         rootDomain: 'ebsis.com.br',
       }),
     ).toBe('admin-panificadora');
