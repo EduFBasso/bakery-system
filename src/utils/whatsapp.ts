@@ -39,7 +39,7 @@ export function openWhatsAppPlaceholder(): Window | null {
     return null;
   }
 
-  return window.open('', '_blank', 'noopener,noreferrer');
+  return window.open('about:blank', '_blank');
 }
 
 export function navigateWhatsAppWindow(
