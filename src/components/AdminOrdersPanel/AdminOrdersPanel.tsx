@@ -129,7 +129,12 @@ export function AdminOrdersPanel({
               onChange={(e) =>
                 (() => {
                   const customerNickname = e.target.value;
-                  setFilters({ ...filters, customer_nickname: customerNickname, page: 1 });
+                  setFilters({
+                    ...filters,
+                    customer_nickname: customerNickname,
+                    customer_id: undefined,
+                    page: 1,
+                  });
                   onCustomerFilterChange?.(customerNickname);
                 })()
               }
@@ -141,7 +146,12 @@ export function AdminOrdersPanel({
                 className={styles.clearSearchButton}
                 aria-label="Limpar pesquisa de cliente"
                 onClick={() => {
-                  setFilters({ ...filters, customer_nickname: '', page: 1 });
+                  setFilters({
+                    ...filters,
+                    customer_nickname: '',
+                    customer_id: undefined,
+                    page: 1,
+                  });
                   onCustomerFilterChange?.('');
                 }}
               >

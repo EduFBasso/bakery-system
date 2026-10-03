@@ -43,6 +43,12 @@ export default defineConfig({
       '/register': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+        bypass: (req) => {
+          if (req.url === '/register' || req.url === '/register/') {
+            return req.url;
+          }
+          return undefined;
+        },
       },
     },
   },

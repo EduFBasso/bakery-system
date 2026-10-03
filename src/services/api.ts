@@ -68,6 +68,39 @@ export class ApiService {
     return parsedBody;
   }
 
+  static async checkCustomerNicknameAvailability(nickname: string): Promise<boolean> {
+    const tenantSlug = resolveTenantSlug();
+    const params = new URLSearchParams({ nickname: nickname.trim() });
+    if (tenantSlug) params.set('tenant_slug', tenantSlug);
+
+    const response = await fetch(
+      apiUrl(`${API_BASE_URL}/customers/nickname-availability/?${params.toString()}`)
+    );
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(body?.detail || 'Não foi possível verificar o nome do cliente.');
+    }
+    return body?.available === true;
+  }
+
+  static async checkCustomerFieldAvailability(
+    field: 'cpf' | 'cnpj' | 'phone',
+    value: string
+  ): Promise<boolean> {
+    const tenantSlug = resolveTenantSlug();
+    const params = new URLSearchParams({ field, value });
+    if (tenantSlug) params.set('tenant_slug', tenantSlug);
+
+    const response = await fetch(
+      apiUrl(`${API_BASE_URL}/customers/field-availability/?${params.toString()}`)
+    );
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(body?.detail || 'Não foi possível verificar o campo.');
+    }
+    return body?.available === true;
+  }
+
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {
     const tenantSlug = resolveTenantSlug();
     const response = await fetch(apiUrl(BAKERY_AUTH_LOGIN_URL), {
