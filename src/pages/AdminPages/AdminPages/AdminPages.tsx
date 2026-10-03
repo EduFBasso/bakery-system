@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AdminLayout } from '../AdminLayout/AdminLayout';
+import { AdminDashboardPage } from '../AdminDashboardPage/AdminDashboardPage';
 import { AdminCustomersPage } from '../AdminCustomersPage/AdminCustomersPage';
 import { AdminProductsPage } from '../AdminProductsPage/AdminProductsPage';
 import { AdminOrdersPage } from '../AdminOrdersPage/AdminOrdersPage';
@@ -25,13 +26,13 @@ interface StoredAdminUser {
   tenant?: AdminTenantSnapshot;
 }
 
-type AdminTab = 'customers' | 'products' | 'orders' | 'settings';
+type AdminTab = 'dashboard' | 'customers' | 'products' | 'orders' | 'settings';
 
-const ADMIN_TABS: AdminTab[] = ['customers', 'products', 'orders', 'settings'];
+const ADMIN_TABS: AdminTab[] = ['dashboard', 'customers', 'products', 'orders', 'settings'];
 
 function readStoredAdminTab(): AdminTab {
   const storedTab = sessionStorage.getItem('bread_admin_active_tab');
-  return ADMIN_TABS.includes(storedTab as AdminTab) ? (storedTab as AdminTab) : 'customers';
+  return ADMIN_TABS.includes(storedTab as AdminTab) ? (storedTab as AdminTab) : 'dashboard';
 }
 
 function readStoredAdminUser(): StoredAdminUser {
@@ -46,6 +47,7 @@ function readStoredAdminUser(): StoredAdminUser {
 
 export function AdminPages() {
   const [activeTab, setActiveTab] = useState<AdminTab>(readStoredAdminTab);
+  const [customerFilter, setCustomerFilter] = useState<string | undefined>();
   const [orderCustomerNickname, setOrderCustomerNickname] = useState<string | undefined>();
   const [orderCustomerId, setOrderCustomerId] = useState<number | undefined>();
   const [errorMessage, setErrorMessage] = useState('');
@@ -65,10 +67,19 @@ export function AdminPages() {
     sessionStorage.setItem('bread_admin_active_tab', 'orders');
   };
 
+  const handleNavigateToCustomers = (filter?: string) => {
+    setCustomerFilter(filter);
+    setActiveTab('customers');
+    sessionStorage.setItem('bread_admin_active_tab', 'customers');
+  };
+
   const handleTabChange = (tab: AdminTab) => {
     if (tab !== 'orders') {
       setOrderCustomerNickname(undefined);
       setOrderCustomerId(undefined);
+    }
+    if (tab !== 'customers') {
+      setCustomerFilter(undefined);
     }
     setActiveTab(tab);
     sessionStorage.setItem('bread_admin_active_tab', tab);
@@ -111,8 +122,17 @@ export function AdminPages() {
       {errorMessage && <div className={styles.errorAlert}>{errorMessage}</div>}
       {successMessage && <div className={styles.successAlert}>{successMessage}</div>}
 
+      {activeTab === 'dashboard' && (
+        <AdminDashboardPage
+          onNavigateToCustomers={handleNavigateToCustomers}
+          onError={handleError}
+          onSuccess={handleSuccess}
+        />
+      )}
+
       {activeTab === 'customers' && (
         <AdminCustomersPage
+          initialFilter={customerFilter}
           onNavigateToOrders={handleNavigateToOrders}
           onError={handleError}
           onSuccess={handleSuccess}

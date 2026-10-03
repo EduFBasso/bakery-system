@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { AdminLayout } from './AdminLayout';
 
 describe('AdminLayout', () => {
-  it('exibe os tabs na ordem Clientes, Pedidos, Produtos e Configurações', () => {
+  it('exibe os tabs na ordem Dashboard, Clientes, Pedidos, Produtos e Configurações', () => {
     render(
       <AdminLayout
         activeTab="customers"
@@ -20,6 +20,12 @@ describe('AdminLayout', () => {
       .map((button) => button.textContent?.trim())
       .filter((label) => label && !label.includes('Sair'));
 
-    expect(tabLabels).toEqual(['👥 Clientes', '📋 Pedidos', '📦 Produtos', '⚙️ Configurações']);
+    expect(tabLabels).toEqual([
+      '📊 Dashboard',
+      '👥 Clientes',
+      '📋 Pedidos',
+      '📦 Produtos',
+      '⚙️ Configurações',
+    ]);
   });
 });
