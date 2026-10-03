@@ -109,6 +109,21 @@
   white-space: nowrap;
 }
 
+.deliveryAddress {
+  margin: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.35rem;
+  background: #fff;
+  border-top: 1px solid #e8e1dc;
+  color: #555;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.deliveryNotes {
+  margin-top: 0.25rem;
+}
+
 .cardFooter {
   margin: 0 0.5rem 0.5rem;
   background: #fff;

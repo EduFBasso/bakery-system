@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCancelOrder } from '../../hooks/useCancelOrder';
 import { useCustomerOrders } from '../../hooks/useCustomerOrders';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { splitDeliverySnapshot } from '../../utils/deliveryAddress';
 import styles from './CustomerOrdersList.module.css';
 
 export function OrdersList() {
@@ -149,6 +150,23 @@ export function OrdersList() {
 
               <div className={styles.amount}>{formatCurrency(order.total_value)}</div>
             </div>
+            {order.delivery_address_text?.trim() &&
+              (() => {
+                const deliverySnapshot = splitDeliverySnapshot(order.delivery_address_text);
+                const deliveryNotes = deliverySnapshot.notes || order.notes?.trim() || '';
+                return (
+                  <div className={styles.deliveryAddress}>
+                    <div>
+                      <strong>Endereço de entrega:</strong> {deliverySnapshot.address}
+                    </div>
+                    {deliveryNotes && (
+                      <div className={styles.deliveryNotes}>
+                        <strong>Notas:</strong> {deliveryNotes}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             {order.status === 'PENDING' && (
               <div className={styles.cardFooter}>
                 <button

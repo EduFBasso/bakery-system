@@ -72,8 +72,10 @@ export function ClientPages() {
             </button>
           </div>
           <div className={styles.headerCustomerRow}>
-            <span className={styles.headerStatusLabel}>Cliente:</span>
-            <strong className={styles.customerNickname}>{customer.nickname}</strong>
+            <div className={styles.headerCustomerIdentity}>
+              <span className={styles.headerStatusLabel}>Cliente:</span>
+              <strong className={styles.customerNickname}>{customer.nickname}</strong>
+            </div>
             <div className={styles.headerStatusRow}>
               <span className={styles.headerStatusLabel}>Status:</span>
               <strong className={styles.headerStatusValue}>{statusLabel}</strong>
