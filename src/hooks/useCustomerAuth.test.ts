@@ -37,4 +37,31 @@ describe('useCustomerAuth', () => {
     expect(result.current.customer?.nickname).toBe('Fabricio');
     expect(localStorage.getItem('bread_customer_token')).toBe(token);
   });
+
+  it('compartilha o bootstrap entre instâncias e reutiliza a sessão em novos consumidores', async () => {
+    const token = fakeJwt({ user_id: 8 });
+    const customer = { id: 13, user: 8, nickname: 'Marina', status: 'APROVADO' };
+    localStorage.setItem('bread_customer_token', token);
+    localStorage.setItem('bread_customer_user', JSON.stringify(customer));
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ results: [customer] }),
+    } as Response);
+
+    const first = renderHook(() => useCustomerAuth());
+    const second = renderHook(() => useCustomerAuth());
+
+    await waitFor(() => {
+      expect(first.result.current.isLoading).toBe(false);
+      expect(second.result.current.isLoading).toBe(false);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const third = renderHook(() => useCustomerAuth());
+    await waitFor(() => expect(third.result.current.isLoading).toBe(false));
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(third.result.current.customer?.nickname).toBe('Marina');
+  });
 });

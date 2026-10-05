@@ -157,22 +157,6 @@
   font-size: 0.75rem;
 }
 
-.backButton {
-  padding: 0.55rem 0.8rem;
-  border: 1px solid #e0d5ca;
-  border-radius: 6px;
-  background: white;
-  color: #4b5563;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.backButton:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
 .footer p {
   align-self: center;
   margin: 0;
