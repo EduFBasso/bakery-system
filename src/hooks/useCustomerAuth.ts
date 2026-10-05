@@ -52,7 +52,9 @@ export function useCustomerAuth() {
 
   const getTokenUserId = (token: string): number | null => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const encodedPayload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const paddedPayload = encodedPayload.padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
+      const payload = JSON.parse(atob(paddedPayload));
       return Number(payload.user_id ?? payload.sub) || null;
     } catch {
       return null;

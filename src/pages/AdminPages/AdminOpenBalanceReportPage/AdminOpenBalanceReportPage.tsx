@@ -188,7 +188,6 @@ export function AdminOpenBalanceReportPage() {
                                 <header className={styles.orderHeader}>
                                   <strong>Pedido {order.order_number}</strong>
                                   <span>Feito em {formatDateTime(order.created_at)}</span>
-                                  <span>Entrega {formatDateTime(order.delivery_date)}</span>
                                   <span>{formatPaymentMethod(order.payment_method)}</span>
                                   <strong>{formatCurrency(order.total_value)}</strong>
                                 </header>

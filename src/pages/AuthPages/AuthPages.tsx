@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CustomerForm } from '../../components/forms/CustomerForm';
 import { Button } from '../../components/ui/Button';
@@ -7,6 +7,7 @@ import { Spinner } from '../../components/ui/Spinner';
 import { useRegister } from '../../hooks';
 import { FormErrors, RegistrationFormData } from '../../types/forms';
 import { ApiService } from '../../services/api';
+import { clearAuthExpiryMessage } from '../../services/authExpiry';
 import styles from './AuthPages.module.css';
 
 export function RegisterPage() {
@@ -14,6 +15,10 @@ export function RegisterPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [registeredNickname, setRegisteredNickname] = useState('');
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    clearAuthExpiryMessage();
+  }, []);
 
   const { loading, register } = useRegister({
     onSuccess: (response) => {
@@ -46,10 +51,7 @@ export function RegisterPage() {
     }
   };
 
-  const handleUniqueFieldFocus = async (
-    field: 'cpf' | 'cnpj' | 'phone',
-    value: string
-  ) => {
+  const handleUniqueFieldFocus = async (field: 'cpf' | 'cnpj' | 'phone', value: string) => {
     if (!value.trim()) return null;
     try {
       const available = await ApiService.checkCustomerFieldAvailability(field, value);
