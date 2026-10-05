@@ -63,7 +63,10 @@ describe('useCreateOrder backend contract', () => {
   });
 
   it.each([
-    [{ items: 'Order total exceeds the available credit.' }, 'Order total exceeds the available credit.'],
+    [
+      { items: 'O valor total do pedido excede o crédito disponível.' },
+      'O valor total do pedido excede o crédito disponível.',
+    ],
     [{ customer_id: ['Customer is not approved.'] }, 'Customer is not approved.'],
     [{}, 'Erro ao criar pedido: 400'],
   ])('exibe o erro de validação por campo do DRF: %j', async (body, expected) => {
