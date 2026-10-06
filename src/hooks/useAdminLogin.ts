@@ -54,18 +54,22 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
     return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
   };
 
-  const extractApiErrorMessage = (data: any): string => {
-    if (typeof data?.detail === 'string' && data.detail.trim()) {
-      return data.detail;
+  const extractApiErrorMessage = (data: unknown): string => {
+    const payload =
+      typeof data === 'object' && data !== null
+        ? (data as Record<string, unknown>)
+        : {};
+    if (typeof payload.detail === 'string' && payload.detail.trim()) {
+      return payload.detail;
     }
-    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
-      return String(data.non_field_errors[0]);
+    if (Array.isArray(payload.non_field_errors) && payload.non_field_errors[0]) {
+      return String(payload.non_field_errors[0]);
     }
-    if (Array.isArray(data?.password) && data.password[0]) {
-      return String(data.password[0]);
+    if (Array.isArray(payload.password) && payload.password[0]) {
+      return String(payload.password[0]);
     }
-    if (Array.isArray(data?.email) && data.email[0]) {
-      return String(data.email[0]);
+    if (Array.isArray(payload.email) && payload.email[0]) {
+      return String(payload.email[0]);
     }
     return 'Erro ao fazer login';
   };

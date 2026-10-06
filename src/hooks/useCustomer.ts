@@ -8,7 +8,7 @@ interface UseCustomerReturn {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  register: (data: Omit<Customer, 'id'>) => Promise<void>;
+  register: (data: Parameters<typeof ApiService.registerCustomer>[0]) => Promise<void>;
   login: (nickname: string, password: string) => Promise<void>;
   logout: () => void;
   setCustomer: (customer: Customer, token: string) => void;
@@ -34,21 +34,21 @@ export function useCustomer(): UseCustomerReturn {
 
   const isAuthenticated = !!token && !!customer && customer.status === 'APROVADO';
 
-  const register = useCallback(async (data: Omit<Customer, 'id'>) => {
+  const register = useCallback(async (data: Parameters<typeof ApiService.registerCustomer>[0]) => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await ApiService.registerCustomer(data as any);
-      const customerPayload = (result as any).customer ?? result;
+      const result = await ApiService.registerCustomer(data);
+      const customerPayload = result.customer;
 
       // Após registro, cliente é PENDENTE, aguarda aprovação
       // Salvar apenas para referência, mas ainda não fazer login automático
       const newCustomer: Customer = {
         ...(customerPayload as Customer),
-        access_token: (result as any).access_token,
+        access_token: result.access_token,
       };
-      const accessToken = (result as any).access_token;
+      const accessToken = result.access_token;
 
       localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(newCustomer));
       if (accessToken) {

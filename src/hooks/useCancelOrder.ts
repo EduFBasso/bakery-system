@@ -12,7 +12,7 @@ export interface CancelOrderResponse {
   status: string;
   cancelled_at: string;
   cancellation_reason: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function useCancelOrder() {

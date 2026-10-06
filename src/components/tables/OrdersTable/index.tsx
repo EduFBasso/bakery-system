@@ -1,8 +1,18 @@
 import styles from '../Table.module.css';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
+interface OrderTableRow {
+  id: number;
+  customer?: {
+    nickname: string;
+  };
+  total_value: number | string;
+  status: string;
+  created_at: string;
+}
+
 interface OrdersTableProps {
-  data: any[];
+  data: OrderTableRow[];
   onRowClick?: (id: number) => void;
 }
 

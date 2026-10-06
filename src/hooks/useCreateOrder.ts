@@ -32,7 +32,7 @@ export interface CreateOrderResponse {
   delivery_date: string;
   payment_method: string;
   total_value: string;
-  items: any[];
+  items: unknown[];
 }
 
 export function useCreateOrder() {

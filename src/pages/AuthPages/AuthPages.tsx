@@ -35,7 +35,7 @@ export function RegisterPage() {
     setFormErrors({});
     try {
       await register(formData);
-    } catch (err) {
+    } catch {
       // Erro já foi capturado no hook
     }
   };

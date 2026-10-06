@@ -24,8 +24,17 @@ export interface AdminOrder {
   paid_at?: string | null;
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
-  items: any[];
-  order_items?: any[];
+  items: AdminOrderItem[];
+  order_items?: AdminOrderItem[];
+}
+
+export interface AdminOrderItem {
+  id?: number;
+  product_name: string;
+  product_description?: string;
+  quantity: number;
+  unit_price?: number | string;
+  subtotal?: number | string;
 }
 
 export interface AdminOrdersResponse {

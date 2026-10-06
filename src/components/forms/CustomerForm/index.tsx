@@ -130,7 +130,7 @@ export function CustomerForm({
         clearTimeout(lookupTimeoutRef.current);
       }
     };
-  }, [zipCodeMask.value]);
+  }, [lookupCEP, zipCodeMask.value]);
 
   useEffect(() => {
     return () => {

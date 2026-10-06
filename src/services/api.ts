@@ -45,18 +45,23 @@ export class ApiService {
     });
 
     const bodyText = await response.text();
-    let parsedBody: any = null;
+    let parsedBody: unknown = null;
     try {
       parsedBody = bodyText ? JSON.parse(bodyText) : null;
     } catch {
       parsedBody = null;
     }
 
+    const body =
+      parsedBody && typeof parsedBody === 'object' && !Array.isArray(parsedBody)
+        ? (parsedBody as Record<string, unknown>)
+        : null;
+
     if (!response.ok) {
       const apiMessage =
-        parsedBody?.detail ||
-        (Array.isArray(parsedBody?.non_field_errors) ? parsedBody.non_field_errors[0] : null) ||
-        (Array.isArray(parsedBody?.nickname) ? parsedBody.nickname[0] : null) ||
+        body?.detail ||
+        (Array.isArray(body?.non_field_errors) ? body.non_field_errors[0] : null) ||
+        (Array.isArray(body?.nickname) ? body.nickname[0] : null) ||
         'Erro ao registrar cliente';
       throw new Error(String(apiMessage));
     }
@@ -65,7 +70,12 @@ export class ApiService {
       throw new Error('Resposta inválida do servidor no cadastro.');
     }
 
-    return parsedBody;
+    return parsedBody as {
+      id: number;
+      access_token: string;
+      refresh_token: string;
+      customer: Customer;
+    };
   }
 
   static async checkCustomerNicknameAvailability(nickname: string): Promise<boolean> {
