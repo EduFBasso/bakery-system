@@ -10,7 +10,7 @@ export interface UpdateOrderStatusResponse {
   order_number: string;
   status: string;
   status_display: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function useUpdateOrderStatus() {

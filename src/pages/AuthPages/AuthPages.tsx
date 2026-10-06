@@ -1,21 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageFlashMessage } from '../../components/PageFlashMessage/PageFlashMessage';
 import { CustomerForm } from '../../components/forms/CustomerForm';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Spinner } from '../../components/ui/Spinner';
 import { useRegister } from '../../hooks';
-import { RegistrationFormData } from '../../types/forms';
+import { FormErrors, RegistrationFormData } from '../../types/forms';
+import { ApiService } from '../../services/api';
+import { clearAuthExpiryMessage } from '../../services/authExpiry';
 import styles from './AuthPages.module.css';
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [registeredNickname, setRegisteredNickname] = useState('');
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  const { loading, error, register, clearError } = useRegister({
+  useEffect(() => {
+    clearAuthExpiryMessage();
+  }, []);
+
+  const { loading, register } = useRegister({
     onSuccess: (response) => {
       setRegisteredNickname(response.nickname);
       setShowSuccessModal(true);
@@ -30,8 +35,32 @@ export function RegisterPage() {
     setFormErrors({});
     try {
       await register(formData);
-    } catch (err) {
+    } catch {
       // Erro já foi capturado no hook
+    }
+  };
+
+  const handleNicknameFocus = async (nickname: string) => {
+    if (!nickname.trim()) return null;
+    try {
+      const available = await ApiService.checkCustomerNicknameAvailability(nickname);
+      return available ? null : 'Esse nome ou apelido já está em uso. Escolha outro identificador.';
+    } catch (error) {
+      console.error('Erro ao verificar disponibilidade do nome do cliente:', error);
+      return 'Não foi possível verificar o nome ou apelido. Tente novamente.';
+    }
+  };
+
+  const handleUniqueFieldFocus = async (field: 'cpf' | 'cnpj' | 'phone', value: string) => {
+    if (!value.trim()) return null;
+    try {
+      const available = await ApiService.checkCustomerFieldAvailability(field, value);
+      if (available) return null;
+      const labels = { cpf: 'CPF', cnpj: 'CNPJ', phone: 'Telefone' };
+      return `Este ${labels[field]} já está em uso. Informe outro valor.`;
+    } catch (error) {
+      console.error(`Erro ao verificar disponibilidade de ${field}:`, error);
+      return `Não foi possível verificar o ${field}. Tente novamente.`;
     }
   };
 
@@ -50,20 +79,18 @@ export function RegisterPage() {
         <h1 className={styles.title}>🥖 Registrar Novo Cliente</h1>
         <p className={styles.subtitle}>Preencha os dados para se cadastrar no sistema</p>
 
-        <CustomerForm onSubmit={handleRegisterSubmit} isLoading={loading} errors={formErrors} />
+        <CustomerForm
+          onSubmit={handleRegisterSubmit}
+          onNicknameFocus={handleNicknameFocus}
+          onUniqueFieldFocus={handleUniqueFieldFocus}
+          isLoading={loading}
+          errors={formErrors}
+        />
 
         <button className={styles.backLink} onClick={handleGoHome}>
           ← Voltar para Home
         </button>
       </div>
-
-      <PageFlashMessage
-        open={!!error}
-        message={error}
-        type="error"
-        autoCloseMs={3000}
-        onClose={clearError}
-      />
 
       {/* Modal de Sucesso */}
       <Modal isOpen={showSuccessModal} onClose={handleCloseModal}>

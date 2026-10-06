@@ -60,6 +60,7 @@
 .orderInfoLine p, .signatureSection p { margin: 0; color: #262626; font-size: 16px; line-height: 1.5; }
 .deliveryAddress { margin: 12px 0 0; color: #262626; font-size: 17px; line-height: 1.6; }
 .deliveryAddressChanged { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.deliveryNotes { margin: 4px 0 0; color: #262626; font-size: 16px; line-height: 1.5; font-style: italic; white-space: pre-wrap; }
 .itemsTable { width: 100%; border-collapse: collapse; font-size: 16px; }
 .itemsTable th, .itemsTable td { padding: 10px 5px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
 .itemsTable th:first-child, .itemsTable td:first-child { width: 1%; text-align: center; white-space: nowrap; }

@@ -9,7 +9,7 @@ import {
 import { apiUrl } from '../config/api';
 
 const API_BASE_URL = '/api/v1/bakery';
-const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/';
+const BAKERY_AUTH_LOGIN_URL = '/api/v1/auth/bakery/login/customer/';
 import { resolveTenantSlug } from '../config/tenant';
 
 export class ApiService {
@@ -45,18 +45,23 @@ export class ApiService {
     });
 
     const bodyText = await response.text();
-    let parsedBody: any = null;
+    let parsedBody: unknown = null;
     try {
       parsedBody = bodyText ? JSON.parse(bodyText) : null;
     } catch {
       parsedBody = null;
     }
 
+    const body =
+      parsedBody && typeof parsedBody === 'object' && !Array.isArray(parsedBody)
+        ? (parsedBody as Record<string, unknown>)
+        : null;
+
     if (!response.ok) {
       const apiMessage =
-        parsedBody?.detail ||
-        (Array.isArray(parsedBody?.non_field_errors) ? parsedBody.non_field_errors[0] : null) ||
-        (Array.isArray(parsedBody?.nickname) ? parsedBody.nickname[0] : null) ||
+        body?.detail ||
+        (Array.isArray(body?.non_field_errors) ? body.non_field_errors[0] : null) ||
+        (Array.isArray(body?.nickname) ? body.nickname[0] : null) ||
         'Erro ao registrar cliente';
       throw new Error(String(apiMessage));
     }
@@ -65,7 +70,45 @@ export class ApiService {
       throw new Error('Resposta inválida do servidor no cadastro.');
     }
 
-    return parsedBody;
+    return parsedBody as {
+      id: number;
+      access_token: string;
+      refresh_token: string;
+      customer: Customer;
+    };
+  }
+
+  static async checkCustomerNicknameAvailability(nickname: string): Promise<boolean> {
+    const tenantSlug = resolveTenantSlug();
+    const params = new URLSearchParams({ nickname: nickname.trim() });
+    if (tenantSlug) params.set('tenant_slug', tenantSlug);
+
+    const response = await fetch(
+      apiUrl(`${API_BASE_URL}/customers/nickname-availability/?${params.toString()}`)
+    );
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(body?.detail || 'Não foi possível verificar o nome do cliente.');
+    }
+    return body?.available === true;
+  }
+
+  static async checkCustomerFieldAvailability(
+    field: 'cpf' | 'cnpj' | 'phone',
+    value: string
+  ): Promise<boolean> {
+    const tenantSlug = resolveTenantSlug();
+    const params = new URLSearchParams({ field, value });
+    if (tenantSlug) params.set('tenant_slug', tenantSlug);
+
+    const response = await fetch(
+      apiUrl(`${API_BASE_URL}/customers/field-availability/?${params.toString()}`)
+    );
+    const body = await response.json();
+    if (!response.ok) {
+      throw new Error(body?.detail || 'Não foi possível verificar o campo.');
+    }
+    return body?.available === true;
   }
 
   static async loginCustomer(nickname: string, password: string): Promise<LoginResponse> {

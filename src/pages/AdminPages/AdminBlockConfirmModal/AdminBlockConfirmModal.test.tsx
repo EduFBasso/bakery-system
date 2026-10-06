@@ -74,24 +74,16 @@ describe('AdminBlockConfirmModal security flow', () => {
       await waitFor(() => {
         expect(onCustomerUpdated).toHaveBeenCalledTimes(1);
         expect(
-          screen.getByRole('button', {
-            name:
-              action === 'block'
-                ? '✅ Cliente Teste foi bloqueado com sucesso.'
-                : '✅ Cliente Teste foi desbloqueado com sucesso.',
-          })
+          screen.getByText(
+            action === 'block'
+              ? '✅ Cliente Teste foi bloqueado com sucesso.'
+              : '✅ Cliente Teste foi desbloqueado com sucesso.'
+          )
         ).toBeInTheDocument();
       });
 
       expect(onClose).not.toHaveBeenCalled();
-      await user.click(
-        screen.getByRole('button', {
-          name:
-            action === 'block'
-              ? '✅ Cliente Teste foi bloqueado com sucesso.'
-              : '✅ Cliente Teste foi desbloqueado com sucesso.',
-        })
-      );
+      await user.click(screen.getByRole('button', { name: 'Fechar' }));
       expect(onClose).toHaveBeenCalledTimes(1);
 
       expect(fetchSpy).toHaveBeenCalledWith(

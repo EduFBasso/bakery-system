@@ -34,6 +34,28 @@ export function openWhatsAppMessage(phone?: string | null, message?: string | nu
   return true;
 }
 
+export function openWhatsAppPlaceholder(): Window | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return window.open('about:blank', '_blank');
+}
+
+export function navigateWhatsAppWindow(
+  popup: Window | null,
+  phone?: string | null,
+  message?: string | null
+) {
+  const url = buildWhatsAppUrl(phone, message);
+  if (!popup || popup.closed || !url) {
+    return false;
+  }
+
+  popup.location.href = url;
+  return true;
+}
+
 export function buildRegistrationWhatsAppMessage(nickname: string) {
   return [
     `Olá, ${nickname}!`,

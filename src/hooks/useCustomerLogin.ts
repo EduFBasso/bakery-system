@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { resolveTenantSlug } from '../config/tenant';
 import { apiUrl } from '../config/api';
+import { clearCustomerSession, persistCustomerSession } from '../services/session';
 
 interface CustomerUser {
   id: number;
@@ -14,6 +15,7 @@ interface CustomerUser {
 interface CustomerLoginResponse {
   access: string;
   refresh: string;
+  role: string;
   customer?: CustomerUser;
 }
 
@@ -37,18 +39,22 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
     return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
   };
 
-  const extractApiErrorMessage = (data: any): string => {
-    if (typeof data?.detail === 'string' && data.detail.trim()) {
-      return data.detail;
+  const extractApiErrorMessage = (data: unknown): string => {
+    const payload =
+      typeof data === 'object' && data !== null
+        ? (data as Record<string, unknown>)
+        : {};
+    if (typeof payload.detail === 'string' && payload.detail.trim()) {
+      return payload.detail;
     }
-    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
-      return String(data.non_field_errors[0]);
+    if (Array.isArray(payload.non_field_errors) && payload.non_field_errors[0]) {
+      return String(payload.non_field_errors[0]);
     }
-    if (Array.isArray(data?.login) && data.login[0]) {
-      return String(data.login[0]);
+    if (Array.isArray(payload.login) && payload.login[0]) {
+      return String(payload.login[0]);
     }
-    if (Array.isArray(data?.password) && data.password[0]) {
-      return String(data.password[0]);
+    if (Array.isArray(payload.password) && payload.password[0]) {
+      return String(payload.password[0]);
     }
     return 'Erro ao fazer login';
   };
@@ -64,7 +70,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
       const tenantSlug = resolveTenantSlug();
 
       try {
-        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/'), {
+        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/customer/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,13 +91,12 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
           return false;
         }
 
-        // Salvar tokens e info do cliente
-        localStorage.setItem('bread_customer_token', data.access);
-        localStorage.setItem('bread_customer_refresh', data.refresh);
-        if (data.customer) {
-          localStorage.setItem('bread_customer_user', JSON.stringify(data.customer));
-        } else {
-          localStorage.removeItem('bread_customer_user');
+        // Só persiste a sessão se for member com cliente aprovado
+        const sessionError = persistCustomerSession(data);
+        if (sessionError) {
+          setError(sessionError);
+          optionsRef.current?.onError?.(sessionError);
+          return false;
         }
 
         optionsRef.current?.onSuccess?.(data);
@@ -113,9 +118,7 @@ export function useCustomerLogin(options?: UseCustomerLoginOptions) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('bread_customer_token');
-    localStorage.removeItem('bread_customer_refresh');
-    localStorage.removeItem('bread_customer_user');
+    clearCustomerSession();
   }, []);
 
   return {

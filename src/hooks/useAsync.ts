@@ -1,16 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 
-interface UseAsyncOptions {
-  onSuccess?: (data: any) => void;
+interface UseAsyncOptions<T> {
+  onSuccess?: (data: T) => void;
   onError?: (error: Error) => void;
 }
 
-export function useAsync(
-  asyncFunction: () => Promise<any>,
+export function useAsync<T>(
+  asyncFunction: () => Promise<T>,
   immediate = true,
-  options?: UseAsyncOptions
+  options?: UseAsyncOptions<T>
 ) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

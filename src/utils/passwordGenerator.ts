@@ -71,7 +71,7 @@ export function getPasswordStrength(password: string): 'fraca' | 'media' | 'fort
   if (!valid) return 'fraca';
 
   // Verificar critérios extras para força
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasSpecial = /[^\p{L}\p{N}\s]/u.test(password);
   const isLong = password.length >= 12;
   const hasMixed = /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password);
 

@@ -1,18 +1,7 @@
+import { clearAdminSession, clearCustomerSession } from './session';
+
 const EXPIRY_MESSAGE = 'Sua sessão expirou. Faça login novamente para continuar.';
 const EXPIRY_MESSAGE_KEY = 'bread_auth_expiry_message';
-
-function clearAdminSession() {
-  localStorage.removeItem('bread_admin_token');
-  localStorage.removeItem('bread_admin_refresh');
-  localStorage.removeItem('bread_admin_role');
-  localStorage.removeItem('bread_admin_user');
-}
-
-function clearCustomerSession() {
-  localStorage.removeItem('bread_customer_token');
-  localStorage.removeItem('bread_customer_refresh');
-  localStorage.removeItem('bread_customer_user');
-}
 
 function clearSessionForToken(token: string) {
   if (token && token === localStorage.getItem('bread_admin_token')) {
@@ -34,12 +23,28 @@ function isAdminPasswordEndpoint(input: RequestInfo | URL): boolean {
   );
 }
 
+async function isInvalidTokenResponse(response: Response): Promise<boolean> {
+  const payload = (await response
+    .clone()
+    .json()
+    .catch(() => null)) as { code?: unknown; detail?: unknown } | null;
+  const detail = typeof payload?.detail === 'string' ? payload.detail : '';
+  return (
+    payload?.code === 'token_not_valid' ||
+    /token not valid|token inválido|token expirado/i.test(detail)
+  );
+}
+
 export function consumeAuthExpiryMessage() {
   const message = sessionStorage.getItem(EXPIRY_MESSAGE_KEY);
   if (message) {
     sessionStorage.removeItem(EXPIRY_MESSAGE_KEY);
   }
   return message;
+}
+
+export function clearAuthExpiryMessage() {
+  sessionStorage.removeItem(EXPIRY_MESSAGE_KEY);
 }
 
 export function installAuthExpiryHandler() {
@@ -53,10 +58,16 @@ export function installAuthExpiryHandler() {
     const authorization = headers.get('Authorization');
     const response = await originalFetch(input, init);
 
+    const hasBearerToken = authorization?.startsWith('Bearer ');
+    const isProtectedAction = isAdminPasswordEndpoint(input);
+    const tokenExpired =
+      response.status === 401 && hasBearerToken && (await isInvalidTokenResponse(response));
+
     if (
       response.status === 401 &&
-      authorization?.startsWith('Bearer ') &&
-      !isAdminPasswordEndpoint(input)
+      authorization &&
+      hasBearerToken &&
+      (!isProtectedAction || tokenExpired)
     ) {
       const token = authorization.slice('Bearer '.length).trim();
       clearSessionForToken(token);

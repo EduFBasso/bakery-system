@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { installAuthExpiryHandler } from './authExpiry';
+import { clearAuthExpiryMessage, installAuthExpiryHandler } from './authExpiry';
 
 describe('auth expiry handler', () => {
   let restoreFetch: (() => void) | undefined;
@@ -12,6 +12,7 @@ describe('auth expiry handler', () => {
   afterEach(() => {
     restoreFetch?.();
     restoreFetch = undefined;
+    window.history.replaceState({}, '', '/');
     vi.restoreAllMocks();
   });
 
@@ -37,4 +38,45 @@ describe('auth expiry handler', () => {
       expect(localStorage.getItem('bread_admin_token')).toBe('token-admin');
     }
   );
+
+  it('encerra a sessão quando uma ação protegida retorna token inválido', async () => {
+    window.history.replaceState({}, '', '/admin');
+    const originalFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'token_not_valid',
+          detail: 'Given token not valid for any token type',
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    );
+    vi.stubGlobal('fetch', originalFetch);
+    restoreFetch = installAuthExpiryHandler();
+
+    const response = await window.fetch('/api/v1/bakery/customers/12/reveal-password/', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer token-admin' },
+      body: JSON.stringify({ admin_password: 'senha-do-dono' }),
+    });
+
+    expect(response.status).toBe(401);
+    expect(localStorage.getItem('bread_admin_token')).toBeNull();
+    expect(sessionStorage.getItem('bread_auth_expiry_message')).toBe(
+      'Sua sessão expirou. Faça login novamente para continuar.'
+    );
+  });
+
+  it('permite limpar mensagem residual antes de iniciar cadastro', () => {
+    sessionStorage.setItem(
+      'bread_auth_expiry_message',
+      'Sua sessão expirou. Faça login novamente para continuar.'
+    );
+
+    clearAuthExpiryMessage();
+
+    expect(sessionStorage.getItem('bread_auth_expiry_message')).toBeNull();
+  });
 });

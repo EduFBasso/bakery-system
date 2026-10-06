@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { resolveTenantSlug } from '../config/tenant';
 import { apiUrl } from '../config/api';
+import { clearAdminSession, persistAdminSession } from '../services/session';
 
 interface AdminUser {
   id: number;
@@ -15,6 +16,7 @@ interface AdminLoginResponse {
   refresh: string;
   professional: AdminUser;
   ecosystem: string;
+  role: string;
   tenant: AdminTenant;
 }
 
@@ -52,18 +54,22 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
     return value.replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '');
   };
 
-  const extractApiErrorMessage = (data: any): string => {
-    if (typeof data?.detail === 'string' && data.detail.trim()) {
-      return data.detail;
+  const extractApiErrorMessage = (data: unknown): string => {
+    const payload =
+      typeof data === 'object' && data !== null
+        ? (data as Record<string, unknown>)
+        : {};
+    if (typeof payload.detail === 'string' && payload.detail.trim()) {
+      return payload.detail;
     }
-    if (Array.isArray(data?.non_field_errors) && data.non_field_errors[0]) {
-      return String(data.non_field_errors[0]);
+    if (Array.isArray(payload.non_field_errors) && payload.non_field_errors[0]) {
+      return String(payload.non_field_errors[0]);
     }
-    if (Array.isArray(data?.password) && data.password[0]) {
-      return String(data.password[0]);
+    if (Array.isArray(payload.password) && payload.password[0]) {
+      return String(payload.password[0]);
     }
-    if (Array.isArray(data?.email) && data.email[0]) {
-      return String(data.email[0]);
+    if (Array.isArray(payload.email) && payload.email[0]) {
+      return String(payload.email[0]);
     }
     return 'Erro ao fazer login';
   };
@@ -80,7 +86,7 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
       const tenantSlug = resolveTenantSlug();
 
       try {
-        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/'), {
+        const response = await fetch(apiUrl('/api/v1/auth/bakery/login/admin/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -101,14 +107,13 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
           return false;
         }
 
-        // Salvar tokens e info do admin
-        localStorage.setItem('bread_admin_token', data.access);
-        localStorage.setItem('bread_admin_refresh', data.refresh);
-        localStorage.setItem('bread_admin_role', 'admin');
-        localStorage.setItem(
-          'bread_admin_user',
-          JSON.stringify({ ...(data.professional || {}), tenant: data.tenant })
-        );
+        // Só persiste a sessão se o perfil retornado for owner/admin
+        const sessionError = persistAdminSession(data);
+        if (sessionError) {
+          setError(sessionError);
+          optionsRef.current?.onError?.(sessionError);
+          return false;
+        }
 
         optionsRef.current?.onSuccess?.(data);
         return true;
@@ -129,10 +134,7 @@ export function useAdminLogin(options?: UseAdminLoginOptions) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('bread_admin_token');
-    localStorage.removeItem('bread_admin_refresh');
-    localStorage.removeItem('bread_admin_role');
-    localStorage.removeItem('bread_admin_user');
+    clearAdminSession();
   }, []);
 
   return {

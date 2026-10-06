@@ -1,6 +1,7 @@
 import styles from './AdminOrderPrintView.module.css';
 import { formatPhone } from '../../../utils/formatPhone';
 import { formatZipCode } from '../../../utils/formatZipCode';
+import { splitDeliverySnapshot } from '../../../utils/deliveryAddress';
 
 export interface PrintableOrderItem {
   id: number;
@@ -78,6 +79,7 @@ const normalizeAddressText = (value: string) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+    .replace(/\bcep\b/g, '')
     .replace(/[^a-z0-9]/g, '');
 
 export function AdminOrderPrintView({
@@ -110,9 +112,12 @@ export function AdminOrderPrintView({
       ? styles.paidStatus
       : styles.pendingStatus;
   const originalAddress = order.original_address_text?.trim() || '';
-  const deliveryAddress = order.delivery_address_text?.trim() || formatAddress(order);
+  const storedDeliveryAddress = order.delivery_address_text?.trim() || '';
+  const deliverySnapshot = splitDeliverySnapshot(storedDeliveryAddress);
+  const deliveryAddress = deliverySnapshot.address || formatAddress(order);
+  const deliveryNotes = deliverySnapshot.notes || orderNotes;
   const hasDifferentDeliveryAddress =
-    Boolean(originalAddress) &&
+    Boolean(storedDeliveryAddress && originalAddress) &&
     normalizeAddressText(originalAddress) !== normalizeAddressText(deliveryAddress);
 
   return (
@@ -228,10 +233,6 @@ export function AdminOrderPrintView({
               </section>
             )}
 
-            {isLastPage && orderNotes && (
-              <p className={styles.orderNotes}>&quot;Notas&quot; - {orderNotes}</p>
-            )}
-
             {isLastPage && (
               <section className={`${styles.section} ${styles.addressSection}`}>
                 <p className={styles.deliveryAddress}>
@@ -241,6 +242,9 @@ export function AdminOrderPrintView({
                   <p className={`${styles.deliveryAddress} ${styles.deliveryAddressChanged}`}>
                     Endereço de entrega: {deliveryAddress}
                   </p>
+                )}
+                {deliveryNotes && (
+                  <p className={styles.deliveryNotes}>Notas: {deliveryNotes}</p>
                 )}
               </section>
             )}

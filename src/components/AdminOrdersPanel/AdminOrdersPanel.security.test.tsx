@@ -98,12 +98,13 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
   });
 
   it('abre com pendentes e permite limpar o apelido preenchido', async () => {
-    render(<AdminOrdersPanel initialCustomerNickname="Alfredo" />);
+    render(<AdminOrdersPanel initialCustomerNickname="Alfredo" initialCustomerId={42} />);
 
     expect(mockedUseAdminOrders).toHaveBeenCalledWith(
       expect.objectContaining({
         status: 'PENDING',
         customer_nickname: 'Alfredo',
+        customer_id: 42,
       })
     );
     expect(screen.getByDisplayValue('Alfredo')).toBeInTheDocument();
@@ -113,6 +114,33 @@ describe('AdminOrdersPanel security and cancelled behavior', () => {
     await userEvent.click(clearButton);
 
     expect(screen.getByRole('textbox')).toHaveValue('');
+    await waitFor(() =>
+      expect(mockedUseAdminOrders).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          customer_nickname: '',
+          customer_id: undefined,
+          page: 1,
+        })
+      )
+    );
+  });
+
+  it('permite apagar o filtro pelo teclado sem manter o cliente selecionado', async () => {
+    const user = userEvent.setup();
+    render(<AdminOrdersPanel initialCustomerNickname="João" initialCustomerId={42} />);
+
+    const input = screen.getByRole('textbox');
+    await user.clear(input);
+
+    expect(input).toHaveValue('');
+    await waitFor(() =>
+      expect(mockedUseAdminOrders).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          customer_nickname: '',
+          customer_id: undefined,
+        })
+      )
+    );
   });
 
   it('nao exibe acoes de pagamento/cancelamento para pedido ja cancelado', async () => {

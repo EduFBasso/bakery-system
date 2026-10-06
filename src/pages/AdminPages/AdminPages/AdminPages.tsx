@@ -60,11 +60,6 @@ export function AdminPages() {
     storedAdminUser.email ||
     'Admin';
 
-  const handleNavigateToCustomers = (filter?: string) => {
-    setCustomerFilter(filter);
-    setActiveTab('customers');
-  };
-
   const handleNavigateToOrders = (customerNickname: string, customerId?: number) => {
     setOrderCustomerNickname(customerNickname);
     setOrderCustomerId(customerId);
@@ -72,10 +67,19 @@ export function AdminPages() {
     sessionStorage.setItem('bread_admin_active_tab', 'orders');
   };
 
+  const handleNavigateToCustomers = (filter?: string) => {
+    setCustomerFilter(filter);
+    setActiveTab('customers');
+    sessionStorage.setItem('bread_admin_active_tab', 'customers');
+  };
+
   const handleTabChange = (tab: AdminTab) => {
     if (tab !== 'orders') {
       setOrderCustomerNickname(undefined);
       setOrderCustomerId(undefined);
+    }
+    if (tab !== 'customers') {
+      setCustomerFilter(undefined);
     }
     setActiveTab(tab);
     sessionStorage.setItem('bread_admin_active_tab', tab);

@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { apiUrl } from '../../../config/api';
 import { PageFlashMessage } from '../../../components/PageFlashMessage/PageFlashMessage';
 import { AdminPasswordDialog } from '../AdminPasswordDialog/AdminPasswordDialog';
-import { buildAccessWhatsAppMessage, openWhatsAppMessage } from '../../../utils/whatsapp';
+import {
+  buildAccessWhatsAppMessage,
+  navigateWhatsAppWindow,
+  openWhatsAppPlaceholder,
+} from '../../../utils/whatsapp';
 
 interface PendingCustomerActionProps {
   customer: {
@@ -40,8 +44,13 @@ export function PendingCustomerAction({
 
     setIsLoading(true);
     setActionError(null);
+    let whatsappWindow: Window | null = null;
 
     try {
+      if (action === 'approve' && customer.phone) {
+        whatsappWindow = openWhatsAppPlaceholder();
+      }
+
       const token = localStorage.getItem('bread_admin_token');
       if (!token) {
         throw new Error('Token não encontrado');
@@ -78,12 +87,24 @@ export function PendingCustomerAction({
       onCustomerUpdated(message);
 
       if (action === 'approve' && customer.phone && data.password_plain_text) {
-        openWhatsAppMessage(
+        const opened = navigateWhatsAppWindow(
+          whatsappWindow,
           customer.phone,
           buildAccessWhatsAppMessage(customer.nickname, data.password_plain_text)
         );
+        if (!opened) {
+          setActionError(
+            'Cliente aprovado com sucesso, mas não foi possível abrir o WhatsApp. Permita pop-ups para abrir a mensagem em uma nova aba.'
+          );
+        }
+      } else if (action === 'approve' && whatsappWindow) {
+        whatsappWindow.close();
+        setActionError(
+          'Cliente aprovado com sucesso, mas a senha não foi disponibilizada para abrir o WhatsApp.'
+        );
       }
     } catch (error) {
+      whatsappWindow?.close();
       setActionError(error instanceof Error ? error.message : 'Não foi possível concluir a ação.');
     } finally {
       setIsLoading(false);

@@ -64,7 +64,7 @@ describe('AdminOrderPrintView', () => {
       screen.getByText(/Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/"Notas" - Entregar na portaria\.\s*Não substituir o produto\./)
+      screen.getByText(/Notas: Entregar na portaria\.\s*Não substituir o produto\./)
     ).toBeInTheDocument();
     expect(screen.getAllByText('1')).toHaveLength(1);
     expect(screen.getByText('Cliente:')).toBeInTheDocument();
@@ -112,6 +112,25 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByText('Total de pedidos')).toBeInTheDocument();
     expect(screen.getAllByText('Página 2 de 2')).toHaveLength(1);
     expect(screen.getByText('4')).toBeInTheDocument();
+  });
+
+  it('não exibe endereço alternativo quando o texto salvo representa o endereço principal', () => {
+    render(
+      <AdminOrderPrintView
+        order={{
+          ...order,
+          original_address_text: 'Rua Beijamin Mesquita, 55 Jardim Boa Esperança - Limeira - SP CEP 13486-465',
+          delivery_address_text:
+            'Rua Beijamin Mesquita, 55, Jardim Boa Esperança, Limeira, SP, 13486465',
+        }}
+        customer={{ nickname: 'Carlos' }}
+        companyName="Panificadora Boa Esperança"
+        companyAddress="Rua Armando Martins, 123"
+        screenPreview
+      />
+    );
+
+    expect(screen.queryByText(/Endereço de entrega:/)).not.toBeInTheDocument();
   });
 
   it('exibe a data de cancelamento e o status', () => {

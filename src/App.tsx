@@ -6,6 +6,7 @@ import { CustomerCreateOrderPage } from './pages/ClientPages/CustomerCreateOrder
 import { AdminCustomerSummaryPage } from './pages/AdminPages/AdminCustomerSummaryPage/AdminCustomerSummaryPage';
 import { AdminOrderPrintPage } from './pages/AdminPages/AdminOrderPrintPage/AdminOrderPrintPage';
 import { AdminOpenBalanceReportPage } from './pages/AdminPages/AdminOpenBalanceReportPage/AdminOpenBalanceReportPage';
+import { getAdminSessionToken, getCustomerSessionToken } from './services/session';
 import './App.css';
 
 function AdminRoute({
@@ -13,7 +14,7 @@ function AdminRoute({
   orderPrint = false,
   openBalanceReport = false,
 }: { summary?: boolean; orderPrint?: boolean; openBalanceReport?: boolean } = {}) {
-  const hasToken = !!localStorage.getItem('bread_admin_token');
+  const hasToken = !!getAdminSessionToken();
 
   if (!hasToken) {
     return <AdminLoginPage />;
@@ -26,7 +27,7 @@ function AdminRoute({
 }
 
 function CustomerRoute({ page = 'dashboard' }: { page?: string } = {}) {
-  const hasToken = !!localStorage.getItem('bread_customer_token');
+  const hasToken = !!getCustomerSessionToken();
 
   if (!hasToken) {
     return <CustomerLoginPage />;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import styles from './PageFlashMessage.module.css';
 
 export type PageFlashMessageType = 'success' | 'error' | 'info' | 'warning';
@@ -18,6 +18,8 @@ export function PageFlashMessage({
   autoCloseMs = 3000,
   onClose,
 }: PageFlashMessageProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (!open || !message || autoCloseMs <= 0) {
       return undefined;
@@ -27,15 +29,34 @@ export function PageFlashMessage({
     return () => window.clearTimeout(timeoutId);
   }, [autoCloseMs, message, onClose, open]);
 
+  useEffect(() => {
+    if (open && message) {
+      closeButtonRef.current?.focus();
+    }
+  }, [message, open]);
+
   if (!open || !message) {
     return null;
   }
 
   return (
-    <div className={styles.container} role="status" aria-live="polite">
-      <button type="button" className={`${styles.message} ${styles[type]}`} onClick={onClose}>
-        {message}
-      </button>
+    <div className={styles.container} role="alertdialog" aria-modal="true" aria-live="polite">
+      <div className={`${styles.message} ${styles[type]}`}>
+        <div>{message}</div>
+        <button
+          ref={closeButtonRef}
+          type="button"
+          className={styles.closeButton}
+          onClick={onClose}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === 'Escape') {
+              onClose();
+            }
+          }}
+        >
+          Fechar
+        </button>
+      </div>
     </div>
   );
 }

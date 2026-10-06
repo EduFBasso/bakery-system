@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { clearAdminSession } from '../../../services/session';
 import styles from './AdminLayout.module.css';
 
 interface AdminLayoutProps {
@@ -20,10 +21,7 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children, activeTab, onTabChange, tenant }: AdminLayoutProps) {
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('bread_admin_token');
-    localStorage.removeItem('bread_admin_refresh');
-    localStorage.removeItem('bread_admin_role');
-    localStorage.removeItem('bread_admin_user');
+    clearAdminSession();
     // Usar window.location.replace para garantir que redireciona imediatamente
     // e evita requisições pendentes com token inválido
     window.location.replace('/admin');
@@ -67,16 +65,16 @@ export function AdminLayout({ children, activeTab, onTabChange, tenant }: AdminL
           👥 Clientes
         </button>
         <button
-          className={`${styles.navTab} ${activeTab === 'products' ? styles.active : ''}`}
-          onClick={() => onTabChange('products')}
-        >
-          📦 Produtos
-        </button>
-        <button
           className={`${styles.navTab} ${activeTab === 'orders' ? styles.active : ''}`}
           onClick={() => onTabChange('orders')}
         >
           📋 Pedidos
+        </button>
+        <button
+          className={`${styles.navTab} ${activeTab === 'products' ? styles.active : ''}`}
+          onClick={() => onTabChange('products')}
+        >
+          📦 Produtos
         </button>
         <button
           className={`${styles.navTab} ${activeTab === 'settings' ? styles.active : ''}`}

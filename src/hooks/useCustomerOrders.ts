@@ -23,6 +23,8 @@ export interface Order {
   updated_at?: string;
   total_value: string;
   delivery_date: string | null;
+  original_address_text?: string;
+  delivery_address_text?: string;
   notes: string | null;
   items: OrderItem[];
   order_items?: OrderItem[];

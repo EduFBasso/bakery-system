@@ -1,4 +1,4 @@
-import type { ChangeEvent, Ref } from 'react';
+import type { ChangeEvent, FocusEvent, InvalidEvent, Ref } from 'react';
 import styles from './Input.module.css';
 import { MaskType } from '../../../utils/maskPatterns';
 
@@ -8,6 +8,8 @@ interface InputProps {
   value?: string;
   defaultValue?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onInvalid?: (e: InvalidEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   required?: boolean;
   name?: string;
@@ -25,6 +27,8 @@ export function Input({
   value,
   defaultValue,
   onChange,
+  onFocus,
+  onInvalid,
   disabled = false,
   required = false,
   name,
@@ -44,6 +48,8 @@ export function Input({
       value={value}
       defaultValue={defaultValue}
       onChange={onChange}
+      onFocus={onFocus}
+      onInvalid={onInvalid}
       disabled={disabled}
       required={required}
       name={name}

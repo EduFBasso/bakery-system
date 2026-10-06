@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiUrl } from '../config/api';
+import { getAdminSessionToken } from '../services/session';
 
 export interface AdminOrder {
   id: number;
@@ -23,8 +24,17 @@ export interface AdminOrder {
   paid_at?: string | null;
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
-  items: any[];
-  order_items?: any[];
+  items: AdminOrderItem[];
+  order_items?: AdminOrderItem[];
+}
+
+export interface AdminOrderItem {
+  id?: number;
+  product_name: string;
+  product_description?: string;
+  quantity: number;
+  unit_price?: number | string;
+  subtotal?: number | string;
 }
 
 export interface AdminOrdersResponse {
@@ -73,7 +83,7 @@ export function useAdminOrders(filters?: {
       return;
     }
 
-    const adminToken = localStorage.getItem('bread_admin_token');
+    const adminToken = getAdminSessionToken();
 
     if (!adminToken) {
       setError('Token de admin não disponível');

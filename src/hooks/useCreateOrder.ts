@@ -32,7 +32,7 @@ export interface CreateOrderResponse {
   delivery_date: string;
   payment_method: string;
   total_value: string;
-  items: any[];
+  items: unknown[];
 }
 
 export function useCreateOrder() {
@@ -60,8 +60,15 @@ export function useCreateOrder() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        // DRF devolve erros de validação como { campo: mensagem | [mensagens] }.
+        const fieldError = Object.values(errorData)
+          .flat()
+          .find((value) => typeof value === 'string');
         const errorMessage =
-          errorData.detail || errorData.errors || `Erro ao criar pedido: ${response.status}`;
+          errorData.detail ||
+          errorData.errors ||
+          fieldError ||
+          `Erro ao criar pedido: ${response.status}`;
         throw new Error(
           typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage)
         );

@@ -5,14 +5,17 @@ import { PendingCustomerAction } from './PendingCustomerAction';
 
 const onClose = vi.fn();
 const onCustomerUpdated = vi.fn();
-const { buildAccessWhatsAppMessage, openWhatsAppMessage } = vi.hoisted(() => ({
+const { buildAccessWhatsAppMessage, navigateWhatsAppWindow, openWhatsAppPlaceholder } = vi.hoisted(
+  () => ({
   buildAccessWhatsAppMessage: vi.fn(() => 'mensagem de acesso'),
-  openWhatsAppMessage: vi.fn(),
+  navigateWhatsAppWindow: vi.fn(() => true),
+  openWhatsAppPlaceholder: vi.fn(() => ({ close: vi.fn(), closed: false })),
 }));
 
 vi.mock('../../../utils/whatsapp', () => ({
   buildAccessWhatsAppMessage,
-  openWhatsAppMessage,
+  navigateWhatsAppWindow,
+  openWhatsAppPlaceholder,
 }));
 
 const customer = { id: 12, nickname: 'Cliente Pendente', phone: '19999999999' };
@@ -55,7 +58,12 @@ describe('PendingCustomerAction', () => {
       );
     });
     expect((fetchSpy.mock.calls[0][1] as RequestInit).body).toContain('"credit_limit":"1500"');
-    expect(openWhatsAppMessage).toHaveBeenCalledTimes(1);
+    expect(openWhatsAppPlaceholder).toHaveBeenCalledTimes(1);
+    expect(navigateWhatsAppWindow).toHaveBeenCalledWith(
+      expect.anything(),
+      customer.phone,
+      'mensagem de acesso'
+    );
     expect(onCustomerUpdated).toHaveBeenCalledWith(
       '✅ Aprovação de Cliente Pendente efetivada com sucesso.'
     );
@@ -83,7 +91,7 @@ describe('PendingCustomerAction', () => {
         expect.objectContaining({ method: 'POST' })
       );
     });
-    expect(openWhatsAppMessage).not.toHaveBeenCalled();
+    expect(openWhatsAppPlaceholder).not.toHaveBeenCalled();
     expect(onCustomerUpdated).toHaveBeenCalledWith(
       '✅ Cadastro de Cliente Pendente descartado com sucesso.'
     );

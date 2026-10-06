@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveLocalTenantSlug } from './tenant';
+import { resolveLocalTenantSlug, resolveTenantSlugForHostname } from './tenant';
 
 describe('resolveLocalTenantSlug', () => {
   it('maps the legacy first bakery hostname to the configured tenant slug', () => {
@@ -12,5 +12,26 @@ describe('resolveLocalTenantSlug', () => {
 
   it('does not resolve non-local hostnames', () => {
     expect(resolveLocalTenantSlug('admin-panificadora.example.com')).toBeNull();
+  });
+});
+
+describe('resolveTenantSlugForHostname', () => {
+  it('uses the configured tenant for the fixed public host', () => {
+    expect(
+      resolveTenantSlugForHostname('panificadora.ebsis.com.br', {
+        tenantSlug: 'admin-panificadora',
+        publicHost: 'panificadora.ebsis.com.br',
+        rootDomain: 'ebsis.com.br',
+      }),
+    ).toBe('admin-panificadora');
+  });
+
+  it('resolves a subdomain when wildcard tenant hosting is configured', () => {
+    expect(
+      resolveTenantSlugForHostname('other.panificadora.ebsis.com.br', {
+        tenantSlug: 'admin-panificadora',
+        rootDomain: 'panificadora.ebsis.com.br',
+      }),
+    ).toBe('other');
   });
 });

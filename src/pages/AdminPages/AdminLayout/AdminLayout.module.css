@@ -1,5 +1,7 @@
 .container {
   min-height: 100vh;
+  min-width: 0;
+  overflow-x: hidden;
   background: linear-gradient(135deg, var(--color-admin-bg-start) 0%, var(--color-admin-bg-end) 100%);
 }
 
@@ -60,12 +62,17 @@
 
 .navTabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 2rem;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .navTab {
+  flex: 1 1 0;
+  min-width: 0;
   padding: 0.75rem 1.5rem;
   background: transparent;
   border: none;
@@ -88,11 +95,14 @@
 
 .main {
   max-width: 1200px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 420px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
@@ -113,5 +123,16 @@
 
   .main {
     padding: 1rem;
+  }
+
+  .navTabs {
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .navTab {
+    flex: 1 1 45%;
+    padding: 0.65rem 0.35rem;
+    font-size: 0.82rem;
   }
 }

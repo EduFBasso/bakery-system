@@ -27,132 +27,135 @@ export interface CustomerData {
   credit_limit?: string;
 }
 
+interface CustomerSession {
+  token: string;
+  customer: CustomerData;
+}
+
+let customerBootstrapPromise: Promise<CustomerSession | null> | null = null;
+let cachedCustomerSession: CustomerSession | null = null;
+
+const parseCurrentCustomer = (payload: unknown): CustomerData | null => {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  const maybePaginated = payload as { results?: unknown };
+  if (Array.isArray(maybePaginated.results)) {
+    return (maybePaginated.results[0] as CustomerData) ?? null;
+  }
+
+  if (Array.isArray(payload)) {
+    return (payload[0] as CustomerData) ?? null;
+  }
+
+  return payload as CustomerData;
+};
+
+const getTokenUserId = (token: string): number | null => {
+  try {
+    const encodedPayload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = encodedPayload.padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
+    const payload = JSON.parse(atob(paddedPayload));
+    return Number(payload.user_id ?? payload.sub) || null;
+  } catch {
+    return null;
+  }
+};
+
+const matchesTokenCustomer = (token: string, customerData: CustomerData | null) => {
+  const tokenUserId = getTokenUserId(token);
+  return Boolean(customerData && tokenUserId && customerData.user === tokenUserId);
+};
+
+const clearCustomerSession = () => {
+  cachedCustomerSession = null;
+  customerBootstrapPromise = null;
+  localStorage.removeItem('bread_customer_token');
+  localStorage.removeItem('bread_customer_refresh');
+  localStorage.removeItem('bread_customer_user');
+};
+
+const bootstrapCustomerSession = async (): Promise<CustomerSession | null> => {
+  const storedToken = localStorage.getItem('bread_customer_token');
+  const storedCustomer = localStorage.getItem('bread_customer_user');
+
+  if (!storedToken) {
+    if (storedCustomer) {
+      clearCustomerSession();
+    }
+    return null;
+  }
+
+  try {
+    const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${storedToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      clearCustomerSession();
+      return null;
+    }
+
+    const payload = await response.json();
+    const customer = parseCurrentCustomer(payload);
+    if (!matchesTokenCustomer(storedToken, customer)) {
+      clearCustomerSession();
+      return null;
+    }
+
+    localStorage.setItem('bread_customer_user', JSON.stringify(customer));
+    return customer ? { token: storedToken, customer } : null;
+  } catch (err) {
+    console.error('Erro ao carregar dados do cliente:', err);
+    clearCustomerSession();
+    return null;
+  }
+};
+
+const loadCustomerSession = (forceRefresh = false) => {
+  const storedToken = localStorage.getItem('bread_customer_token');
+  if (!forceRefresh && cachedCustomerSession?.token === storedToken) {
+    return Promise.resolve(cachedCustomerSession);
+  }
+
+  if (customerBootstrapPromise) {
+    return customerBootstrapPromise;
+  }
+
+  customerBootstrapPromise = bootstrapCustomerSession()
+    .then((session) => {
+      cachedCustomerSession = session;
+      return session;
+    })
+    .finally(() => {
+      customerBootstrapPromise = null;
+    });
+
+  return customerBootstrapPromise;
+};
+
 export function useCustomerAuth() {
   const [customer, setCustomer] = useState<CustomerData | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const parseCurrentCustomer = (payload: unknown): CustomerData | null => {
-    if (!payload || typeof payload !== 'object') {
-      return null;
-    }
-
-    const maybePaginated = payload as { results?: unknown };
-    if (Array.isArray(maybePaginated.results)) {
-      return (maybePaginated.results[0] as CustomerData) ?? null;
-    }
-
-    if (Array.isArray(payload)) {
-      return (payload[0] as CustomerData) ?? null;
-    }
-
-    return payload as CustomerData;
-  };
-
-  const getTokenUserId = (token: string): number | null => {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      return Number(payload.user_id ?? payload.sub) || null;
-    } catch {
-      return null;
-    }
-  };
-
-  const matchesTokenCustomer = (token: string, customerData: CustomerData | null) => {
-    const tokenUserId = getTokenUserId(token);
-    return Boolean(customerData && tokenUserId && customerData.user === tokenUserId);
-  };
-
   useEffect(() => {
-    // Carregar dados do localStorage
-    const storedToken = localStorage.getItem('bread_customer_token');
-    const storedCustomer = localStorage.getItem('bread_customer_user');
-
-    const bootstrapCustomerSession = async () => {
-      // Sessão válida completa no storage
-      if (storedToken && storedCustomer) {
-        try {
-          setToken(storedToken);
-          setCustomer(JSON.parse(storedCustomer));
-
-          // Sincroniza com backend para evitar dados financeiros defasados.
-          const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${storedToken}`,
-            },
-          });
-
-          if (response.ok) {
-            const payload = await response.json();
-            const freshCustomerData = parseCurrentCustomer(payload);
-            if (matchesTokenCustomer(storedToken, freshCustomerData)) {
-              localStorage.setItem('bread_customer_user', JSON.stringify(freshCustomerData));
-              setCustomer(freshCustomerData);
-            } else {
-              logout();
-            }
-          }
-
-          setIsLoading(false);
-          return;
-        } catch (err) {
-          console.error('Erro ao carregar dados do cliente:', err);
-          logout();
-          setIsLoading(false);
-          return;
-        }
+    void loadCustomerSession(refreshKey > 0).then((session) => {
+      if (session) {
+        setToken(session.token);
+        setCustomer(session.customer);
+      } else {
+        setToken(null);
+        setCustomer(null);
       }
-
-      // Token sem customer no storage: tenta reconstruir sessão via /me
-      if (storedToken && !storedCustomer) {
-        try {
-          const response = await fetch(apiUrl('/api/v1/bakery/customers/'), {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${storedToken}`,
-            },
-          });
-
-          if (!response.ok) {
-            logout();
-            setIsLoading(false);
-            return;
-          }
-
-          const payload = await response.json();
-          const customerData = parseCurrentCustomer(payload);
-          if (!matchesTokenCustomer(storedToken, customerData)) {
-            logout();
-            setIsLoading(false);
-            return;
-          }
-          localStorage.setItem('bread_customer_user', JSON.stringify(customerData));
-          setToken(storedToken);
-          setCustomer(customerData);
-          setIsLoading(false);
-          return;
-        } catch (err) {
-          console.error('Erro ao reconstruir sessão do cliente:', err);
-          logout();
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // Sem sessão válida
-      if (!storedToken && storedCustomer) {
-        // Evita estado inconsistente de customer sem token
-        logout();
-      }
-
       setIsLoading(false);
-    };
-
-    void bootstrapCustomerSession();
+    });
   }, [refreshKey]);
 
   useEffect(() => {
@@ -173,9 +176,7 @@ export function useCustomerAuth() {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('bread_customer_token');
-    localStorage.removeItem('bread_customer_refresh');
-    localStorage.removeItem('bread_customer_user');
+    clearCustomerSession();
     setCustomer(null);
     setToken(null);
   }, []);

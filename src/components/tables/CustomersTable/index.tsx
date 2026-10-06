@@ -1,7 +1,14 @@
 import styles from '../Table.module.css';
 
+interface CustomerTableRow {
+  id: number;
+  nickname: string;
+  customer_type: string;
+  phone: string;
+}
+
 interface CustomersTableProps {
-  data: any[];
+  data: CustomerTableRow[];
   onRowClick?: (id: number) => void;
 }
 

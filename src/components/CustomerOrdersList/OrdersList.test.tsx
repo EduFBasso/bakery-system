@@ -149,6 +149,28 @@ describe('OrdersList', () => {
     expect(secondTitle).toContain('Pedido nº ORD-001 - 12/07/2026');
   });
 
+  it('exibe somente o endereço alternativo registrado no pedido', () => {
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [
+        makeOrder({
+          delivery_address_text: 'Rua B, 20, fundos',
+          notes: 'Entregar na portaria.',
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<OrdersList />);
+
+    expect(screen.getByText('Endereço de entrega:')).toBeInTheDocument();
+    expect(screen.getByText('Endereço de entrega:').parentElement).toHaveTextContent(
+      'Rua B, 20, fundos'
+    );
+    expect(screen.getByText('Notas:').parentElement).toHaveTextContent('Entregar na portaria.');
+  });
+
   it('mostra erro quando o hook retorna falha', () => {
     mockedUseCustomerOrders.mockReturnValue({
       orders: [],
