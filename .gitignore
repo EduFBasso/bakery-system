@@ -17,6 +17,7 @@ notes/
 .env.local
 .env.*.local
 *.local
+notes/
 
 # Editor e Sistema Operacional
 .vscode/*
