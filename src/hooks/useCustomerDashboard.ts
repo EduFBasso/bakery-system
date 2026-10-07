@@ -10,7 +10,7 @@ export interface CustomerDashboardData {
   totalSpent: number;
 }
 
-export function useCustomerDashboard() {
+export function useCustomerDashboard(enabled = true) {
   const { customer, token, isAuthenticated } = useCustomerAuth();
   const [data, setData] = useState<CustomerDashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export function useCustomerDashboard() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated || !token || !customer) {
+    if (!enabled || !isAuthenticated || !token || !customer) {
       setData(null);
       return;
     }
@@ -49,7 +49,7 @@ export function useCustomerDashboard() {
       setError(message);
       console.error('Dashboard data fetch error:', err);
     }
-  }, [isAuthenticated, token, customer]);
+  }, [enabled, isAuthenticated, token, customer]);
 
   return {
     data,

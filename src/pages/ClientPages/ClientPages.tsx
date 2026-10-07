@@ -100,7 +100,7 @@ export function ClientPages() {
           isOpen={openSection === 'financial'}
           onToggle={() => toggleSection('financial')}
         >
-          <BalanceCard showHeader={false} />
+        <BalanceCard showHeader={false} enabled={openSection === 'financial'} />
         </SmartSection>
 
         <SmartSection
@@ -108,7 +108,7 @@ export function ClientPages() {
           isOpen={openSection === 'orders'}
           onToggle={() => toggleSection('orders')}
         >
-          <OrdersList />
+        <OrdersList enabled={openSection === 'orders'} />
         </SmartSection>
 
         <SmartSection
@@ -116,7 +116,7 @@ export function ClientPages() {
           isOpen={openSection === 'payments'}
           onToggle={() => toggleSection('payments')}
         >
-          <TransactionHistory />
+        <TransactionHistory enabled={openSection === 'payments'} />
         </SmartSection>
 
         <div className={styles.newOrderButton}>

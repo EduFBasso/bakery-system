@@ -4,10 +4,11 @@ import styles from './BalanceCard.module.css';
 
 interface BalanceCardProps {
   showHeader?: boolean;
+  enabled?: boolean;
 }
 
-export function BalanceCard({ showHeader = true }: BalanceCardProps) {
-  const { data } = useCustomerDashboard();
+export function BalanceCard({ showHeader = true, enabled = true }: BalanceCardProps) {
+  const { data } = useCustomerDashboard(enabled);
 
   if (!data) {
     return null;

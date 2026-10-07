@@ -2,8 +2,12 @@ import { useCustomerOrders } from '../../hooks/useCustomerOrders';
 import { formatCurrency } from '../../utils/formatCurrency';
 import styles from './CustomerTransactionHistory.module.css';
 
-export function TransactionHistory() {
-  const { orders, loading, error } = useCustomerOrders();
+interface TransactionHistoryProps {
+  enabled?: boolean;
+}
+
+export function TransactionHistory({ enabled = true }: TransactionHistoryProps) {
+  const { orders, loading, error } = useCustomerOrders(enabled);
 
   const paidOrders = orders
     .filter((order) => order.status === 'CONFIRMED' || order.status === 'DELIVERED')
@@ -22,7 +26,7 @@ export function TransactionHistory() {
 
   const latestPayment = paidOrders[0];
 
-  if (loading) {
+  if (loading && orders.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.skeleton} />
@@ -30,7 +34,7 @@ export function TransactionHistory() {
     );
   }
 
-  if (error) {
+  if (error && orders.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>
@@ -93,6 +97,7 @@ export function TransactionHistory() {
           </div>
         </div>
       )}
+      {error && <div className={styles.errorMessage}>{error}</div>}
     </div>
   );
 }
