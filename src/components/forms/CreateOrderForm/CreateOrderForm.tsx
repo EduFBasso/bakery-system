@@ -350,7 +350,10 @@ export function CreateOrderForm() {
       setNotes('');
       setOpenSection('products');
       window.dispatchEvent(new Event('bakery:customer-data-changed'));
-      navigate('/customer/dashboard', { replace: true });
+      navigate('/customer/dashboard', {
+        replace: true,
+        state: { openSection: 'orders' },
+      });
     }
   };
 

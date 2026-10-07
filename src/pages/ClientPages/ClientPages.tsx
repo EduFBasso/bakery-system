@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../hooks';
 import { BalanceCard } from '../../components/BalanceCard/BalanceCard';
 import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersList';
@@ -11,9 +11,23 @@ import styles from './ClientPages.module.css';
 
 export function ClientPages() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { customer, token, isLoading, logout } = useCustomerAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [tenantName, setTenantName] = useState('Panificadora');
+
+  useEffect(() => {
+    const routeState =
+      location.state && typeof location.state === 'object'
+        ? (location.state as { openSection?: string })
+        : null;
+    if (routeState?.openSection !== 'orders') {
+      return;
+    }
+
+    setOpenSection('orders');
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     ApiService.getTenantIdentity()
