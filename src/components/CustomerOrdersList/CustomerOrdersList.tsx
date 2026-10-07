@@ -167,6 +167,11 @@ export function OrdersList() {
                   </div>
                 );
               })()}
+            {order.status === 'CANCELLED' && order.cancellation_reason?.trim() && (
+              <div className={styles.deliveryAddress}>
+                <strong>Motivo do cancelamento:</strong> {order.cancellation_reason.trim()}
+              </div>
+            )}
             {order.status === 'PENDING' && (
               <div className={styles.cardFooter}>
                 <button

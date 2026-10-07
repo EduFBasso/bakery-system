@@ -197,7 +197,7 @@ describe('CreateOrderForm security rules', () => {
     });
   });
 
-  it('envia payload seguro e prepara a tela para outro pedido após sucesso', async () => {
+  it('envia payload seguro e retorna ao dashboard após sucesso', async () => {
     createOrderMock.mockResolvedValue({ order_number: 'ORD-999' });
 
     render(<CreateOrderForm />);
@@ -233,6 +233,6 @@ describe('CreateOrderForm security rules', () => {
     expect(screen.getByRole('status')).not.toHaveTextContent('Total');
     expect(screen.getByRole('heading', { name: 'Carrinho (0 itens)' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Criar Pedido' })).toBeDisabled();
-    expect(navigateMock).not.toHaveBeenCalled();
+    expect(navigateMock).toHaveBeenCalledWith('/customer/dashboard', { replace: true });
   });
 });

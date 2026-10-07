@@ -20,6 +20,8 @@ export interface Order {
   order_date: string;
   created_at?: string;
   paid_at?: string | null;
+  cancelled_at?: string | null;
+  cancellation_reason?: string | null;
   updated_at?: string;
   total_value: string;
   delivery_date: string | null;

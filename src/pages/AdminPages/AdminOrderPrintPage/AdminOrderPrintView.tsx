@@ -29,6 +29,7 @@ export interface PrintableOrder {
   status?: string;
   paid_at?: string | null;
   cancelled_at?: string | null;
+  cancellation_reason?: string | null;
   notes?: string;
   order_items?: PrintableOrderItem[];
   items?: PrintableOrderItem[];
@@ -235,6 +236,11 @@ export function AdminOrderPrintView({
 
             {isLastPage && (
               <section className={`${styles.section} ${styles.addressSection}`}>
+                {isCancelled && order.cancellation_reason?.trim() && (
+                  <p className={styles.deliveryNotes}>
+                    Motivo do cancelamento: {order.cancellation_reason.trim()}
+                  </p>
+                )}
                 <p className={styles.deliveryAddress}>
                   Endereço: {originalAddress || deliveryAddress}
                 </p>

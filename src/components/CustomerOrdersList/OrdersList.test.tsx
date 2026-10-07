@@ -84,6 +84,26 @@ describe('OrdersList', () => {
     expect(screen.getByText('✕ Cancelado')).toBeInTheDocument();
   });
 
+  it('mostra o motivo do cancelamento no histórico do cliente', () => {
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [
+        makeOrder({
+          status: 'CANCELLED',
+          cancellation_reason: 'Pedido duplicado',
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<OrdersList />);
+
+    expect(screen.getByText('Motivo do cancelamento:').parentElement).toHaveTextContent(
+      'Motivo do cancelamento: Pedido duplicado'
+    );
+  });
+
   it('lista todos os itens e suas descricoes sem resumo adicional', () => {
     mockedUseCustomerOrders.mockReturnValue({
       orders: [
