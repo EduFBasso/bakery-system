@@ -102,6 +102,11 @@
   border-radius: 8px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  min-height: 16rem;
+  transition: opacity 0.15s ease;
+}
+.tableSectionLoading {
+  opacity: 0.72;
 }
 .tableSection h2 {
   margin-top: 0;

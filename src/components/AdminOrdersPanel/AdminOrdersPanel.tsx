@@ -98,12 +98,8 @@ export function AdminOrdersPanel({
     }
   };
 
-  if (loading && orders.length === 0) {
-    return <div className={styles.loading}>Carregando pedidos...</div>;
-  }
-
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${loading ? styles.isLoading : ''}`} aria-busy={loading}>
       <div className={styles.filters}>
         <div className={styles.statusTabs} role="group" aria-label="Filtrar por pagamento">
           {PAYMENT_FILTERS.map((filter) => (
@@ -183,12 +179,8 @@ export function AdminOrdersPanel({
       <section className={styles.tableSection}>
         <h2>Gerenciamento de Pedidos</h2>
 
-        {orders.length === 0 ? (
-          <p className={styles.emptyState}>Nenhum pedido encontrado.</p>
-        ) : (
-          <>
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
                 <thead>
                   <tr>
                     <th>Pedido</th>
@@ -200,7 +192,19 @@ export function AdminOrdersPanel({
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {loading && orders.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className={styles.emptyState}>
+                        Carregando pedidos...
+                      </td>
+                    </tr>
+                  ) : orders.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className={styles.emptyState}>
+                        Nenhum pedido encontrado.
+                      </td>
+                    </tr>
+                  ) : orders.map((order) => (
                     <React.Fragment key={order.id}>
                       <tr className={styles.orderRow}>
                         <td className={styles.orderNumber}>{order.order_number}</td>
@@ -260,9 +264,10 @@ export function AdminOrdersPanel({
                   ))}
                 </tbody>
               </table>
-            </div>
+        </div>
 
-            <div className={styles.pagination}>
+        {orders.length > 0 && (
+          <div className={styles.pagination}>
               <button
                 disabled={!pagination.previous}
                 onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
@@ -278,8 +283,7 @@ export function AdminOrdersPanel({
               >
                 Próxima →
               </button>
-            </div>
-          </>
+          </div>
         )}
       </section>
 

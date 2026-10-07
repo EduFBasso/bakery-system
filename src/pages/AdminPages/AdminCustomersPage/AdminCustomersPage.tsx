@@ -234,7 +234,10 @@ export function AdminCustomersPage({
       </div>
 
       {/* Table Section */}
-      <section className={styles.tableSection}>
+      <section
+        className={`${styles.tableSection} ${loading ? styles.tableSectionLoading : ''}`}
+        aria-busy={loading}
+      >
         <h2>
           {activeSubTab === 'pending'
             ? 'Clientes Pendentes de Aprovação'
@@ -245,21 +248,8 @@ export function AdminCustomersPage({
                 : 'Clientes Ativos'}
         </h2>
 
-        {loading && <p className={styles.emptyState}>Carregando clientes...</p>}
-
-        {!loading && displayedCustomers.length === 0 ? (
-          <p className={styles.emptyState}>
-            {activeSubTab === 'pending'
-              ? 'Nenhum cliente pendente!'
-              : activeSubTab === 'blocked'
-                ? 'Nenhum cliente bloqueado!'
-                : activeSubTab === 'all'
-                  ? 'Nenhum cliente encontrado!'
-                  : 'Nenhum cliente ativo!'}
-          </p>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
               <thead>
                 <tr>
                   <th>CLIENTE</th>
@@ -291,7 +281,25 @@ export function AdminCustomersPage({
                 </tr>
               </thead>
               <tbody>
-                {displayedCustomers.map((customer) => (
+                {loading && displayedCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className={styles.emptyState}>
+                      Carregando clientes...
+                    </td>
+                  </tr>
+                ) : !loading && displayedCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className={styles.emptyState}>
+                      {activeSubTab === 'pending'
+                        ? 'Nenhum cliente pendente!'
+                        : activeSubTab === 'blocked'
+                          ? 'Nenhum cliente bloqueado!'
+                          : activeSubTab === 'all'
+                            ? 'Nenhum cliente encontrado!'
+                            : 'Nenhum cliente ativo!'}
+                    </td>
+                  </tr>
+                ) : displayedCustomers.map((customer) => (
                   <tr key={customer.id}>
                     <td>
                       <strong>{customer.nickname}</strong>
@@ -415,8 +423,7 @@ export function AdminCustomersPage({
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
+        </div>
       </section>
 
       {pendingCustomerAction && (
