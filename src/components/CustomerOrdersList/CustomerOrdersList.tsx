@@ -5,18 +5,22 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { splitDeliverySnapshot } from '../../utils/deliveryAddress';
 import styles from './CustomerOrdersList.module.css';
 
-export function OrdersList() {
+interface OrdersListProps {
+  enabled?: boolean;
+}
+
+export function OrdersList({ enabled = true }: OrdersListProps) {
   const [cancellationOrderId, setCancellationOrderId] = useState<number | null>(null);
   const [cancellationReason, setCancellationReason] = useState('');
   const [cancellationPassword, setCancellationPassword] = useState('');
   const [cancellationValidationError, setCancellationValidationError] = useState('');
-  const { orders, loading, error, refetch } = useCustomerOrders();
+  const { orders, loading, error, refetch } = useCustomerOrders(enabled);
   const { cancelCustomerOrder, loading: cancelLoading, error: cancelError } = useCancelOrder();
   const sortedOrders = [...orders].sort(
     (a, b) => new Date(a.order_date).getTime() - new Date(b.order_date).getTime()
   );
 
-  if (loading) {
+  if (loading && orders.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.skeleton} />
@@ -24,7 +28,7 @@ export function OrdersList() {
     );
   }
 
-  if (error) {
+  if (error && orders.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>
@@ -167,6 +171,11 @@ export function OrdersList() {
                   </div>
                 );
               })()}
+            {order.status === 'CANCELLED' && order.cancellation_reason?.trim() && (
+              <div className={styles.deliveryAddress}>
+                <strong>Motivo do cancelamento:</strong> {order.cancellation_reason.trim()}
+              </div>
+            )}
             {order.status === 'PENDING' && (
               <div className={styles.cardFooter}>
                 <button
@@ -182,6 +191,7 @@ export function OrdersList() {
           </div>
         ))}
       </div>
+      {error && <div className={styles.errorMessage}>{error}</div>}
       {cancelError && <div className={styles.errorMessage}>{cancelError}</div>}
       {cancellationOrderId !== null && (
         <div className={styles.dialogOverlay} role="presentation">

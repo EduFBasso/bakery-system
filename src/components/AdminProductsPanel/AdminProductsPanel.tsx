@@ -88,12 +88,8 @@ export function AdminProductsPanel({ onRefresh }: ProductsPanelProps) {
     setFormData({ name: '', description: '', price: '', is_active: true });
   };
 
-  if (loading && products.length === 0) {
-    return <div className={styles.loading}>Carregando produtos...</div>;
-  }
-
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${loading ? styles.isLoading : ''}`} aria-busy={loading}>
       {/* Header com botão de criar */}
       <div className={styles.header}>
         <h2>📦 Gerenciamento de Produtos</h2>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../hooks';
 import { BalanceCard } from '../../components/BalanceCard/BalanceCard';
 import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersList';
@@ -11,9 +11,23 @@ import styles from './ClientPages.module.css';
 
 export function ClientPages() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { customer, token, isLoading, logout } = useCustomerAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [tenantName, setTenantName] = useState('Panificadora');
+
+  useEffect(() => {
+    const routeState =
+      location.state && typeof location.state === 'object'
+        ? (location.state as { openSection?: string })
+        : null;
+    if (routeState?.openSection !== 'orders') {
+      return;
+    }
+
+    setOpenSection('orders');
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     ApiService.getTenantIdentity()
@@ -100,7 +114,7 @@ export function ClientPages() {
           isOpen={openSection === 'financial'}
           onToggle={() => toggleSection('financial')}
         >
-          <BalanceCard showHeader={false} />
+        <BalanceCard showHeader={false} enabled={openSection === 'financial'} />
         </SmartSection>
 
         <SmartSection
@@ -108,7 +122,7 @@ export function ClientPages() {
           isOpen={openSection === 'orders'}
           onToggle={() => toggleSection('orders')}
         >
-          <OrdersList />
+        <OrdersList enabled={openSection === 'orders'} />
         </SmartSection>
 
         <SmartSection
@@ -116,7 +130,7 @@ export function ClientPages() {
           isOpen={openSection === 'payments'}
           onToggle={() => toggleSection('payments')}
         >
-          <TransactionHistory />
+        <TransactionHistory enabled={openSection === 'payments'} />
         </SmartSection>
 
         <div className={styles.newOrderButton}>

@@ -20,6 +20,8 @@ export interface Order {
   order_date: string;
   created_at?: string;
   paid_at?: string | null;
+  cancelled_at?: string | null;
+  cancellation_reason?: string | null;
   updated_at?: string;
   total_value: string;
   delivery_date: string | null;
@@ -30,7 +32,7 @@ export interface Order {
   order_items?: OrderItem[];
 }
 
-export function useCustomerOrders() {
+export function useCustomerOrders(enabled = true) {
   const { token, isAuthenticated } = useCustomerAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export function useCustomerOrders() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (!isAuthenticated || !token) {
+    if (!enabled || !isAuthenticated || !token) {
       setLoading(false);
       return;
     }
@@ -82,7 +84,7 @@ export function useCustomerOrders() {
     };
 
     fetchOrders();
-  }, [token, isAuthenticated, refreshKey]);
+  }, [enabled, token, isAuthenticated, refreshKey]);
 
   useEffect(() => {
     const refreshOrders = () => setRefreshKey((value) => value + 1);

@@ -136,7 +136,12 @@ describe('AdminOrderPrintView', () => {
   it('exibe a data de cancelamento e o status', () => {
     render(
       <AdminOrderPrintView
-        order={{ ...order, status: 'CANCELLED', cancelled_at: '2026-09-14T10:00:00Z' }}
+        order={{
+          ...order,
+          status: 'CANCELLED',
+          cancelled_at: '2026-09-14T10:00:00Z',
+          cancellation_reason: 'Pedido duplicado',
+        }}
         customer={{ nickname: 'Carlos' }}
         companyName="Panificadora Boa Esperança"
         companyAddress="Rua Armando Martins, 123"
@@ -147,6 +152,7 @@ describe('AdminOrderPrintView', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pedido');
     expect(screen.getByText('Cancelado em')).toHaveClass(styles.cancelledStatus);
     expect(screen.getByText('14/09/2026')).toHaveClass(styles.statusDate);
+    expect(screen.getByText('Motivo do cancelamento: Pedido duplicado')).toBeInTheDocument();
   });
 
   it('exibe endereco de entrega sublinhado quando diverge do original', () => {
