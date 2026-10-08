@@ -352,7 +352,13 @@ export function CreateOrderForm() {
       window.dispatchEvent(new Event('bakery:customer-data-changed'));
       navigate('/customer/dashboard', {
         replace: true,
-        state: { openSection: 'orders' },
+        state: {
+          openSection: 'orders',
+          orderConfirmation: {
+            title: `Pedido #${result.order_number} criado com sucesso.`,
+            message: 'Pedido confirmado.',
+          },
+        },
       });
     }
   };
