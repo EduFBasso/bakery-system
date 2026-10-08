@@ -34,7 +34,7 @@ export function TransactionHistory({ enabled = true }: TransactionHistoryProps) 
     );
   }
 
-  if (error && orders.length === 0) {
+  if (error && paidOrders.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.errorMessage}>{error}</div>

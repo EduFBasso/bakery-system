@@ -6,6 +6,7 @@ import { OrdersList } from '../../components/CustomerOrdersList/CustomerOrdersLi
 import { TransactionHistory } from '../../components/CustomerTransactionHistory/CustomerTransactionHistory';
 import { SmartSection } from '../../components/SmartSection/SmartSection';
 import { CustomerProfileEditor } from '../../components/CustomerProfileEditor/CustomerProfileEditor';
+import { SystemMessageToast } from '../../components/ui/SystemMessageToast/SystemMessageToast';
 import { ApiService } from '../../services/api';
 import styles from './ClientPages.module.css';
 
@@ -15,17 +16,34 @@ export function ClientPages() {
   const { customer, token, isLoading, logout } = useCustomerAuth();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [tenantName, setTenantName] = useState('Panificadora');
+  const [toastMessage, setToastMessage] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const routeState =
       location.state && typeof location.state === 'object'
-        ? (location.state as { openSection?: string })
+        ? (location.state as {
+            openSection?: string;
+            orderConfirmation?: { title?: string; message?: string };
+          })
         : null;
-    if (routeState?.openSection !== 'orders') {
+    if (!routeState) {
       return;
     }
 
-    setOpenSection('orders');
+    if (routeState.openSection === 'orders') {
+      setOpenSection('orders');
+    }
+
+    if (routeState.orderConfirmation?.title && routeState.orderConfirmation.message) {
+      setToastMessage({
+        title: routeState.orderConfirmation.title,
+        message: routeState.orderConfirmation.message,
+      });
+    }
+
     navigate(location.pathname, { replace: true, state: null });
   }, [location.pathname, location.state, navigate]);
 
@@ -99,6 +117,15 @@ export function ClientPages() {
       </header>
 
       <main className={styles.main}>
+        {toastMessage && (
+          <SystemMessageToast
+            open={true}
+            title={toastMessage.title}
+            message={toastMessage.message}
+            onClose={() => setToastMessage(null)}
+          />
+        )}
+
         {token && (
           <SmartSection
             title="Meus dados"

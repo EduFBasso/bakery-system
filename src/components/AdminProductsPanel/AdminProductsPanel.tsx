@@ -190,7 +190,9 @@ export function AdminProductsPanel({ onRefresh }: ProductsPanelProps) {
 
       {/* Lista de Produtos */}
       <div className={styles.productsList}>
-        {products.length === 0 ? (
+        {loading && products.length === 0 ? (
+          <p className={styles.emptyState}>Carregando produtos...</p>
+        ) : products.length === 0 ? (
           <p className={styles.emptyState}>Nenhum produto cadastrado</p>
         ) : (
           <div className={styles.grid}>

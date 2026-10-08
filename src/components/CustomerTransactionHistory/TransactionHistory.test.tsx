@@ -123,4 +123,18 @@ describe('TransactionHistory', () => {
 
     expect(screen.getByText('Falha ao carregar')).toBeInTheDocument();
   });
+
+  it('mantem o erro visivel quando nao ha pagamentos confirmados', () => {
+    mockedUseCustomerOrders.mockReturnValue({
+      orders: [makeOrder({ status: 'PENDING' })],
+      loading: false,
+      error: 'Falha ao atualizar pedidos',
+      refetch: refetchMock,
+    });
+
+    render(<TransactionHistory />);
+
+    expect(screen.getByText('Falha ao atualizar pedidos')).toBeInTheDocument();
+    expect(screen.queryByText('Nenhum pagamento confirmado ainda')).not.toBeInTheDocument();
+  });
 });

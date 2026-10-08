@@ -235,7 +235,13 @@ describe('CreateOrderForm security rules', () => {
     expect(screen.getByRole('button', { name: 'Criar Pedido' })).toBeDisabled();
     expect(navigateMock).toHaveBeenCalledWith('/customer/dashboard', {
       replace: true,
-      state: { openSection: 'orders' },
+      state: {
+        openSection: 'orders',
+        orderConfirmation: {
+          title: 'Pedido #ORD-999 criado com sucesso.',
+          message: 'Pedido confirmado.',
+        },
+      },
     });
   });
 });
