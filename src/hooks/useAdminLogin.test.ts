@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAdminLogin } from './useAdminLogin';
 
-const tenant = { slug: 'admin-panificadora', trade_name: 'Panificadora' };
+const tenant = { slug: 'panificadora', trade_name: 'Panificadora' };
 const professional = { id: 4, email: 'dono@email.com' };
 
 function mockLoginResponse(body: Record<string, unknown>) {

@@ -3,7 +3,7 @@ import { resolveLocalTenantSlug, resolveTenantSlugForHostname } from './tenant';
 
 describe('resolveLocalTenantSlug', () => {
   it('maps the legacy first bakery hostname to the configured tenant slug', () => {
-    expect(resolveLocalTenantSlug('admin1-panificadora1.localhost')).toBe('admin-panificadora');
+    expect(resolveLocalTenantSlug('admin1-panificadora1.localhost')).toBe('panificadora');
   });
 
   it('keeps registered local tenant slugs unchanged', () => {
@@ -19,17 +19,17 @@ describe('resolveTenantSlugForHostname', () => {
   it('uses the configured tenant for the fixed public host', () => {
     expect(
       resolveTenantSlugForHostname('panificadora.ebsis.com.br', {
-        tenantSlug: 'admin-panificadora',
+        tenantSlug: 'panificadora',
         publicHost: 'panificadora.ebsis.com.br',
         rootDomain: 'ebsis.com.br',
       }),
-    ).toBe('admin-panificadora');
+    ).toBe('panificadora');
   });
 
   it('resolves a subdomain when wildcard tenant hosting is configured', () => {
     expect(
       resolveTenantSlugForHostname('other.panificadora.ebsis.com.br', {
-        tenantSlug: 'admin-panificadora',
+        tenantSlug: 'panificadora',
         rootDomain: 'panificadora.ebsis.com.br',
       }),
     ).toBe('other');
