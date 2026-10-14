@@ -1,6 +1,6 @@
-const DEFAULT_TENANT_SLUG = 'admin-panificadora';
+const DEFAULT_TENANT_SLUG = 'panificadora';
 const LOCAL_TENANT_ALIASES: Record<string, string> = {
-  'admin1-panificadora1': 'admin-panificadora',
+  'admin1-panificadora1': 'panificadora',
 };
 
 type TenantConfig = {
@@ -25,7 +25,7 @@ export function resolveTenantSlugForHostname(
   const configuredFallback = config.tenantSlug || DEFAULT_TENANT_SLUG;
 
   // Desenvolvimento local:
-  // admin-panificadora.localhost
+  // panificadora.localhost
   const localTenantSlug = resolveLocalTenantSlug(hostname);
   if (localTenantSlug) {
     return localTenantSlug;

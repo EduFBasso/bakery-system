@@ -5,7 +5,7 @@ This document records the current HTTP consumers of `frontend-bakery`. It is a r
 ## HTTP Configuration And Sessions
 
 - Base URL: `VITE_API_BASE`, normalized by `src/config/api.ts` and consumed through `apiUrl()`.
-- Tenant resolution: `src/config/tenant.ts` derives the slug from local host aliases, configured public host, or subdomain; it falls back to `admin-panificadora`.
+- Tenant resolution: `src/config/tenant.ts` derives the slug from local host aliases, configured public host, or subdomain; it falls back to `panificadora`.
 - HTTP transport: native `fetch`; no axios client is used.
 - Admin session keys: `bread_admin_token`, `bread_admin_refresh`, and `bread_admin_user`.
 - Customer session keys: `bread_customer_token`, `bread_customer_refresh`, and `bread_customer_user`.

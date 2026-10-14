@@ -31,13 +31,13 @@ npm run dev
 ```
 
 Com o backend local em `http://127.0.0.1:8000`, use o host do tenant para
-preservar o slug `admin-panificadora`:
+preservar o slug `panificadora`, alinhado ao tenant usado no ambiente online:
 
-- Entrada do cliente: `http://admin-panificadora.localhost:5174/`
-- Cliente existente: `http://admin-panificadora.localhost:5174/login`
-- Novo cliente: `http://admin-panificadora.localhost:5174/register`
-- Login administrativo: `http://admin-panificadora.localhost:5174/admin`
-- Dashboard do cliente após o login: `http://admin-panificadora.localhost:5174/customer/dashboard`
+- Entrada do cliente: `http://panificadora.localhost:5174/`
+- Cliente existente: `http://panificadora.localhost:5174/login`
+- Novo cliente: `http://panificadora.localhost:5174/register`
+- Login administrativo: `http://panificadora.localhost:5174/admin`
+- Dashboard do cliente após o login: `http://panificadora.localhost:5174/customer/dashboard`
 
 ## URLs remotas
 
